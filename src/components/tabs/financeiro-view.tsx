@@ -93,6 +93,10 @@ export function FinanceiroView() {
   const [payMethod, setPayMethod] = useState("Pix");
   const [payResponsible, setPayResponsible] = useState("");
 
+  // Delete dialog state
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null);
+
   const loadData = async () => {
     setLoading(true);
     try {
@@ -156,10 +160,17 @@ export function FinanceiroView() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir esta transação?")) return;
+  const handleDeleteClick = (tx: Transaction) => {
+    setDeleteTarget(tx);
+    setIsDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await deleteFinancialTransaction(id);
+      await deleteFinancialTransaction(deleteTarget.id);
+      setIsDeleteOpen(false);
+      setDeleteTarget(null);
       await loadData();
     } catch (err) {
       console.error(err);
@@ -972,7 +983,7 @@ export function FinanceiroView() {
                             <Button
                               size="icon"
                               variant="ghost"
-                              onClick={() => handleDelete(tx.id)}
+                              onClick={() => handleDeleteClick(tx)}
                               className="w-7 h-7 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1082,6 +1093,37 @@ export function FinanceiroView() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent className="sm:max-w-[380px] rounded-2xl bg-white border border-slate-100">
+          <DialogHeader>
+            <DialogTitle className="text-slate-900 font-bold">Excluir Transação</DialogTitle>
+            <DialogDescription>
+              Você tem certeza que deseja excluir a transação "{deleteTarget?.description}" no valor de R$ {deleteTarget?.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => {
+                setIsDeleteOpen(false);
+                setDeleteTarget(null);
+              }}
+              className="rounded-xl border-slate-200"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleConfirmDelete}
+              className="rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-semibold"
+            >
+              Confirmar Exclusão
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
