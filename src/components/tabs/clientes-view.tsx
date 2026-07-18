@@ -741,14 +741,14 @@ export function ClientesView() {
                 >
                   <Printer className="w-4.5 h-4.5" /> Imprimir Cartão
                 </Button>
-                <Button
+                {/* <Button
                   type="button"
                   variant="outline"
                   onClick={() => setIsCardOpen(false)}
                   className="rounded-xl border-slate-200 font-bold"
                 >
                   Fechar
-                </Button>
+                </Button> */}
               </div>
             </div>
           )}

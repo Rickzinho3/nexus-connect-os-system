@@ -1,164 +1,208 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell, Smartphone, Wrench, FileCheck, CheckCircle, TrendingUp, TrendingDown, Badge } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  TrendingUp,
+  TrendingDown,
+  Calendar as CalendarIcon,
+  Smartphone,
+  RefreshCw,
+  MoreHorizontal
+} from "lucide-react";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { getServiceOrders, getClients, getFinancialTransactions, getGoals } from "@/app/actions";
+import { AnimatedNumber } from "@/components/animated-number";
 
-// Import the new KPI components requested
-import { ProgressKPI1 } from "@/components/progress-kpi-01";
-import { KPI1 } from "@/components/kpi-01";
-import { ProgressKPI3 } from "@/components/progress-kpi-03";
-import { ProgressKPI2 } from "@/components/progress-kpi-02";
-import { getServiceOrders, getSales, getClients, getGoals, updateGoal, getFinancialTransactions } from "@/app/actions";
+type FilterPeriod = "Day" | "Week" | "Month" | "Year";
 
 export function DashboardView() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState<FilterPeriod>("Month");
 
-  // Live Stats States
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [ticketMedio, setTicketMedio] = useState(0);
-  const [completedRepairs, setCompletedRepairs] = useState(0);
-  const [totalOrders, setTotalOrders] = useState(0);
-  const [faturamentoMeta, setFaturamentoMeta] = useState<{target: number, percent: number}>({ target: 10000, percent: 0 });
+  // Filtered Metrics
+  const [metrics, setMetrics] = useState({
+    revCurr: 0,
+    revTrend: 0,
+    osCurr: 0,
+    osTrend: 0,
+    cliCurr: 0,
+    cliTrend: 0,
+    concCurr: 0,
+    concTrend: 0,
+    compRateCurr: 0,
+    compRateTrend: 0,
+    fatTargetCurr: 0,
+    fatPercentCurr: 0,
+  });
 
-  const [progressBarsOS, setProgressBarsOS] = useState<any[]>([]);
-  const [recentActivities, setRecentActivities] = useState<any[]>([]);
   const [financeData, setFinanceData] = useState<any[]>([]);
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [dateRangeStr, setDateRangeStr] = useState("");
+
+  const parseDate = (dateVal: any) => {
+    // Format is usually DD/MM/YYYY
+    if (!dateVal) return new Date();
+    if (typeof dateVal !== "string") {
+      if (dateVal instanceof Date) return dateVal;
+      if (typeof dateVal === "number") return new Date(dateVal);
+      dateVal = String(dateVal);
+    }
+    const parts = dateVal.split(" ")[0].split("/");
+    if (parts.length === 3) {
+      return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+    }
+    if (dateVal.includes("-")) {
+      return new Date(dateVal);
+    }
+    return new Date();
+  };
 
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      const [orders, sales, clients, txs, goalsData] = await Promise.all([
+      const [orders, clients, txs, goalsData] = await Promise.all([
         getServiceOrders(),
-        getSales(),
         getClients(),
         getFinancialTransactions(),
         getGoals(),
       ]);
 
-      // 1. Calculate faturamento from transactions
-      const paidTxs = txs.filter((t: any) => t.status === "Pago");
-      const total = paidTxs.filter((t: any) => t.type === "Receita").reduce((sum: number, t: any) => sum + t.amount, 0);
-      setTotalRevenue(total);
+      const now = new Date();
+      let currentStart = new Date();
+      let previousStart = new Date();
+      let previousEnd = new Date();
 
-      // 2. Ticket Medio
-      const ticket = total / ((orders.length + sales.length) || 1);
-      setTicketMedio(ticket);
-
-      // Fetch and sync goals
-      const fatGoal = goalsData.find((g: any) => g.name.toLowerCase().includes("faturamento") || g.category.toLowerCase().includes("financeiro"));
-      
-      let targetFat = 10000;
-      let percentFat = 0;
-      if (fatGoal) {
-        targetFat = fatGoal.target;
-        percentFat = Math.min(Math.round((total / targetFat) * 100), 100);
-        
-        // auto-update the current progress of the goal
-        if (fatGoal.current !== total) {
-          await updateGoal(fatGoal.id, {
-            name: fatGoal.name,
-            category: fatGoal.category,
-            target: fatGoal.target,
-            current: total,
-            unit: fatGoal.unit,
-            deadline: fatGoal.deadline,
-          });
-        }
-      } else {
-        percentFat = Math.min(Math.round((total / targetFat) * 100), 100);
+      if (period === "Day") {
+        currentStart.setHours(0, 0, 0, 0);
+        previousStart = new Date(currentStart);
+        previousStart.setDate(previousStart.getDate() - 1);
+        previousEnd = new Date(currentStart);
+        previousEnd.setMilliseconds(-1);
+      } else if (period === "Week") {
+        currentStart.setDate(now.getDate() - 7);
+        previousStart = new Date(currentStart);
+        previousStart.setDate(previousStart.getDate() - 7);
+        previousEnd = new Date(currentStart);
+        previousEnd.setMilliseconds(-1);
+      } else if (period === "Month") {
+        currentStart.setDate(1);
+        currentStart.setHours(0, 0, 0, 0);
+        previousStart = new Date(currentStart);
+        previousStart.setMonth(previousStart.getMonth() - 1);
+        previousEnd = new Date(currentStart);
+        previousEnd.setMilliseconds(-1);
+      } else if (period === "Year") {
+        currentStart.setMonth(0, 1);
+        currentStart.setHours(0, 0, 0, 0);
+        previousStart = new Date(currentStart);
+        previousStart.setFullYear(previousStart.getFullYear() - 1);
+        previousEnd = new Date(currentStart);
+        previousEnd.setMilliseconds(-1);
       }
-      setFaturamentoMeta({ target: targetFat, percent: percentFat });
 
-      // 3. Completed repairs
-      const completed = orders.filter(o => o.status === "Concluído");
-      setCompletedRepairs(completed.length);
-      setTotalOrders(orders.length);
+      const isCurrent = (d: Date) => d >= currentStart && d <= now;
+      const isPrevious = (d: Date) => d >= previousStart && d <= previousEnd;
 
-      // 4. Progress bars for status
-      const totalCount = orders.length || 1;
-      const concPercent = Math.round((completed.length / totalCount) * 100);
-      const andPercent = Math.round((orders.filter(o => o.status === "Em Andamento").length / totalCount) * 100);
-      const pendPercent = Math.round((orders.filter(o => o.status === "Pendente").length / totalCount) * 100);
+      // Update Date Range Display
+      const formatObj = new Intl.DateTimeFormat("en-US", { day: "numeric", month: "short", year: "numeric" });
+      setDateRangeStr(`${formatObj.format(currentStart)} - ${formatObj.format(now)}`);
 
-      setProgressBarsOS([
-        {
-          label: "Concluídos",
-          target: `${completed.length} aparelhos`,
-          percentage: concPercent,
-          fillClassName: "bg-slate-900",
-        },
-        {
-          label: "Em Andamento",
-          target: `${orders.filter(o => o.status === "Em Andamento").length} aparelhos`,
-          percentage: andPercent,
-          fillClassName: "bg-slate-500",
-        },
-        {
-          label: "Aguardando Peça / Pendente",
-          target: `${orders.filter(o => o.status === "Pendente").length} aparelhos`,
-          percentage: pendPercent,
-          fillClassName: "bg-slate-300",
-        },
-      ]);
-
-      // 5. Recent activities
-      const activities: any[] = [];
-      orders.slice(0, 2).forEach((o, i) => {
-        activities.push({
-          id: `ord-${i}`,
-          type: "order",
-          text: `Ordem de Serviço ${o.id} registrada`,
-          detail: `Cliente: ${o.client} - Aparelho: ${o.device} (${o.serviceType})`,
-          time: "Hoje",
-        });
+      // 1. Revenue Metrics
+      let revCurr = 0, revPrev = 0;
+      txs.filter((t: any) => t.status === "Pago" && t.type === "Receita").forEach((t: any) => {
+        const d = parseDate(t.date);
+        if (isCurrent(d)) revCurr += parseFloat(t.amount);
+        else if (isPrevious(d)) revPrev += parseFloat(t.amount);
       });
 
-      clients.slice(0, 1).forEach((c, i) => {
-        activities.push({
-          id: `cli-${i}`,
-          type: "client",
-          text: `Cliente ${c.name} cadastrado`,
-          detail: `Código de acesso gerado: ${c.accessCode}`,
-          time: "Hoje",
-        });
+      // 2. Orders Metrics (Active/New)
+      let osCurr = 0, osPrev = 0;
+      let concCurr = 0, concPrev = 0;
+      orders.forEach((o: any) => {
+        const d = parseDate(o.date);
+        if (isCurrent(d)) {
+          osCurr++;
+          if (o.status === "Concluído") concCurr++;
+        } else if (isPrevious(d)) {
+          osPrev++;
+          if (o.status === "Concluído") concPrev++;
+        }
       });
 
-      setRecentActivities(activities);
+      // 3. New Clients Metrics
+      let cliCurr = 0, cliPrev = 0;
+      clients.forEach((c: any) => {
+        const d = parseDate(c.createdAt || "");
+        if (isCurrent(d)) cliCurr++;
+        else if (isPrevious(d)) cliPrev++;
+      });
 
-      // 6. Generate monthly finance chart data from actual transactions
+      const calcTrend = (curr: number, prev: number) => {
+        if (prev === 0) return curr > 0 ? 100 : 0;
+        return ((curr - prev) / prev) * 100;
+      };
+
+      const compRateCurr = osCurr > 0 ? (concCurr / osCurr) * 100 : 0;
+      const compRatePrev = osPrev > 0 ? (concPrev / osPrev) * 100 : 0;
+
+      // Faturamento Goal Progress
+      const fatGoal = goalsData.find((g: any) => g.name.toLowerCase().includes("faturamento") || g.category.toLowerCase().includes("financeiro"));
+      let fatTargetCurr = 0;
+      let fatPercentCurr = 0;
+      if (fatGoal) {
+        fatTargetCurr = fatGoal.target;
+        fatPercentCurr = Math.min(Math.round((revCurr / fatTargetCurr) * 100), 100);
+      }
+
+      setMetrics({
+        revCurr,
+        revTrend: calcTrend(revCurr, revPrev),
+        osCurr,
+        osTrend: calcTrend(osCurr, osPrev),
+        cliCurr,
+        cliTrend: calcTrend(cliCurr, cliPrev),
+        concCurr,
+        concTrend: calcTrend(concCurr, concPrev),
+        compRateCurr,
+        compRateTrend: compRateCurr - compRatePrev, // Absolute % points diff
+        fatTargetCurr,
+        fatPercentCurr,
+      });
+
+      // Fetch Recent Orders Table
+      setRecentOrders(orders.slice(0, 5));
+
+      // Bar Chart Monthly Evolution
       const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-      const currentYear = new Date().getFullYear();
-      
+      const currentYear = now.getFullYear();
       const groupedMonthly = months.map((month, idx) => {
-        const monthTxs = paidTxs.filter((t: any) => {
-          const parts = t.date.split("/");
-          if (parts.length !== 3) return false;
-          const txDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-          return txDate.getMonth() === idx && txDate.getFullYear() === currentYear;
-        });
-
-        const faturamento = monthTxs.filter((t: any) => t.type === "Receita").reduce((sum: number, t: any) => sum + t.amount, 0);
-        const despesas = monthTxs.filter((t: any) => t.type === "Despesa").reduce((sum: number, t: any) => sum + t.amount, 0);
-
-        return { name: month, Faturamento: faturamento, CustosPeças: despesas };
+        const monthTxs = txs.filter((t: any) => t.status === "Pago" && t.type === "Receita");
+        const monthTotal = monthTxs.reduce((sum: number, t: any) => {
+          const d = parseDate(t.date);
+          if (d.getMonth() === idx && d.getFullYear() === currentYear) {
+            return sum + parseFloat(t.amount);
+          }
+          return sum;
+        }, 0);
+        return { name: month, Total: monthTotal };
       });
-
-      const currentMonthIdx = new Date().getMonth();
-      // Show at least 5 months back, up to current month
+      const currentMonthIdx = now.getMonth();
       const lastSixMonths = groupedMonthly.slice(Math.max(0, currentMonthIdx - 5), currentMonthIdx + 1);
       setFinanceData(lastSixMonths);
 
     } catch (err) {
-      console.error("Erro ao carregar dados do painel:", err);
+      console.error("Erro ao carregar dados do dashboard:", err);
     } finally {
       setLoading(false);
     }
@@ -166,181 +210,325 @@ export function DashboardView() {
 
   useEffect(() => {
     setMounted(true);
-    loadDashboardData();
   }, []);
 
-  const formatCurrency = (val: number) => `R$ ${val.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+  useEffect(() => {
+    loadDashboardData();
+  }, [period]); // Reload metrics based on selected period
 
   const dashboardChartConfig = {
-    Faturamento: { label: "Faturamento", color: "var(--chart-2)" },
-    CustosPeças: { label: "Custos & Peças", color: "var(--chart-1)" },
+    Total: { label: "Revenue", color: "#27272a" },
   } satisfies ChartConfig;
 
   if (!mounted) return null;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Visão Geral</h1>
-        <p className="text-sm text-slate-500">
-          Painel de controle corporativo da assistência técnica de eletrônicos.
-        </p>
+    <div className="font-sans max-w-[1400px] mx-auto space-y-8 pb-8">
+      {/* Top Header Row with Filters */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <h1 className="text-3xl font-medium tracking-tight text-slate-900">Visão Geral</h1>
+        
+        <div className="flex items-center gap-4">
+          <div className="flex bg-slate-100/80 p-1 rounded-full shadow-inner border border-slate-200/60">
+            {["Day", "Week", "Month", "Year"].map(p => (
+              <button 
+                key={p} 
+                onClick={() => setPeriod(p as FilterPeriod)}
+                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${
+                  period === p 
+                  ? 'bg-slate-500 text-white shadow-md' 
+                  : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                {p === "Day" ? "Dia" : p === "Week" ? "Semana" : p === "Month" ? "Mês" : "Ano"}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 px-4 py-2 rounded-full shadow-sm">
+            <CalendarIcon className="w-4 h-4 text-slate-400" />
+            {dateRangeStr}
+          </div>
+        </div>
       </div>
 
       {loading ? (
-        <div className="py-8 text-center text-slate-400 font-medium">
-          Carregando métricas da dashboard...
+        <div className="py-12 text-center text-slate-400 font-medium animate-pulse">
+          Calculando métricas...
         </div>
       ) : (
         <>
-          {/* Modern KPI Cards Grid */}
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-            {/* KPI 1: Faturamento Mensal (Progress KPI 1) */}
-            <ProgressKPI1
-              title="Faturamento Mensal"
-              value={totalRevenue}
-              trend={12.5}
-              percentage={faturamentoMeta.percent}
-              target={faturamentoMeta.target}
-              formatter={formatCurrency}
-            />
+          {/* KPI Cards Grid */}
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Card 1: Total Revenue (Dark) */}
+            <Card className="bg-[#1c1c1e] text-white rounded-[24px] border-none shadow-xl relative overflow-hidden flex flex-col justify-between">
+              <CardContent className="p-6 h-full flex flex-col justify-between z-10 space-y-6">
+                <p className="text-slate-400 text-[13px] font-medium tracking-wide">Faturamento Total</p>
+                <div className="space-y-4">
+                  <h2 className="text-4xl font-bold tracking-tight flex items-center">
+                    R$&nbsp;<AnimatedNumber value={metrics.revCurr} formatter={(v) => v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
+                  </h2>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                      {metrics.revTrend >= 0 ? (
+                        <span className="text-[#4ade80] flex items-center bg-[#4ade80]/10 px-1.5 py-0.5 rounded">
+                          <TrendingUp className="w-3.5 h-3.5 mr-1"/> {metrics.revTrend.toFixed(1)}%
+                        </span>
+                      ) : (
+                        <span className="text-rose-400 flex items-center bg-rose-400/10 px-1.5 py-0.5 rounded">
+                          <TrendingDown className="w-3.5 h-3.5 mr-1"/> {Math.abs(metrics.revTrend).toFixed(1)}%
+                        </span>
+                      )}
+                      <span className="text-slate-400 font-medium">do período anterior</span>
+                    </div>
+                    {metrics.fatTargetCurr > 0 && (
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between text-[10px] text-slate-400 font-semibold tracking-wide">
+                          <span>META DE FATURAMENTO</span>
+                          <span className="text-white">{metrics.fatPercentCurr}% de R$ {metrics.fatTargetCurr.toLocaleString("pt-BR")}</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full rounded-full transition-all duration-1000 ${metrics.fatPercentCurr >= 100 ? 'bg-emerald-400' : 'bg-blue-400'}`} 
+                            style={{ width: `${metrics.fatPercentCurr}%` }} 
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+              {/* Subtle Gradient Glow */}
+              <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+            </Card>
 
-            {/* KPI 2: Ticket Médio (KPI 1) */}
-            <KPI1
-              title="Ticket Médio / Serviço"
-              value={ticketMedio}
-              trend={4.8}
-              formatter={formatCurrency}
-            />
+            {/* Card 2: Active Orders */}
+            <Card className="bg-white rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between">
+              <CardContent className="p-6 h-full flex flex-col justify-between space-y-6">
+                <p className="text-slate-500 text-[13px] font-medium tracking-wide">Ordens Registradas</p>
+                <div className="space-y-3">
+                  <h2 className="text-4xl font-bold tracking-tight text-slate-900">
+                    <AnimatedNumber value={metrics.osCurr} formatter={(v) => v.toLocaleString("pt-BR")} />
+                  </h2>
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                    {metrics.osTrend >= 0 ? (
+                      <span className="text-emerald-500 flex items-center bg-emerald-50 px-1.5 py-0.5 rounded">
+                        <TrendingUp className="w-3.5 h-3.5 mr-1"/> {metrics.osTrend.toFixed(1)}%
+                      </span>
+                    ) : (
+                      <span className="text-rose-500 flex items-center bg-rose-50 px-1.5 py-0.5 rounded">
+                        <TrendingDown className="w-3.5 h-3.5 mr-1"/> {Math.abs(metrics.osTrend).toFixed(1)}%
+                      </span>
+                    )}
+                    <span className="text-slate-400 font-medium">do período anterior</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            {/* KPI 3: Reparos Concluídos (Progress KPI 3) */}
-            <ProgressKPI3
-              title="Reparos Concluídos"
-              current={completedRepairs}
-              goal={totalOrders > 0 ? totalOrders : 10}
-              unit="aparelhos"
-            />
+            {/* Card 3: New Clients */}
+            <Card className="bg-white rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between">
+              <CardContent className="p-6 h-full flex flex-col justify-between space-y-6">
+                <p className="text-slate-500 text-[13px] font-medium tracking-wide">Novos Clientes</p>
+                <div className="space-y-3">
+                  <h2 className="text-4xl font-bold tracking-tight text-slate-900">
+                    <AnimatedNumber value={metrics.cliCurr} formatter={(v) => v.toLocaleString("pt-BR")} />
+                  </h2>
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                    {metrics.cliTrend >= 0 ? (
+                      <span className="text-emerald-500 flex items-center bg-emerald-50 px-1.5 py-0.5 rounded">
+                        <TrendingUp className="w-3.5 h-3.5 mr-1"/> {metrics.cliTrend.toFixed(1)}%
+                      </span>
+                    ) : (
+                      <span className="text-rose-500 flex items-center bg-rose-50 px-1.5 py-0.5 rounded">
+                        <TrendingDown className="w-3.5 h-3.5 mr-1"/> {Math.abs(metrics.cliTrend).toFixed(1)}%
+                      </span>
+                    )}
+                    <span className="text-slate-400 font-medium">do período anterior</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            {/* KPI 4: Status das O.S. (Progress KPI 2) */}
-            <ProgressKPI2
-              title="Status das O.S. (Hoje)"
-              value={totalOrders}
-              progressBars={progressBarsOS}
-            />
+            {/* Card 4: Completed OS */}
+            <Card className="bg-white rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between">
+              <CardContent className="p-6 h-full flex flex-col justify-between space-y-6">
+                <p className="text-slate-500 text-[13px] font-medium tracking-wide">O.S. Concluídas</p>
+                <div className="space-y-3">
+                  <h2 className="text-4xl font-bold tracking-tight text-slate-900">
+                    <AnimatedNumber value={metrics.concCurr} formatter={(v) => v.toLocaleString("pt-BR")} />
+                  </h2>
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                    {metrics.concTrend >= 0 ? (
+                      <span className="text-emerald-500 flex items-center bg-emerald-50 px-1.5 py-0.5 rounded">
+                        <TrendingUp className="w-3.5 h-3.5 mr-1"/> {metrics.concTrend.toFixed(1)}%
+                      </span>
+                    ) : (
+                      <span className="text-rose-500 flex items-center bg-rose-50 px-1.5 py-0.5 rounded">
+                        <TrendingDown className="w-3.5 h-3.5 mr-1"/> {Math.abs(metrics.concTrend).toFixed(1)}%
+                      </span>
+                    )}
+                    <span className="text-slate-400 font-medium">do período anterior</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Charts Section */}
-          <div className="grid gap-6 lg:grid-cols-7">
-            {/* ReUI style Area Chart */}
-            <Card className="lg:col-span-4 border border-slate-200 shadow-sm rounded-2xl">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <div>
-                  <CardTitle className="text-base font-bold text-slate-950">Desempenho Financeiro</CardTitle>
-                  <CardDescription>Receitas mensais brutas versus custos de insumos/peças de reposição</CardDescription>
+          {/* Charts Row */}
+          <div className="grid gap-6 lg:grid-cols-3 items-stretch">
+            {/* Main Bar Chart */}
+            <Card className="lg:col-span-2 bg-white rounded-[24px] border border-slate-100 shadow-sm h-[320px] flex flex-col">
+              <CardHeader className="pb-2 pt-6 px-6">
+                <div className="flex justify-between items-center w-full">
+                  <CardTitle className="text-[15px] font-medium text-slate-900">Faturamento Bruto</CardTitle>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"><MoreHorizontal className="w-4 h-4 text-slate-400" /></Button>
                 </div>
               </CardHeader>
-              <CardContent className="h-[280px]">
-                <ChartContainer config={dashboardChartConfig} className="w-full h-full">
-                  <AreaChart data={financeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorFaturamento" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--chart-2)" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="var(--chart-2)" stopOpacity={0.01} />
-                      </linearGradient>
-                      <linearGradient id="colorCustos" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0.01} />
-                      </linearGradient>
-                      <pattern
-                        id="dashboard-stripe-pattern"
-                        patternUnits="userSpaceOnUse"
-                        width="6"
-                        height="6"
-                      >
-                        <path
-                          d="M0,6 L6,0"
-                          stroke="currentColor"
-                          strokeWidth="0.8"
-                          className="text-slate-950/10"
-                        />
-                      </pattern>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                    <XAxis dataKey="name" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => `R$${v}`} />
+              <CardContent className="flex-1 pb-4 px-2">
+                <ChartContainer config={dashboardChartConfig} className="w-full h-full min-h-[200px]">
+                  <BarChart data={financeData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barSize={38}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis 
+                      dataKey="name" 
+                      stroke="#94a3b8" 
+                      fontSize={11} 
+                      tickLine={false} 
+                      axisLine={false} 
+                      dy={10}
+                    />
+                    <YAxis 
+                      stroke="#94a3b8" 
+                      fontSize={11} 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : `${v}`} 
+                    />
                     <ChartTooltip
-                      cursor={false}
+                      cursor={{fill: '#f8fafc'}}
                       content={
                         <ChartTooltipContent
-                          indicator="dot"
-                          className="min-w-40 rounded-xl bg-slate-950 text-white p-3 border-none"
-                          formatter={(value, name) => (
-                            <div className="flex w-full items-center justify-between gap-4 text-xs font-semibold text-slate-300">
-                              <span>{name === "Faturamento" ? "Receitas:" : "Despesas:"}</span>
-                              <span className="text-white font-bold">R$ {Number(value).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                          className="min-w-32 rounded-xl bg-[#1c1c1e] text-white p-3 border-none shadow-xl"
+                          formatter={(value) => (
+                            <div className="flex w-full items-center justify-between gap-3 text-xs font-semibold text-slate-300">
+                              <span className="text-white font-bold">R$ {Number(value).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             </div>
                           )}
                         />
                       }
                     />
-                    <Area
-                      type="natural"
-                      dataKey="Faturamento"
-                      stroke="var(--chart-2)"
-                      strokeWidth={2.5}
-                      fill="url(#colorFaturamento)"
+                    <Bar
+                      dataKey="Total"
+                      fill="#27272a"
+                      radius={[8, 8, 8, 8]}
                     />
-                    <Area
-                      type="natural"
-                      dataKey="CustosPeças"
-                      stroke="var(--chart-1)"
-                      strokeWidth={2}
-                      fill="url(#colorCustos)"
-                    />
-                    {/* Pattern Overlay on faturamento to create a premium feel */}
-                    <Area
-                      type="natural"
-                      dataKey="Faturamento"
-                      fill="url(#dashboard-stripe-pattern)"
-                      stroke="none"
-                    />
-                  </AreaChart>
+                  </BarChart>
                 </ChartContainer>
               </CardContent>
             </Card>
 
-            <Card className="lg:col-span-3 border border-slate-200 shadow-sm rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-base font-bold text-slate-955">Movimentações e Atividades</CardTitle>
-                <CardDescription>Eventos recentes cadastrados no banco de dados.</CardDescription>
+            {/* Circular Rate Widget */}
+            <Card className="bg-white rounded-[24px] border border-slate-100 shadow-sm flex flex-col h-[320px]">
+              <CardHeader className="pb-0 pt-6 px-6">
+                <div className="flex justify-between items-center w-full">
+                  <CardTitle className="text-[15px] font-medium text-slate-900 text-center w-full">Taxa de Conclusão</CardTitle>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-5">
-                  {recentActivities.map((act) => (
-                    <div key={act.id} className="flex items-start gap-3">
-                      <div className="p-1.5 rounded-lg bg-slate-100 text-slate-900 border border-slate-200 mt-0.5 shrink-0">
-                        {act.type === "order" ? (
-                          <Wrench className="w-4 h-4" />
-                        ) : act.type === "client" ? (
-                          <CheckCircle className="w-4 h-4 text-slate-700" />
-                        ) : (
-                          <Bell className="w-4 h-4 text-slate-500" />
-                        )}
-                      </div>
-                      <div className="space-y-0.5">
-                        <p className="text-xs font-bold text-slate-900 leading-snug">{act.text}</p>
-                        <p className="text-[11px] text-slate-500">{act.detail}</p>
-                        <p className="text-[10px] text-slate-400 font-medium">{act.time}</p>
-                      </div>
-                    </div>
-                  ))}
-                  {recentActivities.length === 0 && (
-                    <p className="text-xs text-slate-400 font-medium text-center py-6">Sem atividades recentes.</p>
+              <CardContent className="flex-1 flex flex-col items-center justify-center">
+                <div className="relative w-36 h-36 flex items-center justify-center">
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle cx="72" cy="72" r="60" stroke="#f1f5f9" strokeWidth="12" fill="none" />
+                    <circle 
+                      cx="72" cy="72" r="60" 
+                      stroke="#27272a" strokeWidth="12" fill="none" 
+                      strokeDasharray={`${2 * Math.PI * 60}`} 
+                      strokeDashoffset={`${2 * Math.PI * 60 * (1 - metrics.compRateCurr / 100)}`}
+                      strokeLinecap="round"
+                      className="transition-all duration-1000 ease-out"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center flex-col">
+                    <span className="text-3xl font-bold text-slate-900">
+                      <AnimatedNumber value={metrics.compRateCurr} formatter={(v) => `${Math.round(v)}%`} />
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-8 flex items-center gap-1.5 text-xs font-bold text-slate-500">
+                  {metrics.compRateTrend >= 0 ? (
+                    <span className="text-emerald-500 flex items-center"><TrendingUp className="w-3.5 h-3.5 mr-1"/> +{metrics.compRateTrend.toFixed(1)}%</span>
+                  ) : (
+                    <span className="text-rose-500 flex items-center"><TrendingDown className="w-3.5 h-3.5 mr-1"/> {metrics.compRateTrend.toFixed(1)}%</span>
                   )}
+                  <span>do período anterior</span>
                 </div>
               </CardContent>
             </Card>
           </div>
+
+          {/* Bottom Table Row */}
+          <Card className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+              <h3 className="text-[15px] font-bold text-slate-900">Últimas Ordens de Serviço</h3>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-slate-50 hover:bg-slate-100" onClick={loadDashboardData}>
+                  <RefreshCw className="w-4 h-4 text-slate-500" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-slate-50 hover:bg-slate-100">
+                  <MoreHorizontal className="w-4 h-4 text-slate-500" />
+                </Button>
+              </div>
+            </div>
+            <Table>
+              <TableHeader className="bg-white">
+                <TableRow className="border-b border-slate-100 hover:bg-transparent">
+                  <TableHead className="text-xs font-semibold text-slate-400 py-4 px-6 h-auto">Aparelho</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-400 py-4 h-auto">Cliente</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-400 py-4 h-auto">ID da OS</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-400 py-4 h-auto text-right">Valor</TableHead>
+                  <TableHead className="text-xs font-semibold text-slate-400 py-4 px-6 h-auto text-center">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {recentOrders.map(order => (
+                  <TableRow key={order.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                    <TableCell className="font-bold text-slate-900 text-sm py-4 px-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center shrink-0">
+                          <Smartphone className="w-6 h-6 text-slate-600" />
+                        </div>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-sm">{order.deviceName}</span>
+                          <span className="text-xs text-slate-500 font-medium">{order.serviceType}</span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-slate-600 font-medium text-sm">{order.client}</TableCell>
+                    <TableCell className="text-slate-500 font-semibold text-xs">#{order.id}</TableCell>
+                    <TableCell className="text-slate-900 font-bold text-sm text-right">
+                      R$ {parseFloat(order.value).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </TableCell>
+                    <TableCell className="text-center px-6">
+                      <Badge className={`rounded-full px-4 py-1.5 font-bold text-[10px] uppercase tracking-wider ${
+                        order.status === "Concluído" 
+                        ? "bg-slate-500 text-white hover:bg-slate-600" 
+                        : order.status === "Em Andamento" 
+                        ? "bg-slate-200 text-slate-800 hover:bg-slate-300" 
+                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      }`}>
+                        {order.status === "Concluído" ? "Finalizado" : order.status}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {recentOrders.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8 text-slate-400 text-sm font-medium">
+                      Nenhuma O.S. encontrada.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Card>
         </>
       )}
     </div>

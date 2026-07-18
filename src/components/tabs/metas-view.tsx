@@ -191,13 +191,18 @@ export function MetasView() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-500">Categoria</label>
-                  <Input
-                    placeholder="Ex: Financeiro, Operacional, Qualidade"
+                  <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="rounded-xl border-slate-200"
+                    className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                     required
-                  />
+                  >
+                    <option value="" disabled>Selecione uma Categoria...</option>
+                    <option value="Financeiro">Financeiro</option>
+                    <option value="Operacional">Operacional</option>
+                    <option value="Qualidade">Qualidade</option>
+                    <option value="Comercial">Comercial</option>
+                  </select>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -215,13 +220,18 @@ export function MetasView() {
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-500">Unidade</label>
-                    <Input
-                      placeholder="Ex: R$, OS, %, un"
+                    <select
                       value={unit}
                       onChange={(e) => setUnit(e.target.value)}
-                      className="rounded-xl border-slate-200"
+                      className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                       required
-                    />
+                    >
+                      <option value="" disabled>Selecione uma Unidade...</option>
+                      <option value="R$">R$</option>
+                      <option value="OS">OS (Ordens de Serviço)</option>
+                      <option value="%">% (Porcentagem)</option>
+                      <option value="un">Unidades</option>
+                    </select>
                   </div>
                 </div>
 
@@ -337,7 +347,7 @@ export function MetasView() {
                     </Badge>
                   </div>
 
-                  <Progress value={percentage} className="h-2.5 bg-slate-100" />
+                  <Progress value={percentage} className="h-3.5 [&div:bg-slate-900]" />
 
                   <div className="flex items-center justify-between text-xs text-slate-400 font-semibold border-t border-slate-50 pt-3">
                     <span>Prazo: {goal.deadline}</span>
@@ -378,12 +388,18 @@ export function MetasView() {
 
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-500">Categoria</label>
-                <Input
+                <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="rounded-xl border-slate-200"
+                  className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                   required
-                />
+                >
+                  <option value="" disabled>Selecione uma Categoria...</option>
+                  <option value="Financeiro">Financeiro</option>
+                  <option value="Operacional">Operacional</option>
+                  <option value="Qualidade">Qualidade</option>
+                  <option value="Comercial">Comercial</option>
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -414,12 +430,18 @@ export function MetasView() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-500">Unidade</label>
-                  <Input
+                  <select
                     value={unit}
                     onChange={(e) => setUnit(e.target.value)}
-                    className="rounded-xl border-slate-200"
+                    className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                     required
-                  />
+                  >
+                    <option value="" disabled>Selecione uma Unidade...</option>
+                    <option value="R$">R$</option>
+                    <option value="OS">OS (Ordens de Serviço)</option>
+                    <option value="%">% (Porcentagem)</option>
+                    <option value="un">Unidades</option>
+                  </select>
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-500">Prazo</label>

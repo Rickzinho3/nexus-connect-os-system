@@ -471,9 +471,9 @@ export default function ClientPortal() {
                   </h3>
                 </div>
                 <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                  {completedRepairsCount >= 1 
+                  {completedRepairsCount >= 2 
                     ? "Seu voucher de desconto já está desbloqueado! Acesse a aba 'Minhas Promoções'."
-                    : "Complete sua primeira ordem de serviço na assistência e ganhe 5% de desconto."}
+                    : "Complete suas duas primeiras ordens de serviço na assistência e ganhe 5% de desconto."}
                 </p>
               </Card>
             </section>
@@ -653,7 +653,7 @@ export default function ClientPortal() {
                                   <span>Falta(m) {v.required - completedRepairsCount} reparo(s)</span>
                                   <span>{Math.round(percent)}%</span>
                                 </div>
-                                <Progress value={percent} className="h-1.5 bg-slate-100 [&>div]:bg-slate-900 rounded-full" />
+                                <Progress value={percent} className="h-1.5 [&>div]:bg-slate-300 rounded-full" />
                               </div>
                             )}
                           </div>
