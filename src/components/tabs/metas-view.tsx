@@ -1,0 +1,485 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Target, TrendingUp, ShieldAlert, Award, PlusCircle, Edit3, Trash2 } from "lucide-react";
+import { getGoals, addGoal, updateGoal, deleteGoal } from "@/app/actions";
+
+interface Goal {
+  id: number;
+  name: string;
+  category: string;
+  current: number;
+  target: number;
+  unit: string;
+  deadline: string;
+}
+
+export function MetasView() {
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Dialog States
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
+
+  // Form States
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("");
+  const [target, setTarget] = useState("");
+  const [current, setCurrent] = useState("");
+  const [unit, setUnit] = useState("");
+  const [deadline, setDeadline] = useState("");
+
+  const loadGoals = async () => {
+    setLoading(true);
+    try {
+      const data = await getGoals();
+      setGoals(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadGoals();
+  }, []);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !category || !target || !unit || !deadline) return;
+
+    try {
+      await addGoal({
+        name,
+        category,
+        target: parseFloat(target),
+        unit,
+        deadline,
+      });
+      setIsCreateOpen(false);
+      setName("");
+      setCategory("");
+      setTarget("");
+      setUnit("");
+      setDeadline("");
+      await loadGoals();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleEditClick = (goal: Goal) => {
+    setSelectedGoal(goal);
+    setName(goal.name);
+    setCategory(goal.category);
+    setTarget(goal.target.toString());
+    setCurrent(goal.current.toString());
+    setUnit(goal.unit);
+    setDeadline(goal.deadline);
+    setIsEditOpen(true);
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedGoal || !name || !category || !target || !current || !unit || !deadline) return;
+
+    try {
+      await updateGoal(selectedGoal.id, {
+        name,
+        category,
+        target: parseFloat(target),
+        current: parseFloat(current),
+        unit,
+        deadline,
+      });
+      setIsEditOpen(false);
+      setSelectedGoal(null);
+      await loadGoals();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteClick = (goal: Goal) => {
+    setSelectedGoal(goal);
+    setIsDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedGoal) return;
+    try {
+      await deleteGoal(selectedGoal.id);
+      setIsDeleteOpen(false);
+      setSelectedGoal(null);
+      await loadGoals();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const getIcon = (catName: string) => {
+    const term = catName.toLowerCase();
+    if (term.includes("finance")) return TrendingUp;
+    if (term.includes("operac")) return Target;
+    if (term.includes("qualid")) return Award;
+    return ShieldAlert;
+  };
+
+  return (
+    <div className="space-y-6 font-sans">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Metas Corporativas</h1>
+          <p className="text-sm text-slate-500">
+            Acompanhe o andamento das metas de faturamento, reparos e satisfação de clientes.
+          </p>
+        </div>
+
+        {/* Create Modal Trigger */}
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <DialogTrigger render={<Button className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 gap-2" />}>
+            <span className="flex items-center gap-2">
+              <PlusCircle className="w-4 h-4" /> Criar Meta
+            </span>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[420px] rounded-2xl bg-white border border-slate-100">
+            <form onSubmit={handleCreate}>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-slate-900 font-bold">
+                  <Target className="w-5 h-5 text-slate-900" /> Estabelecer Nova Meta
+                </DialogTitle>
+                <DialogDescription>
+                  Defina os objetivos de faturamento ou volume de reparos da assistência técnica.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4 py-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-500">Nome da Meta</label>
+                  <Input
+                    placeholder="Ex: Faturamento Mensal"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="rounded-xl border-slate-200"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-500">Categoria</label>
+                  <Input
+                    placeholder="Ex: Financeiro, Operacional, Qualidade"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="rounded-xl border-slate-200"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-500">Alvo (Meta)</label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      placeholder="Ex: 80000"
+                      value={target}
+                      onChange={(e) => setTarget(e.target.value)}
+                      className="rounded-xl border-slate-200"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-500">Unidade</label>
+                    <Input
+                      placeholder="Ex: R$, OS, %, un"
+                      value={unit}
+                      onChange={(e) => setUnit(e.target.value)}
+                      className="rounded-xl border-slate-200"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-500">Prazo de Conclusão</label>
+                  <input
+                    type="date"
+                    value={deadline.includes("/") ? deadline.split("/").reverse().join("-") : deadline}
+                    onChange={(e) => {
+                      const [y, m, d] = e.target.value.split("-");
+                      setDeadline(`${d}/${m}/${y}`);
+                    }}
+                    className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                    required
+                  />
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCreateOpen(false)}
+                  className="rounded-xl border-slate-200"
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white">
+                  Criar
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Goals Grid */}
+      {loading ? (
+        <div className="py-8 text-center text-slate-400 font-medium">
+          Carregando metas do banco de dados...
+        </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2">
+          {goals.map((goal) => {
+            const Icon = getIcon(goal.category);
+            const isReductionGoal = goal.name.toLowerCase().includes("retrabalho") || goal.name.toLowerCase().includes("custo");
+            const percentage = isReductionGoal
+              ? Math.max(0, 100 - (goal.current / goal.target) * 100)
+              : Math.min(100, (goal.current / goal.target) * 100);
+
+            let isPastDeadline = false;
+            if (goal.deadline) {
+              const parts = goal.deadline.includes("/") ? goal.deadline.split("/") : goal.deadline.split("-");
+              const dateObj = goal.deadline.includes("/") 
+                ? new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0])) 
+                : new Date(goal.deadline);
+              isPastDeadline = dateObj < new Date(new Date().setHours(0,0,0,0));
+            }
+
+            let statusText = "Em Progresso";
+            let statusColor = "text-slate-500";
+            if (percentage >= 100) {
+              statusText = "Concluída";
+              statusColor = "text-slate-900 font-bold";
+            } else if (isPastDeadline) {
+              statusText = "Não atingido";
+              statusColor = "text-red-500 font-bold";
+            }
+
+            return (
+              <Card key={goal.id} className="border border-slate-100 shadow-sm rounded-2xl hover:shadow-md transition-shadow">
+                <CardHeader className="flex flex-row items-start justify-between pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <Icon className="w-5 h-5 text-slate-900" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base font-bold text-slate-900">{goal.name}</CardTitle>
+                      <CardDescription className="text-xs">{goal.category}</CardDescription>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleEditClick(goal)}
+                      className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-900"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleDeleteClick(goal)}
+                      className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-baseline">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-black text-slate-900">
+                        {goal.unit === "R$" ? `R$ ${goal.current.toLocaleString("pt-BR")}` : `${goal.current} ${goal.unit}`}
+                      </span>
+                      <span className="text-xs text-slate-400 font-semibold">
+                        de {goal.unit === "R$" ? `R$ ${goal.target.toLocaleString("pt-BR")}` : `${goal.target} ${goal.unit}`}
+                      </span>
+                    </div>
+                    <Badge className="bg-slate-100 text-slate-800 border border-slate-200 hover:bg-slate-200 rounded-lg text-xs font-bold">
+                      {Math.round(percentage)}% atingido
+                    </Badge>
+                  </div>
+
+                  <Progress value={percentage} className="h-2.5 bg-slate-100" />
+
+                  <div className="flex items-center justify-between text-xs text-slate-400 font-semibold border-t border-slate-50 pt-3">
+                    <span>Prazo: {goal.deadline}</span>
+                    <span className={statusColor}>
+                      {statusText}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="sm:max-w-[420px] rounded-2xl bg-white border border-slate-100">
+          <form onSubmit={handleUpdate}>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-slate-900 font-bold">
+                <Edit3 className="w-5 h-5 text-slate-900" /> Editar Meta
+              </DialogTitle>
+              <DialogDescription>
+                Atualize o progresso atual ou mude o escopo do objetivo.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-500">Nome da Meta</label>
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="rounded-xl border-slate-200"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-500">Categoria</label>
+                <Input
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="rounded-xl border-slate-200"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-500">Progresso Atual</label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={current}
+                    onChange={(e) => setCurrent(e.target.value)}
+                    className="rounded-xl border-slate-200 font-bold text-slate-800"
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-500">Alvo (Meta)</label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={target}
+                    onChange={(e) => setTarget(e.target.value)}
+                    className="rounded-xl border-slate-200"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-500">Unidade</label>
+                  <Input
+                    value={unit}
+                    onChange={(e) => setUnit(e.target.value)}
+                    className="rounded-xl border-slate-200"
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-500">Prazo</label>
+                  <input
+                    type="date"
+                    value={deadline.includes("/") ? deadline.split("/").reverse().join("-") : deadline}
+                    onChange={(e) => {
+                      const [y, m, d] = e.target.value.split("-");
+                      setDeadline(`${d}/${m}/${y}`);
+                    }}
+                    className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditOpen(false)}
+                className="rounded-xl border-slate-200"
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
+                Salvar Alterações
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent className="sm:max-w-[380px] rounded-2xl bg-white border border-slate-100">
+          <DialogHeader>
+            <DialogTitle className="text-slate-900 font-bold">Excluir Meta</DialogTitle>
+            <DialogDescription>
+              Você tem certeza que deseja excluir a meta "{selectedGoal?.name}"? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteOpen(false)}
+              className="rounded-xl border-slate-200"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleConfirmDelete}
+              className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold"
+            >
+              Confirmar Exclusão
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

@@ -1,0 +1,828 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { queryOSByAccessCodeAndCpf } from "@/app/actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Smartphone,
+  Calendar,
+  Wrench,
+  CheckCircle2,
+  User,
+  Phone,
+  Mail,
+  MapPin,
+  FileText,
+  Clock,
+  ArrowRight,
+  LogOut,
+  FolderOpen,
+  Bell,
+  Search,
+  Gift,
+  Copy,
+  Check,
+  Menu,
+  X,
+  Ticket
+} from "lucide-react";
+
+interface TrackedOS {
+  id: string;
+  deviceName: string;
+  serviceType: string;
+  value: number;
+  status: "Pendente" | "Em Andamento" | "Concluído" | "Cancelado";
+  date: string;
+  notes?: string | null;
+}
+
+interface TrackedQuote {
+  id: string;
+  deviceName: string;
+  description: string;
+  value: number;
+  status: "Pendente" | "Aprovado" | "Rejeitado" | "Expirado";
+  validUntil: string;
+}
+
+interface TrackedResult {
+  client: {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    cpfCnpj: string;
+    accessCode: string;
+  };
+  orders: TrackedOS[];
+  quotes: TrackedQuote[];
+}
+
+type PortalTab = "ativos" | "historico" | "promocoes" | "cadastro";
+
+export default function ClientPortal() {
+  const [accessCode, setAccessCode] = useState("");
+  const [cpfCnpj, setCpfCnpj] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<TrackedResult | null>(null);
+  const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState<PortalTab>("ativos");
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [greeting, setGreeting] = useState("Bom dia");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [selectedVoucher, setSelectedVoucher] = useState<any | null>(null);
+
+  // Responsive sidebar default
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setSidebarOpen(window.innerWidth > 768);
+    }
+  }, []);
+
+  // Greeting based on current local hour
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) setGreeting("Bom dia");
+    else if (hour >= 12 && hour < 18) setGreeting("Boa tarde");
+    else setGreeting("Boa noite");
+  }, []);
+
+  // Automatic session recovery on mount
+  useEffect(() => {
+    const savedSession = localStorage.getItem("clientPortalSession");
+    if (savedSession) {
+      try {
+        const { accessCode: savedCode, cpfCnpj: savedCpf } = JSON.parse(savedSession);
+        if (savedCode && savedCpf) {
+          setLoading(true);
+          queryOSByAccessCodeAndCpf(savedCode, savedCpf).then((data) => {
+            if (data) {
+              setResult(data as any);
+              setAccessCode(savedCode);
+              setCpfCnpj(savedCpf);
+            } else {
+              localStorage.removeItem("clientPortalSession");
+            }
+            setLoading(false);
+          }).catch(() => {
+            localStorage.removeItem("clientPortalSession");
+            setLoading(false);
+          });
+        }
+      } catch (e) {
+        localStorage.removeItem("clientPortalSession");
+      }
+    }
+  }, []);
+
+  // Input mask helpers
+  const formatCPF = (val: string) => {
+    const clean = val.replace(/\D/g, "");
+    if (clean.length <= 11) {
+      return clean
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+        .substring(0, 14);
+    } else {
+      return clean
+        .replace(/^(\d{2})(\d)/, "$1.$2")
+        .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/\.(\d{3})(\d)/, ".$1/$2")
+        .replace(/(\d{4})(\d{1,2})$/, "$1-$2")
+        .substring(0, 18);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!accessCode.trim() || !cpfCnpj.trim()) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const data = await queryOSByAccessCodeAndCpf(accessCode, cpfCnpj);
+      if (data) {
+        setResult(data as any);
+        setActiveTab("ativos");
+        localStorage.setItem(
+          "clientPortalSession",
+          JSON.stringify({ accessCode: accessCode.trim(), cpfCnpj: cpfCnpj.trim() })
+        );
+      } else {
+        setResult(null);
+        setError("Autenticação falhou. Verifique se o código de acesso e o CPF/CNPJ informados estão corretos.");
+      }
+    } catch (err) {
+      setError("Erro de comunicação com o banco de dados. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    setResult(null);
+    setAccessCode("");
+    setCpfCnpj("");
+    localStorage.removeItem("clientPortalSession");
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedCode(text);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  // Computations
+  const completedRepairsCount = result?.orders.filter(o => o.status === "Concluído").length || 0;
+  const activeOSList = result?.orders.filter(o => o.status === "Pendente" || o.status === "Em Andamento") || [];
+  const activeOSBalance = activeOSList.reduce((acc, curr) => acc + curr.value, 0);
+
+  // Timeline Step Resolver
+  const getStatusStep = (status: TrackedOS["status"]) => {
+    switch (status) {
+      case "Pendente": return 1;
+      case "Em Andamento": return 2;
+      case "Concluído": return 3;
+      default: return 0;
+    }
+  };
+
+  const getStatusBadge = (status: any) => {
+    switch (status) {
+      case "Pendente":
+        return <Badge className="bg-white text-slate-900 border border-slate-300 border-dashed rounded-xl text-xs font-semibold">Pendente</Badge>;
+      case "Em Andamento":
+        return <Badge className="bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold">Em Reparo</Badge>;
+      case "Concluído":
+      case "Aprovado":
+        return <Badge className="bg-slate-900 text-white border-transparent rounded-xl text-xs font-semibold">Pronto</Badge>;
+      case "Cancelado":
+      case "Rejeitado":
+        return <Badge className="bg-white text-slate-900 border border-slate-300 border-dashed rounded-xl text-xs font-semibold">Cancelado</Badge>;
+      default:
+        return <Badge className="bg-slate-100 text-slate-400 border border-slate-300 rounded-xl text-xs font-semibold">Expirado</Badge>;
+    }
+  };
+
+  // Vouchers Configuration
+  const vouchers = [
+    {
+      id: "bronze",
+      title: "Vale-Desconto Bronze",
+      benefit: "5% OFF em Acessórios",
+      required: 1,
+      code: "BRONZE5",
+      color: "from-slate-100 to-slate-200 border-slate-300 text-slate-800",
+      bgClass: "bg-white",
+      percentage: "5% OFF"
+    },
+    {
+      id: "prata",
+      title: "Vale-Desconto Prata",
+      benefit: "10% OFF em Peças",
+      required: 3,
+      code: "PRATA10",
+      color: "from-slate-200 to-slate-300 border-slate-400 text-slate-900",
+      bgClass: "bg-white",
+      percentage: "10% OFF"
+    },
+    {
+      id: "ouro",
+      title: "Vale-Desconto Ouro",
+      benefit: "15% OFF Geral (Mão de Obra)",
+      required: 5,
+      code: "OURO15",
+      color: "from-slate-800 to-slate-900 border-transparent text-white",
+      bgClass: "bg-white",
+      percentage: "15% OFF"
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans select-none antialiased">
+      
+      {/* 1. Login Full Screen View */}
+      {!result ? (
+        <div className="flex-1 flex flex-col justify-center items-center px-4 py-16">
+          <div className="w-full max-w-[420px] space-y-6">
+            <div className="text-center space-y-3">
+              <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-900 border border-slate-200">
+                <Smartphone className="w-7 h-7" />
+              </div>
+              <h2 className="text-3xl font-black tracking-tight text-slate-900">Portal do Cliente</h2>
+              <p className="text-sm text-slate-500">
+                Consulte o status do seu aparelho e acesse seus benefícios exclusivos.
+              </p>
+            </div>
+
+            <Card className="border border-slate-200 bg-white rounded-3xl shadow-2xl">
+              <CardContent className="pt-6">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">CPF ou CNPJ</label>
+                    <Input
+                      type="text"
+                      placeholder="000.000.000-00"
+                      value={cpfCnpj}
+                      onChange={(e) => setCpfCnpj(formatCPF(e.target.value))}
+                      className="h-12 bg-white border-slate-200 text-slate-900 rounded-xl placeholder-slate-400 focus-visible:ring-slate-900 text-sm font-bold"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Código de Acesso</label>
+                    <div className="relative">
+                      <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500" />
+                      <Input
+                        type="text"
+                        placeholder="CLI-XXXXXX"
+                        value={accessCode}
+                        onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
+                        className="pl-10 h-12 bg-white border-slate-200 text-slate-900 rounded-xl placeholder-slate-400 focus-visible:ring-slate-900 text-sm font-bold uppercase tracking-widest"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold flex items-center justify-center gap-2 mt-4 text-xs transition-colors"
+                  >
+                    {loading ? "Verificando..." : "Entrar no Portal"}
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+
+            {error && (
+              <div className="bg-slate-100 border border-slate-300 p-4 rounded-2xl text-slate-800 text-xs font-semibold text-center leading-relaxed">
+                {error}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        /* 2. Full-Page Dark Minimalist Desktop Dashboard Layout */
+        <div className="flex-1 flex flex-col md:flex-row min-h-screen relative overflow-hidden">
+          
+          {/* Left Sidebar Menu */}
+          <aside className={`bg-white border-r border-slate-200 p-5 flex flex-col justify-between shrink-0 z-40 transition-all duration-300 absolute md:static inset-y-0 left-0 md:h-auto h-screen shadow-xl md:shadow-none ${
+            sidebarOpen ? "w-64 opacity-100 translate-x-0" : "w-0 p-0 opacity-0 -translate-x-full overflow-hidden border-r-0"
+          }`}>
+            <div className="space-y-6">
+              
+              {/* Branding and Logo */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-900 border border-slate-200">
+                    <Smartphone className="w-5 h-5" />
+                  </div>
+                  <span className="font-black text-sm tracking-tight text-slate-900">CLIENT PORTAL</span>
+                </div>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setSidebarOpen(false)}
+                  className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+
+              {/* Sidebar Menu items */}
+              <nav className="space-y-1">
+                {[
+                  { id: "ativos", label: "Aparelhos Ativos", icon: Smartphone },
+                  { id: "historico", label: "Histórico Geral", icon: Clock },
+                  { id: "promocoes", label: "Minhas Promoções", icon: Gift },
+                  { id: "cadastro", label: "Meus Dados", icon: User }
+                ].map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveTab(item.id as any);
+                        // Auto-close sidebar on mobile
+                        if (window.innerWidth < 768) {
+                          setSidebarOpen(false);
+                        }
+                      }}
+                      className={`w-full h-10 px-3.5 rounded-xl flex items-center gap-3 text-xs font-bold transition-all ${
+                        isActive
+                          ? "bg-slate-900 text-white shadow-md shadow-slate-900/10"
+                          : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 shrink-0" />
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {/* Logout at bottom */}
+            <div className="pt-4 border-t border-slate-200 mt-4">
+              <div className="flex items-center justify-between pb-3.5 mb-2">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-slate-500 truncate uppercase tracking-wider">Código Cliente</p>
+                  <p className="text-xs font-bold text-slate-900 truncate">{result.client.accessCode}</p>
+                </div>
+              </div>
+              <Button
+                onClick={handleLogout}
+                variant="ghost"
+                className="w-full h-9 rounded-xl border border-rose-950/30 text-slate-900 hover:text-slate-800 hover:bg-slate-100 gap-2 text-xs font-bold"
+              >
+                <LogOut className="w-4 h-4" /> Sair do Portal
+              </Button>
+            </div>
+          </aside>
+
+          {/* Overlay for mobile when sidebar is open */}
+          {sidebarOpen && (
+            <div
+              className="fixed inset-0 bg-slate-900/20 backdrop-blur-xs z-30 md:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+
+          {/* Main Dashboard Content Area */}
+          <main className="flex-1 p-6 md:p-10 overflow-y-auto max-w-6xl w-full mx-auto space-y-8 pb-16 transition-all duration-300">
+            
+            {/* Top Greeting Header Bar (inspired by Morning, Wahid) */}
+            <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-6">
+              <div className="flex items-center gap-3">
+                {!sidebarOpen && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setSidebarOpen(true)}
+                    className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center shadow-sm"
+                  >
+                    <Menu className="w-5 h-5" />
+                  </Button>
+                )}
+                <div>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{greeting},</p>
+                  <h3 className="text-2xl font-black text-slate-900">{result.client.name}</h3>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <Badge className="bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-extrabold text-xs px-3.5 py-1.5 gap-1 shadow-sm">
+                  <Smartphone className="w-3.5 h-3.5" />
+                  Código: {result.client.accessCode}
+                </Badge>
+                <Button size="icon" variant="ghost" className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 shadow-sm">
+                  <Bell className="w-4 h-4" />
+                </Button>
+              </div>
+            </header>
+
+            {/* Main Balance display ($25,362.36 layout for full desktop screen) */}
+            <section className="grid gap-6 md:grid-cols-3">
+              <Card className="col-span-1 md:col-span-2 border border-slate-200 bg-white rounded-3xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[160px]">
+                <div className="space-y-1">
+                  <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">Serviços em Triagem / Reparo</span>
+                  <h2 className="text-4xl font-black text-slate-900 tracking-tight">
+                    R$ {activeOSBalance.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </h2>
+                </div>
+                <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+                  <span className="text-xs text-slate-900 font-bold">{activeOSList.length} Consertos Ativos</span>
+                  <a
+                    href="https://wa.me/5511999999999"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs font-bold text-slate-900 hover:text-slate-900 flex items-center gap-1.5"
+                  >
+                    Falar com Suporte <ArrowRight className="w-4 h-4" />
+                  </a>
+                </div>
+              </Card>
+
+              {/* Sidebar score/quick info card */}
+              <Card className="border border-slate-200 bg-white rounded-3xl p-6 shadow-xl flex flex-col justify-between min-h-[160px]">
+                <div className="space-y-1">
+                  <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">Histórico de Consertos</span>
+                  <h3 className="text-3xl font-black text-slate-900 tracking-tight">
+                    {completedRepairsCount} Concluídos
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                  {completedRepairsCount >= 1 
+                    ? "Seu voucher de desconto já está desbloqueado! Acesse a aba 'Minhas Promoções'."
+                    : "Complete sua primeira ordem de serviço na assistência e ganhe 5% de desconto."}
+                </p>
+              </Card>
+            </section>
+
+            {/* Sub-Views Content Pages */}
+            <section className="pt-2">
+              
+              {/* A. Tab: Active Repairs (Ativos) */}
+              {activeTab === "ativos" && (
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h4 className="text-lg font-black text-slate-900">Ordens em Manutenção</h4>
+                      <p className="text-xs text-slate-500">Consulte diagnósticos e andamento físico dos aparelhos na bancada.</p>
+                    </div>
+                  </div>
+
+                  {activeOSList.length > 0 ? (
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      {activeOSList.map((order) => {
+                        const step = getStatusStep(order.status);
+                        return (
+                          <Card key={order.id} className="border border-slate-200 bg-white rounded-3xl p-5 space-y-4 shadow-xl">
+                            <div className="flex justify-between items-start">
+                              <div className="space-y-1">
+                                <span className="text-xs font-black text-slate-500 block">{order.id}</span>
+                                <h5 className="font-extrabold text-base text-slate-900">{order.deviceName}</h5>
+                                <p className="text-xs font-semibold text-slate-900">{order.serviceType}</p>
+                              </div>
+                              <div className="text-right space-y-1">
+                                <span className="text-xs text-slate-400 font-bold block">Abertura: {order.date}</span>
+                                {getStatusBadge(order.status)}
+                              </div>
+                            </div>
+
+                            {order.notes && (
+                              <div className="bg-slate-50 border border-slate-200 p-3 rounded-2xl text-xs text-slate-700 leading-relaxed font-medium">
+                                <b>Laudo Técnico preliminar:</b> {order.notes}
+                              </div>
+                            )}
+
+                            {/* Interactive timeline details */}
+                            <div className="space-y-2 pt-2 border-t border-slate-200">
+                              <div className="flex justify-between text-xs font-bold text-slate-400">
+                                <span className={step >= 1 ? "text-slate-900 font-black" : ""}>Triagem & Análise</span>
+                                <span className={step >= 2 ? "text-slate-900 font-black" : ""}>Reparo Técnico</span>
+                                <span className={step >= 3 ? "text-slate-900 font-black" : ""}>Pronto Retirada</span>
+                              </div>
+                              <Progress value={step === 1 ? 33 : step === 2 ? 66 : step === 3 ? 100 : 0} className="h-2 bg-slate-100 [&>div]:bg-slate-950 rounded-full" />
+                            </div>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 bg-white border border-slate-200 rounded-3xl text-slate-500 text-sm space-y-2 shadow-sm">
+                      <FolderOpen className="w-10 h-10 mx-auto text-slate-700" />
+                      <p>Nenhum equipamento em conserto ativo neste momento.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* B. Tab: History (Histórico) */}
+              {activeTab === "historico" && (
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-lg font-black text-slate-900">Histórico Geral de Serviços</h4>
+                    <p className="text-xs text-slate-500">Consulte orçamentos aprovados/rejeitados e ordens concluídas.</p>
+                  </div>
+
+                  <div className="border border-slate-200 bg-white rounded-3xl overflow-hidden shadow-xl">
+                    <Table>
+                      <TableHeader className="bg-slate-50 border-b border-slate-200">
+                        <TableRow>
+                          <TableHead className="font-semibold text-slate-500">Documento</TableHead>
+                          <TableHead className="font-semibold text-slate-500">Aparelho</TableHead>
+                          <TableHead className="font-semibold text-slate-500">Serviço / Peça</TableHead>
+                          <TableHead className="font-semibold text-slate-500">Valor Cobrado</TableHead>
+                          <TableHead className="font-semibold text-slate-500">Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {/* Render all past O.S. (Concluido, Cancelado) */}
+                        {result.orders
+                          .filter(o => o.status === "Concluído" || o.status === "Cancelado")
+                          .map((o) => (
+                            <TableRow key={o.id} className="hover:bg-slate-50/30 border-b border-slate-100">
+                              <TableCell className="font-bold text-slate-700">{o.id}</TableCell>
+                              <TableCell className="font-semibold text-slate-900">{o.deviceName}</TableCell>
+                              <TableCell className="text-slate-400 text-xs">{o.serviceType}</TableCell>
+                              <TableCell className="font-semibold text-slate-900">R$ {o.value.toFixed(2)}</TableCell>
+                              <TableCell>{getStatusBadge(o.status)}</TableCell>
+                            </TableRow>
+                          ))}
+
+                        {/* Render all Quotes */}
+                        {result.quotes.map((q) => (
+                          <TableRow key={q.id} className="hover:bg-slate-50/30 border-b border-slate-100">
+                            <TableCell className="font-bold text-slate-500">{q.id}</TableCell>
+                            <TableCell className="font-semibold text-slate-900">{q.deviceName}</TableCell>
+                            <TableCell className="text-slate-400 text-xs">{q.description}</TableCell>
+                            <TableCell className="font-semibold text-slate-900">R$ {q.value.toFixed(2)}</TableCell>
+                            <TableCell>{getStatusBadge(q.status)}</TableCell>
+                          </TableRow>
+                        ))}
+
+                        {result.orders.filter(o => o.status === "Concluído" || o.status === "Cancelado").length === 0 && result.quotes.length === 0 && (
+                          <TableRow>
+                            <TableCell colSpan={5} className="text-center py-8 text-slate-500 text-xs">
+                              Nenhuma ordem finalizada ou orçamento no histórico.
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              )}
+
+              {/* C. Tab: Promotions (Promoções) */}
+              {activeTab === "promocoes" && (
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-lg font-black text-slate-900">Vouchers e Recompensas de Fidelidade</h4>
+                    <p className="text-xs text-slate-500">Complete ordens de serviço e desbloqueie cupons de desconto.</p>
+                  </div>
+
+                  <div className="grid gap-6 sm:grid-cols-3">
+                    {vouchers.map((v) => {
+                      const isUnlocked = completedRepairsCount >= v.required;
+                      const percent = Math.min(100, (completedRepairsCount / v.required) * 100);
+
+                      return (
+                        <Card key={v.id} className={`border border-slate-200 rounded-3xl overflow-hidden shadow-xl flex flex-col justify-between min-h-[220px] ${v.bgClass}`}>
+                          <div className="p-5 space-y-4">
+                            <div className="flex justify-between items-start">
+                              <Badge className={`bg-slate-900 border text-[9px] rounded-lg ${v.color}`}>
+                                {isUnlocked ? "Cupom Liberado" : `Requer ${v.required} Reparo(s)`}
+                              </Badge>
+                            </div>
+
+                            <div className="space-y-1">
+                              <h5 className="font-black text-base text-slate-900 leading-tight">{v.title}</h5>
+                              <p className="text-xs text-slate-500 font-bold">{v.benefit}</p>
+                            </div>
+                          </div>
+
+                          <div className="p-5 pt-0 space-y-2">
+                            {isUnlocked ? (
+                              <div className="flex flex-col gap-2">
+                                <Button
+                                  onClick={() => setSelectedVoucher(v)}
+                                  className="w-full h-10 rounded-xl bg-orange-600 hover:bg-orange-500 text-white flex items-center justify-center gap-2 text-xs font-bold transition-all shadow-md active:scale-95 border-none"
+                                >
+                                  <Ticket className="w-4 h-4" /> Apresentar Cupom
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  onClick={() => copyToClipboard(v.code)}
+                                  className="w-full h-9 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-800 flex items-center justify-center gap-2 text-xs font-bold transition-all active:scale-95"
+                                >
+                                  {copiedCode === v.code ? (
+                                    <>
+                                      <Check className="w-4 h-4 text-green-600" /> Copiado
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-4 h-4" /> Copiar Código ({v.code})
+                                    </>
+                                  )}
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="space-y-2">
+                                <div className="flex justify-between text-xs text-slate-400 font-bold">
+                                  <span>Falta(m) {v.required - completedRepairsCount} reparo(s)</span>
+                                  <span>{Math.round(percent)}%</span>
+                                </div>
+                                <Progress value={percent} className="h-1.5 bg-slate-100 [&>div]:bg-slate-900 rounded-full" />
+                              </div>
+                            )}
+                          </div>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* D. Tab: Profile (Cadastro) */}
+              {activeTab === "cadastro" && (
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-lg font-black text-slate-900">Ficha Cadastral do Cliente</h4>
+                    <p className="text-xs text-slate-500">Consulte suas informações pessoais registradas no sistema.</p>
+                  </div>
+
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    {[
+                      { icon: User, label: "CPF / CNPJ", value: result.client.cpfCnpj },
+                      { icon: Phone, label: "Telefone de Contato", value: result.client.phone },
+                      { icon: Mail, label: "Endereço de E-mail", value: result.client.email },
+                      { icon: MapPin, label: "Endereço Residencial", value: result.client.address }
+                    ].map((info, idx) => {
+                      const Icon = info.icon;
+                      return (
+                        <Card key={idx} className="border border-slate-200 bg-white rounded-3xl p-5 flex items-center gap-4 shadow-xl">
+                          <div className="h-11 w-11 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-900 shrink-0">
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{info.label}</p>
+                            <p className="text-sm font-black text-slate-900 mt-0.5">{info.value}</p>
+                          </div>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+            </section>
+          </main>
+        </div>
+      )}
+
+      {/* Flight-Ticket Coupon Modal */}
+      <Dialog open={!!selectedVoucher} onOpenChange={(open) => !open && setSelectedVoucher(null)}>
+        <DialogContent className="max-w-[340px] p-0 bg-transparent border-none shadow-none flex flex-col items-center justify-center select-none outline-none">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Apresentar Cupom</DialogTitle>
+            <DialogDescription>
+              Apresente o cupom ao atendente da assistência técnica.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedVoucher && (
+            <div className="w-[310px] filter drop-shadow-2xl flex flex-col rounded-3xl overflow-hidden font-sans">
+              
+              {/* TOP TICKET SECTION (Orange) */}
+              <div className="bg-gradient-to-br from-orange-500 to-red-600 text-white p-6 relative flex flex-col items-center justify-center text-center">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">
+                  CUPOM FIDELIDADE
+                </span>
+                
+                {/* Airplane-ticket style layout header */}
+                <div className="flex w-full items-center justify-between mt-3 text-xs font-bold opacity-90 px-2">
+                  <span>DESCONTO</span>
+                  <div className="h-[1px] flex-1 bg-white/30 mx-2 relative">
+                    <div className="w-1.5 h-1.5 bg-white rounded-full absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
+                  </div>
+                  <span>EXCLUSIVO</span>
+                </div>
+                
+                {/* Large visual Discount Rate */}
+                <h1 className="text-5xl font-black tracking-tighter mt-4 mb-2 drop-shadow-md">
+                  {selectedVoucher.percentage}
+                </h1>
+                
+                <span className="text-[11px] font-extrabold uppercase tracking-wider bg-black/15 px-3 py-1 rounded-full text-orange-100">
+                  {selectedVoucher.title}
+                </span>
+              </div>
+
+              {/* TICKET TEAR-OFF LINE SEPARATOR */}
+              <div className="relative h-6 bg-transparent flex items-center justify-center">
+                {/* Left Hole Cutout */}
+                <div className="w-6 h-6 rounded-full bg-slate-950 absolute -left-3 top-1/2 -translate-y-1/2 z-10" />
+                
+                {/* Dashed line */}
+                <div className="w-full border-t border-dashed border-slate-300 absolute left-0" />
+                
+                {/* Right Hole Cutout */}
+                <div className="w-6 h-6 rounded-full bg-slate-950 absolute -right-3 top-1/2 -translate-y-1/2 z-10" />
+              </div>
+
+              {/* BOTTOM TICKET SECTION (White) */}
+              <div className="bg-white text-slate-800 p-6 flex flex-col items-center text-center">
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Beneficiário</span>
+                <span className="text-sm font-black text-slate-900 mt-0.5 truncate max-w-full uppercase">
+                  {result?.client.name}
+                </span>
+
+                <div className="border-t border-slate-100 w-full my-4" />
+
+                {/* Metadata Grid */}
+                <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-left w-full text-xs font-semibold text-slate-500">
+                  <div>
+                    <span className="text-[9px] text-slate-400 uppercase tracking-wider block">Código Cupom</span>
+                    <span className="text-slate-900 font-extrabold text-xs uppercase tracking-wider mt-0.5 block">{selectedVoucher.code}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-slate-400 uppercase tracking-wider block">Meta Atingida</span>
+                    <span className="text-slate-900 font-extrabold text-xs mt-0.5 block">{selectedVoucher.required} Conserto(s)</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-slate-400 uppercase tracking-wider block">Voucher Categoria</span>
+                    <span className="text-slate-900 font-extrabold text-xs uppercase tracking-wider mt-0.5 block">{selectedVoucher.id}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-slate-400 uppercase tracking-wider block">Cliente ID</span>
+                    <span className="text-slate-900 font-extrabold text-xs mt-0.5 block">{result?.client.accessCode}</span>
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-100 w-full my-4" />
+
+                {/* Barcode Render SVG */}
+                <div className="w-full flex flex-col items-center">
+                  <svg className="w-full h-14" viewBox="0 0 100 40">
+                    <rect x="5" y="0" width="2" height="40" fill="black" />
+                    <rect x="8" y="0" width="1" height="40" fill="black" />
+                    <rect x="10" y="0" width="3" height="40" fill="black" />
+                    <rect x="14" y="0" width="1" height="40" fill="black" />
+                    <rect x="16" y="0" width="4" height="40" fill="black" />
+                    <rect x="22" y="0" width="1" height="40" fill="black" />
+                    <rect x="24" y="0" width="2" height="40" fill="black" />
+                    <rect x="27" y="0" width="3" height="40" fill="black" />
+                    <rect x="31" y="0" width="1" height="40" fill="black" />
+                    <rect x="33" y="0" width="4" height="40" fill="black" />
+                    <rect x="38" y="0" width="1" height="40" fill="black" />
+                    <rect x="40" y="0" width="2" height="40" fill="black" />
+                    <rect x="43" y="0" width="3" height="40" fill="black" />
+                    <rect x="47" y="0" width="1" height="40" fill="black" />
+                    <rect x="49" y="0" width="4" height="40" fill="black" />
+                    <rect x="54" y="0" width="2" height="40" fill="black" />
+                    <rect x="57" y="0" width="1" height="40" fill="black" />
+                    <rect x="59" y="0" width="3" height="40" fill="black" />
+                    <rect x="63" y="0" width="1" height="40" fill="black" />
+                    <rect x="65" y="0" width="4" height="40" fill="black" />
+                    <rect x="70" y="0" width="2" height="40" fill="black" />
+                    <rect x="73" y="0" width="1" height="40" fill="black" />
+                    <rect x="75" y="0" width="3" height="40" fill="black" />
+                    <rect x="79" y="0" width="1" height="40" fill="black" />
+                    <rect x="81" y="0" width="4" height="40" fill="black" />
+                    <rect x="86" y="0" width="2" height="40" fill="black" />
+                    <rect x="89" y="0" width="1" height="40" fill="black" />
+                    <rect x="91" y="0" width="3" height="40" fill="black" />
+                  </svg>
+                  <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] mt-1.5 uppercase">
+                    *{selectedVoucher.code}*
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
