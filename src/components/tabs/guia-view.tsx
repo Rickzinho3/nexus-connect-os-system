@@ -214,12 +214,20 @@ export function GuiaView() {
     printWindow.document.close();
   };
 
-  const filteredClients = clients.filter(
-    (c) =>
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.cpfCnpj.replace(/\D/g, "").includes(searchQuery.replace(/\D/g, "")) ||
-      c.accessCode.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredClients = clients.filter((c) => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return true;
+
+    const matchesName = c.name.toLowerCase().includes(query);
+    const matchesCode = c.accessCode.toLowerCase().includes(query);
+
+    const digitsOnlyQuery = query.replace(/\D/g, "");
+    const matchesCpf = digitsOnlyQuery.length > 0
+      ? c.cpfCnpj.replace(/\D/g, "").includes(digitsOnlyQuery)
+      : false;
+
+    return matchesName || matchesCode || matchesCpf;
+  });
 
   const mainQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
     portalUrl
