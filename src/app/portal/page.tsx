@@ -225,9 +225,9 @@ export default function ClientPortal() {
       id: "bronze",
       title: "Vale-Desconto Bronze",
       benefit: "5% OFF em Acessórios",
-      required: 1,
+      required: 2,
       code: "BRONZE5",
-      color: "from-slate-100 to-slate-200 border-slate-300 text-slate-800",
+      color: "from-slate-100 to-slate-200 border-slate-300 text-white bg-linear-to-r from-orange-500 to-orange-600",
       bgClass: "bg-white",
       percentage: "5% OFF"
     },
@@ -235,9 +235,9 @@ export default function ClientPortal() {
       id: "prata",
       title: "Vale-Desconto Prata",
       benefit: "10% OFF em Peças",
-      required: 3,
+      required: 4,
       code: "PRATA10",
-      color: "from-slate-200 to-slate-300 border-slate-400 text-slate-900",
+      color: "from-slate-200 to-slate-300 border-slate-400 text-white bg-linear-to-r from-slate-500 to-slate-600",
       bgClass: "bg-white",
       percentage: "10% OFF"
     },
@@ -245,9 +245,9 @@ export default function ClientPortal() {
       id: "ouro",
       title: "Vale-Desconto Ouro",
       benefit: "15% OFF Geral (Mão de Obra)",
-      required: 5,
+      required: 6,
       code: "OURO15",
-      color: "from-slate-800 to-slate-900 border-transparent text-white",
+      color: "from-slate-300 to-slate-400 border-transparent text-white bg-linear-to-r from-yellow-500 to-yellow-600",
       bgClass: "bg-white",
       percentage: "15% OFF"
     }
@@ -430,7 +430,7 @@ export default function ClientPortal() {
               </div>
               
               <div className="flex items-center gap-3">
-                <Badge className="bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-extrabold text-xs px-3.5 py-1.5 gap-1 shadow-sm">
+                <Badge className="bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-extrabold text-xs px-3.5 h-10 gap-1 shadow-sm">
                   <Smartphone className="w-3.5 h-3.5" />
                   Código: {result.client.accessCode}
                 </Badge>
@@ -452,7 +452,7 @@ export default function ClientPortal() {
                 <div className="flex justify-between items-center pt-4 border-t border-slate-100">
                   <span className="text-xs text-slate-900 font-bold">{activeOSList.length} Consertos Ativos</span>
                   <a
-                    href="https://wa.me/5511999999999"
+                    href="https://wa.me/5598984575955"
                     target="_blank"
                     rel="noreferrer"
                     className="text-xs font-bold text-slate-900 hover:text-slate-900 flex items-center gap-1.5"

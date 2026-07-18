@@ -34,7 +34,7 @@ const ProgressKPI3 = (props: ProgressKPI3Props) => {
               <div className='space-y-1'>
                 <KPIValue className='text-2xl' value={current} animated />
                 <CardDescription>
-                  of {goal.toLocaleString()} {unit}
+                  de {goal.toLocaleString()} {unit}
                 </CardDescription>
               </div>
             </div>

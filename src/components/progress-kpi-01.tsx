@@ -44,7 +44,7 @@ const ProgressKPI1 = (props: ProgressKPI1Props) => {
                   formatter={(value) => `${value.toLocaleString()}%`}
                 />
               </span>{' '}
-              of monthly target
+              da meta mensal
             </span>
             <span className='font-semibold text-foreground'>
               {target ? (formatter ? formatter(target) : target) : '$100k'}

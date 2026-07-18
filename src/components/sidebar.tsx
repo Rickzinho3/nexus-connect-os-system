@@ -170,7 +170,7 @@ export function Sidebar({
             <div className="flex items-center gap-3">
               <BarChart2 className="w-6 h-6 text-white shrink-0" />
               {!isCollapsed && (
-                <span className="text-lg font-bold tracking-wide truncate">Gestão</span>
+                <span className="text-lg font-bold tracking-wide truncate">Nexus Connect</span>
               )}
             </div>
             {!isCollapsed && (
