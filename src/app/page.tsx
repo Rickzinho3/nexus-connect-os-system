@@ -15,6 +15,7 @@ import { CaixaView } from "@/components/tabs/caixa-view";
 import { RelatoriosView } from "@/components/tabs/relatorios-view";
 import { FuncionariosView } from "@/components/tabs/funcionarios-view";
 import { ConfiguracoesView } from "@/components/tabs/configuracoes-view";
+import { GuiaView } from "@/components/tabs/guia-view";
 import { seedInitialDatabase } from "@/app/actions";
 import { Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -57,6 +58,8 @@ export default function Home() {
         return <FuncionariosView />;
       case "configuracoes":
         return <ConfiguracoesView />;
+      case "guia":
+        return <GuiaView />;
       default:
         return <DashboardView />;
     }
@@ -105,7 +108,11 @@ export default function Home() {
             </Button>
             
             <h2 className="font-bold text-slate-900 tracking-tight capitalize hidden sm:block">
-              {activeTab === "os" ? "Ordens de Serviço" : activeTab}
+              {activeTab === "os"
+                ? "Ordens de Serviço"
+                : activeTab === "guia"
+                ? "Guia do Portal"
+                : activeTab}
             </h2>
           </header>
 

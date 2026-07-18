@@ -17,6 +17,7 @@ import {
   UserCheck,
   Settings,
   X,
+  Compass,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,8 @@ export type TabId =
   | "caixa"
   | "relatorios"
   | "funcionarios"
-  | "configuracoes";
+  | "configuracoes"
+  | "guia";
 
 interface SidebarProps {
   activeTab: TabId;
@@ -87,6 +89,12 @@ export function Sidebar({
         { id: "financeiro", label: "Financeiro", icon: Wallet },
         { id: "caixa", label: "Caixa", icon: Landmark },
         { id: "relatorios", label: "Relatórios", icon: BarChart3 },
+      ],
+    },
+    {
+      title: "Suporte",
+      items: [
+        { id: "guia", label: "Guia do Portal", icon: Compass },
       ],
     },
   ];

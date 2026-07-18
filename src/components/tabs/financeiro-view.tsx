@@ -595,7 +595,7 @@ export function FinanceiroView() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-2xl font-black ${lucro >= 0 ? "text-white" : "text-red-400"}`}>
+            <p className={`text-2xl font-black ${lucro >= 0 ? "text-primary" : "text-red-400"}`}>
               R$ {lucro.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
             </p>
             <p className="text-[10px] text-slate-400 mt-1 font-semibold">Resultado líquido efetivado</p>
