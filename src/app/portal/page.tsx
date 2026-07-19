@@ -435,7 +435,7 @@ export default function ClientPortal() {
                   <Smartphone className="w-3.5 h-3.5" />
                   Código: {result.client.accessCode}
                 </Badge>
-                <Popover align="end" sideOffset={12}>
+                {/* <Popover align="end" sideOffset={12}>
                   <PopoverTrigger>
                     <Button size="icon" variant="ghost" className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 shadow-sm relative">
                       <Bell className="w-4 h-4" />
@@ -473,7 +473,7 @@ export default function ClientPortal() {
                       <button className="text-xs font-bold text-slate-600 hover:text-slate-900">Ver todas as notificações</button>
                     </div>
                   </PopoverContent>
-                </Popover>
+                </Popover> */}
               </div>
             </header>
 
