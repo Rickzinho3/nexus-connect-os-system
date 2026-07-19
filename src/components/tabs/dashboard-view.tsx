@@ -21,6 +21,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { getServiceOrders, getClients, getFinancialTransactions, getGoals } from "@/app/actions";
+import { NumberTicker } from "@/components/motion/number-ticker";
 import { AnimatedNumber } from "@/components/animated-number";
 
 type FilterPeriod = "Day" | "Week" | "Month" | "Year";
@@ -265,7 +266,7 @@ export function DashboardView() {
                 <p className="text-slate-400 text-[13px] font-medium tracking-wide">Faturamento Total</p>
                 <div className="space-y-4">
                   <h2 className="text-4xl font-bold tracking-tight flex items-center">
-                    R$&nbsp;<AnimatedNumber value={metrics.revCurr} formatter={(v) => v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
+                    R$&nbsp;<NumberTicker value={metrics.revCurr} format={(v) => v.toLocaleString("pt-BR")} blur />
                   </h2>
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-1.5 text-[11px] font-bold">
@@ -307,7 +308,7 @@ export function DashboardView() {
                 <p className="text-slate-500 text-[13px] font-medium tracking-wide">Ordens Registradas</p>
                 <div className="space-y-3">
                   <h2 className="text-4xl font-bold tracking-tight text-slate-900">
-                    <AnimatedNumber value={metrics.osCurr} formatter={(v) => v.toLocaleString("pt-BR")} />
+                    <NumberTicker value={metrics.osCurr} format={(v) => v.toLocaleString("pt-BR")} blur />
                   </h2>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold">
                     {metrics.osTrend >= 0 ? (
@@ -331,7 +332,7 @@ export function DashboardView() {
                 <p className="text-slate-500 text-[13px] font-medium tracking-wide">Novos Clientes</p>
                 <div className="space-y-3">
                   <h2 className="text-4xl font-bold tracking-tight text-slate-900">
-                    <AnimatedNumber value={metrics.cliCurr} formatter={(v) => v.toLocaleString("pt-BR")} />
+                    <NumberTicker value={metrics.cliCurr} format={(v) => v.toLocaleString("pt-BR")} blur />
                   </h2>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold">
                     {metrics.cliTrend >= 0 ? (
@@ -355,7 +356,7 @@ export function DashboardView() {
                 <p className="text-slate-500 text-[13px] font-medium tracking-wide">O.S. Concluídas</p>
                 <div className="space-y-3">
                   <h2 className="text-4xl font-bold tracking-tight text-slate-900">
-                    <AnimatedNumber value={metrics.concCurr} formatter={(v) => v.toLocaleString("pt-BR")} />
+                    <NumberTicker value={metrics.concCurr} format={(v) => v.toLocaleString("pt-BR")} blur />
                   </h2>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold">
                     {metrics.concTrend >= 0 ? (

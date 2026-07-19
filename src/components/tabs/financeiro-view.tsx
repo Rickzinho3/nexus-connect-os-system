@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AnimatedAmountInput } from "@/components/ui/animated-amount-input";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/motion/select";
 import {
   ChartContainer,
   ChartTooltip,
@@ -43,7 +44,8 @@ import {
   Briefcase,
   Layers,
   Filter,
-  UserCheck
+  UserCheck,
+  PlusCircle
 } from "lucide-react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, Label } from "recharts";
 import {
@@ -53,6 +55,8 @@ import {
   deleteFinancialTransaction,
   getEmployees
 } from "@/app/actions";
+import { Tooltip } from "@/components/motion/tooltip";
+import { useToast } from "@/components/providers/toast-provider";
 
 interface Transaction {
   id: string;
@@ -71,6 +75,7 @@ interface Transaction {
 type PeriodFilter = "hoje" | "7dias" | "30dias" | "mes" | "todos";
 
 export function FinanceiroView() {
+  const { showToast } = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [employees, setEmployees] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
@@ -140,8 +145,10 @@ export function FinanceiroView() {
       setDueDate("");
       setResponsible("");
       await loadData();
+      showToast({ title: "Transação criada com sucesso", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao criar transação", status: "error" });
     }
   };
 
@@ -155,8 +162,10 @@ export function FinanceiroView() {
       setPayTarget(null);
       setPayResponsible("");
       await loadData();
+      showToast({ title: "Pagamento registrado com sucesso", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao registrar pagamento", status: "error" });
     }
   };
 
@@ -172,8 +181,10 @@ export function FinanceiroView() {
       setIsDeleteOpen(false);
       setDeleteTarget(null);
       await loadData();
+      showToast({ title: "Transação excluída com sucesso", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao excluir transação", status: "error" });
     }
   };
 
@@ -321,7 +332,7 @@ export function FinanceiroView() {
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger render={<Button className="rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-bold gap-2" />}>
             <span className="flex items-center gap-2">
-              <Plus className="w-4 h-4" /> Lançar Movimentação
+              <PlusCircle className="w-4 h-4" /> Lançar Movimentação
             </span>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[420px] rounded-2xl bg-white border border-slate-100">
@@ -363,17 +374,9 @@ export function FinanceiroView() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 col-span-2">
                     <label className="text-xs font-bold text-slate-500 uppercase">Valor (R$)</label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      className="rounded-xl border-slate-200"
-                      required
-                    />
+                    <AnimatedAmountInput value={amount} onChange={setAmount} />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase">Categoria</label>
@@ -459,7 +462,7 @@ export function FinanceiroView() {
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-500 uppercase">Responsável</label>
-                      <Select value={responsible} onValueChange={(val) => setResponsible(val || "")} required>
+                      <Select value={responsible} onValueChange={(val) => setResponsible(val || "")}>
                         <SelectTrigger className="rounded-xl border-slate-200">
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>
@@ -490,7 +493,7 @@ export function FinanceiroView() {
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-500 uppercase">Responsável</label>
-                      <Select value={responsible} onValueChange={(val) => setResponsible(val || "")} required>
+                      <Select value={responsible} onValueChange={(val) => setResponsible(val || "")}>
                         <SelectTrigger className="rounded-xl border-slate-200">
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>
@@ -967,27 +970,30 @@ export function FinanceiroView() {
                         <TableCell className="text-center">
                           <div className="flex items-center justify-center gap-1.5">
                             {tx.status === "Pendente" && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  setPayTarget(tx);
-                                  setIsPayOpen(true);
-                                }}
-                                className="rounded-lg h-7 px-2 border-slate-200 text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 gap-1"
-                                title="Liquidar lançamento"
-                              >
-                                <UserCheck className="w-3 h-3" /> Liquidar
-                              </Button>
+                              <Tooltip content="Liquidar lançamento">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setPayTarget(tx);
+                                    setIsPayOpen(true);
+                                  }}
+                                  className="rounded-lg h-7 px-2 border-slate-200 text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 gap-1"
+                                >
+                                  <UserCheck className="w-3 h-3" /> Liquidar
+                                </Button>
+                              </Tooltip>
                             )}
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              onClick={() => handleDeleteClick(tx)}
-                              className="w-7 h-7 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
+                            <Tooltip content="Excluir">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => handleDeleteClick(tx)}
+                                className="w-7 h-7 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </Tooltip>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -1056,7 +1062,7 @@ export function FinanceiroView() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-500 uppercase">Confirmado por</label>
-                  <Select value={payResponsible} onValueChange={(val) => setPayResponsible(val || "")} required>
+                  <Select value={payResponsible} onValueChange={(val) => setPayResponsible(val || "")}>
                     <SelectTrigger className="rounded-xl border-slate-200">
                       <SelectValue placeholder="Selecione..." />
                     </SelectTrigger>

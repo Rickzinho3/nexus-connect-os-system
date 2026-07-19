@@ -21,7 +21,8 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/motion/select";
+import { Tooltip } from "@/components/motion/tooltip";
 import { Search, PlusCircle, Edit3, Trash2, Tag, Percent } from "lucide-react";
 import { getParts, addPart, updatePart, deletePart } from "@/app/actions";
 
@@ -177,7 +178,7 @@ export function PecasView() {
 
         {/* Dialog for New Part */}
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger render={<Button className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 gap-2 shrink-0 self-start sm:self-auto" />}>
+          <DialogTrigger render={<Button className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 gap-2 shrink-0 self-start sm:self-auto cursor-pointer" />}>
             <span className="flex items-center gap-2">
               <PlusCircle className="w-4 h-4" /> Cadastrar Peça
             </span>
@@ -274,11 +275,11 @@ export function PecasView() {
                   type="button"
                   variant="outline"
                   onClick={() => setIsCreateOpen(false)}
-                  className="rounded-xl border-slate-200"
+                  className="rounded-xl border-slate-200 cursor-pointer"
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
+                <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold cursor-pointer">
                   Confirmar Cadastro
                 </Button>
               </DialogFooter>
@@ -305,7 +306,7 @@ export function PecasView() {
               key={cat}
               onClick={() => setCategoryFilter(cat)}
               variant={categoryFilter === cat ? "default" : "outline"}
-              className={`rounded-xl text-xs py-1.5 h-8 ${
+              className={`rounded-xl text-xs py-1.5 h-8 cursor-pointer ${
                 categoryFilter === cat
                   ? "bg-slate-900 text-white"
                   : "bg-white text-slate-600 hover:bg-slate-50 border-slate-200"
@@ -371,22 +372,26 @@ export function PecasView() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => handleEditClick(part)}
-                          className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => handleDeleteClick(part)}
-                          className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <Tooltip content="Editar Componente" side="top">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => handleEditClick(part)}
+                            className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 cursor-pointer"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </Button>
+                        </Tooltip>
+                        <Tooltip content="Excluir Componente" side="top">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => handleDeleteClick(part)}
+                            className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </Tooltip>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -486,11 +491,11 @@ export function PecasView() {
                 type="button"
                 variant="outline"
                 onClick={() => setIsEditOpen(false)}
-                className="rounded-xl border-slate-200"
+                className="rounded-xl border-slate-200 cursor-pointer"
               >
                 Cancelar
               </Button>
-              <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
+              <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold cursor-pointer">
                 Salvar Alterações
               </Button>
             </DialogFooter>
@@ -511,13 +516,13 @@ export function PecasView() {
             <Button
               variant="outline"
               onClick={() => setIsDeleteOpen(false)}
-              className="rounded-xl border-slate-200"
+              className="rounded-xl border-slate-200 cursor-pointer"
             >
               Cancelar
             </Button>
             <Button
               onClick={handleConfirmDelete}
-              className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold"
+              className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold cursor-pointer"
             >
               Confirmar Exclusão
             </Button>

@@ -3,11 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getServiceOrderById } from "@/app/actions";
-import { ArrowLeft, Smartphone, User, FileText, Camera } from "lucide-react";
+import { ArrowLeft, Smartphone, User, FileText, Camera, Bell, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/motion/popover";
 
 export default function OSDetailsPage() {
   const params = useParams();
@@ -63,7 +64,47 @@ export default function OSDetailsPage() {
             </h1>
             <p className="text-slate-500 font-medium text-sm">Registrada em {order.date}</p>
           </div>
-          {getStatusBadge(order.status)}
+          <div className="flex items-center gap-4">
+            {getStatusBadge(order.status)}
+            <Popover align="end" side="bottom" sideOffset={8}>
+              <PopoverTrigger>
+                <Button variant="outline" size="icon" className="relative rounded-full h-10 w-10 border-slate-200">
+                  <Bell className="w-5 h-5 text-slate-600" />
+                  <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-0 rounded-2xl border-slate-100 shadow-xl overflow-hidden">
+                <div className="bg-slate-50 p-4 border-b border-slate-100">
+                  <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-slate-500" /> Notificações
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1">Acompanhe as atualizações da sua O.S.</p>
+                </div>
+                <div className="p-4 space-y-4 max-h-[300px] overflow-y-auto">
+                  <div className="flex gap-3 items-start">
+                    <div className="bg-emerald-100 p-2 rounded-full mt-0.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">Status atualizado</p>
+                      <p className="text-xs text-slate-500 mt-0.5">A sua ordem de serviço agora está com status de: {order.status}.</p>
+                      <p className="text-[10px] text-slate-400 mt-1">Hoje, 10:30</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 items-start opacity-70">
+                    <div className="bg-slate-100 p-2 rounded-full mt-0.5">
+                      <FileText className="w-4 h-4 text-slate-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">Ordem registrada</p>
+                      <p className="text-xs text-slate-500 mt-0.5">O.S. {order.id} foi registrada com sucesso no sistema.</p>
+                      <p className="text-[10px] text-slate-400 mt-1">{order.date}</p>
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">

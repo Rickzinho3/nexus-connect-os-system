@@ -50,6 +50,8 @@ import {
   deleteCashLog,
   getEmployees
 } from "@/app/actions";
+import { Tooltip } from "@/components/motion/tooltip";
+import { useToast } from "@/components/providers/toast-provider";
 
 interface DrawerLog {
   id: number;
@@ -78,6 +80,7 @@ interface CashSession {
 }
 
 export function CaixaView() {
+  const { showToast } = useToast();
   const [activeSession, setActiveSession] = useState<CashSession | null>(null);
   const [logs, setLogs] = useState<DrawerLog[]>([]);
   const [sessionsHistory, setSessionsHistory] = useState<CashSession[]>([]);
@@ -149,8 +152,10 @@ export function CaixaView() {
       setInitialValue("");
       setOpeningResponsible("");
       await loadData();
+      showToast({ title: "Sessão de caixa aberta", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao abrir o caixa", status: "error" });
     }
   };
 
@@ -178,8 +183,10 @@ export function CaixaView() {
       setTxDescription("");
       setTxResponsible("");
       await loadData();
+      showToast({ title: "Movimentação registrada com sucesso", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao registrar movimentação", status: "error" });
     }
   };
 
@@ -200,8 +207,10 @@ export function CaixaView() {
       setClosingNotes("");
       setClosingResponsible("");
       await loadData();
+      showToast({ title: "Sessão de caixa fechada", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao fechar o caixa", status: "error" });
     }
   };
 
@@ -212,8 +221,10 @@ export function CaixaView() {
       setIsDeleteOpen(false);
       setDeleteTarget(null);
       await loadData();
+      showToast({ title: "Movimentação excluída com sucesso", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao excluir movimentação", status: "error" });
     }
   };
 
@@ -717,17 +728,19 @@ export function CaixaView() {
                         </TableCell>
                         <TableCell className="text-center">
                           {log.type !== "Abertura" && log.type !== "Venda" && log.type !== "Serviço" ? (
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              onClick={() => {
-                                setDeleteTarget(log);
-                                setIsDeleteOpen(true);
-                              }}
-                              className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            <Tooltip content="Excluir">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => {
+                                  setDeleteTarget(log);
+                                  setIsDeleteOpen(true);
+                                }}
+                                className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </Tooltip>
                           ) : (
                             <span className="text-[10px] text-slate-300 font-semibold">Automático</span>
                           )}

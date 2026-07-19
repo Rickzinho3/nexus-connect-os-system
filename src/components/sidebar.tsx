@@ -18,9 +18,12 @@ import {
   Settings,
   X,
   Compass,
+  Building2,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useSession, signOut } from "next-auth/react";
 
 export type TabId =
   | "dashboard"
@@ -36,7 +39,8 @@ export type TabId =
   | "relatorios"
   | "funcionarios"
   | "configuracoes"
-  | "guia";
+  | "guia"
+  | "empresas";
 
 interface SidebarProps {
   activeTab: TabId;
@@ -64,6 +68,10 @@ export function Sidebar({
   isMobileOpen,
   closeMobile,
 }: SidebarProps) {
+  const { data: session } = useSession();
+  const role = (session?.user as any)?.role || "Atendente";
+  const userName = session?.user?.name || "Usuário";
+
   const menuGroups: MenuGroup[] = [
     {
       title: "Gestão",
@@ -83,29 +91,53 @@ export function Sidebar({
         { id: "vendas", label: "Vendas", icon: ShoppingCart },
       ],
     },
-    {
+  ];
+
+  // Restrict Financeiro to Dono or Super Admin
+  if (role === "Dono" || role === "Super Admin") {
+    menuGroups.push({
       title: "Financeiro",
       items: [
         { id: "financeiro", label: "Financeiro", icon: Wallet },
         { id: "caixa", label: "Caixa", icon: Landmark },
         { id: "relatorios", label: "Relatórios", icon: BarChart3 },
       ],
-    },
-    {
-      title: "Suporte",
+    });
+  } else {
+    // Atendente só vê caixa
+    menuGroups.push({
+      title: "Financeiro",
       items: [
-        { id: "guia", label: "Guia do Portal", icon: Compass },
+        { id: "caixa", label: "Caixa", icon: Landmark },
       ],
-    },
-  ];
+    });
+  }
 
-  const adminGroup: MenuGroup = {
-    title: "Administração",
+  menuGroups.push({
+    title: "Suporte",
     items: [
-      { id: "funcionarios", label: "Funcionários", icon: UserCheck },
-      { id: "configuracoes", label: "Configurações", icon: Settings },
+      { id: "guia", label: "Guia do Portal", icon: Compass },
     ],
-  };
+  });
+
+  const adminGroup: MenuGroup | null =
+    role === "Super Admin"
+      ? {
+          title: "Sistema (Admin)",
+          items: [
+            { id: "empresas", label: "Empresas", icon: Building2 },
+            { id: "configuracoes", label: "Configurações", icon: Settings },
+          ],
+        }
+      : role === "Dono"
+      ? {
+          title: "Administração",
+          items: [
+            { id: "funcionarios", label: "Funcionários", icon: UserCheck },
+            { id: "configuracoes", label: "Configurações", icon: Settings },
+          ],
+        }
+      : null;
 
   const renderGroup = (group: MenuGroup) => (
     <div key={group.title} className="mb-5">
@@ -194,11 +226,52 @@ export function Sidebar({
           </div>
 
           {/* Dynamic Groups */}
-          <nav className="space-y-6">{menuGroups.map(renderGroup)}</nav>
+          <nav className="space-y-6">
+            {menuGroups.map(renderGroup)}
+            {adminGroup && renderGroup(adminGroup)}
+          </nav>
         </div>
 
-        {/* Admin Group pinned at the bottom */}
-        <div className="mt-8">{renderGroup(adminGroup)}</div>
+        {/* User Profile / Logout */}
+        <div className="mt-8 pt-4 border-t border-slate-800/50 px-2">
+          {!isCollapsed ? (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 overflow-hidden">
+                <div className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center font-semibold text-zinc-300 shrink-0">
+                  {userName.charAt(0).toUpperCase()}
+                </div>
+                <div className="truncate">
+                  <div className="text-sm font-medium text-slate-200 truncate">{userName}</div>
+                  <div className="text-xs text-slate-500 truncate">{role}</div>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => signOut()}
+                className="text-slate-400 hover:text-red-400 hover:bg-red-500/10 shrink-0"
+                title="Sair"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center font-semibold text-zinc-300" title={userName}>
+                {userName.charAt(0).toUpperCase()}
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => signOut()}
+                className="text-slate-400 hover:text-red-400 hover:bg-red-500/10"
+                title="Sair"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+        </div>
       </aside>
     </>
   );

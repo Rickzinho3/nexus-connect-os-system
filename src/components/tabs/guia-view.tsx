@@ -382,7 +382,7 @@ export function GuiaView() {
                         onClick={() => setSelectedClient(client)}
                         className={`w-full p-2.5 rounded-lg text-left text-xs transition-all flex flex-col gap-1 border ${
                           selectedClient?.id === client.id
-                            ? "bg-slate-900 border-slate-600 text-white font-bold shadow-md shadow-indigo-600/10"
+                            ? "bg-slate-900 border-slate-600 text-white font-bold shadow-md shadow-slate-900/10"
                             : "bg-white border-slate-200 text-slate-700 hover:bg-slate-100"
                         }`}
                       >
@@ -438,7 +438,7 @@ export function GuiaView() {
                         {/* Text Message Preview */}
                         <div className="space-y-1.5">
                           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Pré-visualização da Mensagem</span>
-                          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[11px] text-slate-700 font-semibold leading-relaxed max-h-[140px] overflow-y-auto whitespace-pre-wrap select-all select-none border-dashed border-indigo-200">
+                          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[11px] text-slate-700 font-semibold leading-relaxed max-h-[140px] overflow-y-auto whitespace-pre-wrap select-all select-none border-dashed border-slate-300">
                             {getShareMessage(selectedClient)}
                           </div>
                         </div>

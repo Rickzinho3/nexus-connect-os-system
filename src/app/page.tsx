@@ -16,6 +16,7 @@ import { RelatoriosView } from "@/components/tabs/relatorios-view";
 import { FuncionariosView } from "@/components/tabs/funcionarios-view";
 import { ConfiguracoesView } from "@/components/tabs/configuracoes-view";
 import { GuiaView } from "@/components/tabs/guia-view";
+import { EmpresasView } from "@/components/tabs/empresas-view";
 import { seedInitialDatabase } from "@/app/actions";
 import { Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,8 @@ export default function Home() {
         return <ConfiguracoesView />;
       case "guia":
         return <GuiaView />;
+      case "empresas":
+        return <EmpresasView />;
       default:
         return <DashboardView />;
     }

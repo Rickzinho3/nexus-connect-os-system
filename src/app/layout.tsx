@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import { SessionProvider } from "next-auth/react";
+import { ToastProvider } from "@/components/providers/toast-provider";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -23,7 +25,13 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${poppins.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <SessionProvider>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </SessionProvider>
+      </body>
     </html>
   );
 }

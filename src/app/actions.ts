@@ -2,19 +2,113 @@
 
 import { db, tenants, clients, serviceOrders, quotes, parts, sales, employees, cashLogs, goals, cashSessions, financialTransactions } from "@/db";
 import { eq, and, desc } from "drizzle-orm";
+import bcrypt from "bcryptjs";
+import { revalidatePath } from "next/cache";
 
-// 0. Multi-tenant context helper: auto-seeds a default tenant for single-tenant mode, ready for future SaaS Auth
-async function getOrCreateTenantId() {
-  const existing = await db.select().from(tenants).limit(1);
-  if (existing.length > 0) {
-    return existing[0].id;
+import { auth } from "@/auth";
+
+export async function getTenants() {
+  const session = await auth();
+  if ((session?.user as any)?.role !== "Super Admin") {
+    throw new Error("Não autorizado");
   }
-  const [created] = await db.insert(tenants).values({
-    name: "Cornerstone Autocenter",
-    cnpj: "12.345.678/0001-90",
-    address: "Av. das Nações Unidas, 1200 - São Paulo, SP",
+  const allTenants = await db.select().from(tenants);
+  return allTenants;
+}
+
+export async function createTenant(formData: { name: string; cnpj: string; address?: string; phone?: string; taxRate?: string; commissionRate?: string; }) {
+  const session = await auth();
+  if ((session?.user as any)?.role !== "Super Admin") throw new Error("Não autorizado");
+
+  const [createdTenant] = await db.insert(tenants).values({
+    name: formData.name,
+    cnpj: formData.cnpj,
+    address: formData.address,
+    phone: formData.phone,
+    taxRate: formData.taxRate || "12.5",
+    commissionRate: formData.commissionRate || "8.0",
   }).returning();
-  return created.id;
+
+  // Generate random password
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let tempPassword = "";
+  for (let i = 0; i < 8; i++) {
+    tempPassword += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  
+  const passwordHash = await bcrypt.hash(tempPassword, 10);
+  const employeeId = `FUN-${Math.floor(10 + Math.random() * 90)}`;
+
+  await db.insert(employees).values({
+    id: employeeId,
+    tenantId: createdTenant.id,
+    cpfCnpj: formData.cnpj, // Uses company CNPJ for login
+    password: passwordHash,
+    name: "Dono",
+    role: "Dono",
+    email: "admin@empresa.com",
+    phone: formData.phone || "(00) 00000-0000",
+    status: "Ativo",
+  });
+
+  revalidatePath("/admin/empresas");
+  return { success: true, credentials: { login: formData.cnpj, password: tempPassword } };
+}
+
+export async function updateTenant(id: string, formData: { name: string; cnpj: string; address?: string; phone?: string; taxRate?: string; commissionRate?: string; }) {
+  const session = await auth();
+  if ((session?.user as any)?.role !== "Super Admin") throw new Error("Não autorizado");
+
+  await db.update(tenants).set({
+    name: formData.name,
+    cnpj: formData.cnpj,
+    address: formData.address,
+    phone: formData.phone,
+    taxRate: formData.taxRate,
+    commissionRate: formData.commissionRate,
+  }).where(eq(tenants.id, id));
+
+  revalidatePath("/admin/empresas");
+  return { success: true };
+}
+
+export async function deleteTenant(id: string) {
+  const session = await auth();
+  if ((session?.user as any)?.role !== "Super Admin") throw new Error("Não autorizado");
+
+  // Prevent deleting the Super Admin's own tenant
+  const myTenantId = (session?.user as any)?.tenantId;
+  if (id === myTenantId) {
+    throw new Error("Você não pode excluir sua própria empresa!");
+  }
+
+  // Manual cascade delete to ensure no foreign key constraints block the deletion
+  await db.delete(financialTransactions).where(eq(financialTransactions.tenantId, id));
+  await db.delete(cashSessions).where(eq(cashSessions.tenantId, id));
+  await db.delete(goals).where(eq(goals.tenantId, id));
+  await db.delete(cashLogs).where(eq(cashLogs.tenantId, id));
+  await db.delete(employees).where(and(eq(employees.tenantId, id), eq(employees.role, "Dono")));
+  await db.delete(employees).where(eq(employees.tenantId, id));
+  await db.delete(sales).where(eq(sales.tenantId, id));
+  await db.delete(parts).where(eq(parts.tenantId, id));
+  await db.delete(quotes).where(eq(quotes.tenantId, id));
+  await db.delete(serviceOrders).where(eq(serviceOrders.tenantId, id));
+  await db.delete(clients).where(eq(clients.tenantId, id));
+
+  await db.delete(tenants).where(eq(tenants.id, id));
+  revalidatePath("/admin/empresas");
+  return { success: true };
+}
+
+
+// 0. Multi-tenant context helper — strict isolation
+async function getTenantId(): Promise<string> {
+  const session = await auth();
+  const tenantId = (session?.user as any)?.tenantId;
+  if (!tenantId) {
+    throw new Error("Sessão sem empresa vinculada. Faça login novamente.");
+  }
+  return tenantId;
 }
 
 // Access Code Generator (CLI-XXXXXX)
@@ -29,7 +123,7 @@ function generateAccessCode() {
 
 // 1. Clients Actions
 export async function getClients() {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const list = await db
     .select()
     .from(clients)
@@ -48,7 +142,7 @@ export async function addClient(formData: {
   address: string;
   cpfCnpj: string;
 }) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const accessCode = generateAccessCode();
   const [created] = await db
     .insert(clients)
@@ -99,7 +193,7 @@ export async function deleteClient(id: string) {
 
 // 2. Service Orders (O.S.) Actions
 export async function getServiceOrders() {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const list = await db
     .select({
       id: serviceOrders.id,
@@ -132,7 +226,7 @@ export async function addServiceOrder(formData: {
   value: number;
   photos?: string[];
 }) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const id = `OS-${Math.floor(1000 + Math.random() * 9000)}`;
   const [created] = await db
     .insert(serviceOrders)
@@ -152,7 +246,7 @@ export async function addServiceOrder(formData: {
 }
 
 export async function getServiceOrderById(id: string) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const [order] = await db
     .select({
       id: serviceOrders.id,
@@ -185,7 +279,7 @@ export async function getServiceOrderById(id: string) {
 }
 
 async function registerOSPayment(osId: string, value: number, deviceName: string, clientId: string) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const todayStr = new Date().toLocaleDateString("pt-BR");
   const timeStr = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
@@ -270,7 +364,7 @@ export async function deleteServiceOrder(id: string) {
 
 // 3. Quotes (Orçamentos) Actions
 export async function getQuotes() {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const list = await db
     .select({
       id: quotes.id,
@@ -301,7 +395,7 @@ export async function addQuote(formData: {
   value: number;
   validUntil: string;
 }) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const id = `ORC-${Math.floor(5000 + Math.random() * 900)}`;
   const [created] = await db
     .insert(quotes)
@@ -368,7 +462,7 @@ export async function deleteQuote(id: string) {
 
 // 4. Parts (Componentes) Actions
 export async function getParts() {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const list = await db
     .select()
     .from(parts)
@@ -382,7 +476,7 @@ export async function getParts() {
 }
 
 export async function replenishStock(sku: string, currentStock: number, minStock: number) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const added = minStock * 2;
   const newStock = currentStock + added;
 
@@ -425,7 +519,7 @@ export async function addPart(formData: {
   minQuantity: number;
   price: number;
 }) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const [created] = await db
     .insert(parts)
     .values({
@@ -472,7 +566,7 @@ export async function deletePart(sku: string) {
 
 // 5. Sales Actions
 export async function getSales() {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const list = await db
     .select({
       id: sales.id,
@@ -499,7 +593,7 @@ export async function addSale(formData: {
   paymentMethod: "Pix" | "Cartão" | "Dinheiro";
   amount: number;
 }) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const id = `VEN-${Math.floor(3000 + Math.random() * 900)}`;
   const todayStr = new Date().toLocaleDateString("pt-BR");
   const timeStr = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -563,7 +657,7 @@ export async function updateSale(id: string, formData: {
   paymentMethod: "Pix" | "Cartão" | "Dinheiro";
   amount: number;
 }) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   let clientId: string | null = null;
   if (formData.clientName && formData.clientName !== "Cliente de Balcão") {
     const matched = await db.select().from(clients).where(and(eq(clients.tenantId, tenantId), eq(clients.name, formData.clientName))).limit(1);
@@ -594,7 +688,7 @@ export async function deleteSale(id: string) {
 
 // 6. Employees Actions
 export async function getEmployees() {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const list = await db
     .select()
     .from(employees)
@@ -612,7 +706,7 @@ export async function addEmployee(formData: {
   email: string;
   phone: string;
 }) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const id = `FUN-${Math.floor(10 + Math.random() * 90)}`;
   const [created] = await db
     .insert(employees)
@@ -624,6 +718,8 @@ export async function addEmployee(formData: {
       email: formData.email,
       phone: formData.phone,
       status: "Ativo",
+      cpfCnpj: `000.000.000-${Math.floor(10 + Math.random() * 90)}`,
+      password: "temp_password_123",
     })
     .returning();
   return created;
@@ -660,7 +756,7 @@ export async function deleteEmployee(id: string) {
 
 // 7. Cash Drawer Session & Logs Actions
 export async function getCurrentOpenSession() {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const sessions = await db
     .select()
     .from(cashSessions)
@@ -678,7 +774,7 @@ export async function getCurrentOpenSession() {
 }
 
 export async function openCashSession(formData: { initialValue: number; responsible: string }) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const todayStr = new Date().toLocaleDateString("pt-BR");
 
   const open = await db
@@ -745,7 +841,7 @@ export async function closeCashSession(sessionId: number, formData: { countedVal
 }
 
 export async function getCashSessions() {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const list = await db
     .select()
     .from(cashSessions)
@@ -761,7 +857,7 @@ export async function getCashSessions() {
 }
 
 export async function getCashLogs() {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const list = await db
     .select()
     .from(cashLogs)
@@ -799,7 +895,7 @@ export async function addCashLog(formData: {
   paymentMethod?: string;
   responsible?: string;
 }) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const time = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   const date = new Date().toLocaleDateString("pt-BR");
 
@@ -881,7 +977,7 @@ export async function deleteCashLog(id: number) {
 
 // 7.1 Financial Transactions Server Actions
 export async function getFinancialTransactions() {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const list = await db
     .select()
     .from(financialTransactions)
@@ -905,7 +1001,7 @@ export async function addFinancialTransaction(formData: {
   paymentMethod?: string;
   responsible?: string;
 }) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const date = new Date().toLocaleDateString("pt-BR");
   const time = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
@@ -975,7 +1071,7 @@ export async function deleteFinancialTransaction(id: string) {
 
 // 8. Settings Actions
 export async function getSettings() {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const matched = await db.select().from(tenants).where(eq(tenants.id, tenantId)).limit(1);
   return matched[0];
 }
@@ -987,7 +1083,7 @@ export async function updateSettings(formData: {
   taxRate: string;
   commissionRate: string;
 }) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const [updated] = await db
     .update(tenants)
     .set({
@@ -1004,7 +1100,7 @@ export async function updateSettings(formData: {
 
 // 9. Goals (Metas) Actions
 export async function getGoals() {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const list = await db
     .select()
     .from(goals)
@@ -1078,7 +1174,7 @@ export async function addGoal(formData: {
   unit: string;
   deadline: string;
 }) {
-  const tenantId = await getOrCreateTenantId();
+  const tenantId = await getTenantId();
   const [created] = await db
     .insert(goals)
     .values({
@@ -1210,7 +1306,12 @@ export async function queryOSByAccessCode(accessCode: string) {
 
 // Seed Initial Data (Helper to prepopulate tables when empty)
 export async function seedInitialDatabase() {
-  const tenantId = await getOrCreateTenantId();
+  let tenantId;
+  try {
+    tenantId = await getTenantId();
+  } catch (err) {
+    return; // No session, skip seeding silently
+  }
 
   const existingClients = await db.select().from(clients).limit(1);
   if (existingClients.length > 0) return; // already seeded
@@ -1263,9 +1364,9 @@ export async function seedInitialDatabase() {
 
   // Seed Employees
   await db.insert(employees).values([
-    { id: "FUN-01", tenantId, name: "Adriano Souza", role: "Técnico de Placas", email: "adriano.s@oficina.com", phone: "(11) 98122-1022", status: "Ativo" },
-    { id: "FUN-02", tenantId, name: "Tiago Lacerda", role: "Técnico de Smartphones", email: "tiago.l@oficina.com", phone: "(11) 99345-8822", status: "Ativo" },
-    { id: "FUN-03", tenantId, name: "Renata Oliveira", role: "Atendimento & Triagem", email: "renata.o@oficina.com", phone: "(11) 97433-2940", status: "Ativo" },
+    { id: "FUN-01", tenantId, name: "Adriano Souza", role: "Técnico de Placas", email: "adriano.s@oficina.com", phone: "(11) 98122-1022", status: "Ativo", cpfCnpj: "111.111.111-11", password: "mock_password_hash" },
+    { id: "FUN-02", tenantId, name: "Tiago Lacerda", role: "Técnico de Smartphones", email: "tiago.l@oficina.com", phone: "(11) 99345-8822", status: "Ativo", cpfCnpj: "222.222.222-22", password: "mock_password_hash" },
+    { id: "FUN-03", tenantId, name: "Renata Oliveira", role: "Atendimento & Triagem", email: "renata.o@oficina.com", phone: "(11) 97433-2940", status: "Ativo", cpfCnpj: "333.333.333-33", password: "mock_password_hash" },
   ]);
 
   // Seed Cash Logs

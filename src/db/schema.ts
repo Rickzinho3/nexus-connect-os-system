@@ -95,10 +95,11 @@ export const sales = pgTable("sales", {
 export const employees = pgTable("employees", {
   id: text("id").primaryKey(), // E.g., FUN-01
   tenantId: uuid("tenant_id")
-    .references(() => tenants.id, { onDelete: "cascade" })
-    .notNull(),
+    .references(() => tenants.id, { onDelete: "cascade" }), // Null for Super Admin
+  cpfCnpj: text("cpf_cnpj").unique().notNull(),
+  password: text("password").notNull(),
   name: text("name").notNull(),
-  role: text("role").notNull(),
+  role: text("role").notNull(), // Super Admin, Dono, Atendente, Técnico
   email: text("email").notNull(),
   phone: text("phone").notNull(),
   status: text("status").default("Ativo").notNull(), // Ativo, Férias, Afastado

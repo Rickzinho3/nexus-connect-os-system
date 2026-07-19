@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Plus, CheckCircle, RefreshCcw } from "lucide-react";
 import { getParts, replenishStock } from "@/app/actions";
+import { Tooltip } from "@/components/motion/tooltip";
+import { useToast } from "@/components/providers/toast-provider";
 
 interface StockItem {
   sku: string;
@@ -18,6 +20,7 @@ interface StockItem {
 }
 
 export function EstoqueView() {
+  const { showToast } = useToast();
   const [stockList, setStockList] = useState<StockItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState<string[]>([
@@ -52,8 +55,10 @@ export function EstoqueView() {
         ...prev,
       ]);
       await loadStock();
+      showToast({ title: "Estoque reabastecido", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao reabastecer", status: "error" });
     }
   };
 
@@ -115,13 +120,15 @@ export function EstoqueView() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          onClick={() => handleRestock(item.sku, item.name, item.quantity, item.minQuantity)}
-                          size="sm"
-                          className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-xs py-1 h-8 gap-1.5"
-                        >
-                          <Plus className="w-3.5 h-3.5" /> Reabastecer
-                        </Button>
+                        <Tooltip content="Adicionar ao Estoque">
+                          <Button
+                            onClick={() => handleRestock(item.sku, item.name, item.quantity, item.minQuantity)}
+                            size="sm"
+                            className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-xs py-1 h-8 gap-1.5"
+                          >
+                            <Plus className="w-3.5 h-3.5" /> Reabastecer
+                          </Button>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   ))

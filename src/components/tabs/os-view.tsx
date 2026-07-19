@@ -22,7 +22,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/motion/select";
 import { Search, PlusCircle, FileText, Smartphone, PenTool, Edit3, Trash2, CheckCircle, Camera, Eye } from "lucide-react";
 import { 
   Attachment,
@@ -35,6 +35,8 @@ import {
   AttachmentAction,
 } from "@/components/ui/attachment";
 import { getServiceOrders, addServiceOrder, updateServiceOrder, deleteServiceOrder, getClients } from "@/app/actions";
+import { Tooltip } from "@/components/motion/tooltip";
+import { useToast } from "@/components/providers/toast-provider";
 
 interface ServiceOrder {
   id: string;
@@ -55,6 +57,7 @@ interface ClientOption {
 
 export function OSView() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const [clients, setClients] = useState<ClientOption[]>([]);
   const [search, setSearch] = useState("");
@@ -134,8 +137,10 @@ export function OSView() {
       setNotes("");
       setPhotoPreviews([]);
       await loadData();
+      showToast({ title: "O.S. criada com sucesso", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao criar O.S.", status: "error" });
     }
   };
 
@@ -165,8 +170,10 @@ export function OSView() {
       setIsEditOpen(false);
       setSelectedOrder(null);
       await loadData();
+      showToast({ title: "O.S. atualizada com sucesso", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao atualizar O.S.", status: "error" });
     }
   };
 
@@ -182,8 +189,10 @@ export function OSView() {
       setIsDeleteOpen(false);
       setSelectedOrder(null);
       await loadData();
+      showToast({ title: "O.S. excluída com sucesso", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao excluir O.S.", status: "error" });
     }
   };
 
@@ -419,31 +428,36 @@ export function OSView() {
                   <TableCell className="text-slate-400 text-xs font-semibold">{order.date}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => router.push(`/os/${order.id}`)}
-                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900"
-                        title="Ver Detalhes e Fotos"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleEditClick(order)}
-                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleDeleteClick(order)}
-                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <Tooltip content="Ver Detalhes e Fotos">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => router.push(`/os/${order.id}`)}
+                          className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </Tooltip>
+                      <Tooltip content="Editar">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleEditClick(order)}
+                          className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </Button>
+                      </Tooltip>
+                      <Tooltip content="Excluir">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleDeleteClick(order)}
+                          className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </Tooltip>
                     </div>
                   </TableCell>
                 </TableRow>

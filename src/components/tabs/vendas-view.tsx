@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AnimatedAmountInput } from "@/components/ui/animated-amount-input";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,8 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/motion/select";
+import { Tooltip } from "@/components/motion/tooltip";
 import { DollarSign, Search, PlusCircle, CreditCard, Banknote, Calendar, Edit3, Trash2 } from "lucide-react";
 import { getSales, addSale, updateSale, deleteSale, getClients } from "@/app/actions";
 
@@ -166,7 +168,7 @@ export function VendasView() {
 
         {/* Dialog for New Sale */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger render={<Button className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 gap-2 shrink-0 self-start sm:self-auto" />}>
+          <DialogTrigger render={<Button className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 gap-2 shrink-0 self-start sm:self-auto cursor-pointer" />}>
             <span className="flex items-center gap-2">
               <PlusCircle className="w-4 h-4" /> Nova Venda
             </span>
@@ -216,15 +218,7 @@ export function VendasView() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-500">Valor Recebido (R$)</label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    placeholder="Ex: 120.00"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    className="rounded-xl border-slate-200"
-                    required
-                  />
+                  <AnimatedAmountInput value={amount} onChange={setAmount} />
                 </div>
               </div>
 
@@ -233,11 +227,11 @@ export function VendasView() {
                   type="button"
                   variant="outline"
                   onClick={() => setIsDialogOpen(false)}
-                  className="rounded-xl border-slate-200"
+                  className="rounded-xl border-slate-200 cursor-pointer"
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white">
+                <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white cursor-pointer">
                   Confirmar Venda
                 </Button>
               </DialogFooter>
@@ -294,12 +288,16 @@ export function VendasView() {
                   <TableCell className="text-slate-400 text-xs font-semibold">{sale.date}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Button size="icon" variant="ghost" onClick={() => handleEditClick(sale)} className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900">
-                        <Edit3 className="w-4 h-4" />
-                      </Button>
-                      <Button size="icon" variant="ghost" onClick={() => handleDeleteClick(sale)} className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <Tooltip content="Editar Venda" side="top">
+                        <Button size="icon" variant="ghost" onClick={() => handleEditClick(sale)} className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 cursor-pointer">
+                          <Edit3 className="w-4 h-4" />
+                        </Button>
+                      </Tooltip>
+                      <Tooltip content="Excluir Venda" side="top">
+                        <Button size="icon" variant="ghost" onClick={() => handleDeleteClick(sale)} className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </Tooltip>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -361,23 +359,15 @@ export function VendasView() {
 
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-500">Valor Recebido (R$)</label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  placeholder="Ex: 120.00"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="rounded-xl border-slate-200"
-                  required
-                />
+                <AnimatedAmountInput value={amount} onChange={setAmount} />
               </div>
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)} className="rounded-xl border-slate-200">
+              <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)} className="rounded-xl border-slate-200 cursor-pointer">
                 Cancelar
               </Button>
-              <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white">
+              <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white cursor-pointer">
                 Salvar Alterações
               </Button>
             </DialogFooter>
@@ -395,10 +385,10 @@ export function VendasView() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setIsDeleteOpen(false)} className="rounded-xl border-slate-200">
+            <Button variant="outline" onClick={() => setIsDeleteOpen(false)} className="rounded-xl border-slate-200 cursor-pointer">
               Cancelar
             </Button>
-            <Button onClick={handleConfirmDelete} className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
+            <Button onClick={handleConfirmDelete} className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold cursor-pointer">
               Confirmar Exclusão
             </Button>
           </DialogFooter>

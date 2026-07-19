@@ -21,7 +21,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/motion/select";
 import { Search, PlusCircle, Check, X, FileText, Smartphone, Edit3, Trash2 } from "lucide-react";
 import { getQuotes, addQuote, updateQuote, deleteQuote, approveQuote, rejectQuote, getClients } from "@/app/actions";
 

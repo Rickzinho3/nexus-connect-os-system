@@ -24,6 +24,8 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Users, Search, PlusCircle, Mail, Phone, Smartphone, Edit3, Trash2, Key, Copy, Check, Printer } from "lucide-react";
 import { getClients, addClient, updateClient, deleteClient } from "@/app/actions";
+import { Tooltip } from "@/components/motion/tooltip";
+import { useToast } from "@/components/providers/toast-provider";
 
 interface Client {
   id: string;
@@ -66,6 +68,7 @@ function formatPhone(value: string) {
 }
 
 export function ClientesView() {
+  const { showToast } = useToast();
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -136,8 +139,10 @@ export function ClientesView() {
         setNewlyCreatedClient(created as any);
         setIsCardOpen(true);
       }
+      showToast({ title: "Cliente cadastrado com sucesso", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao cadastrar cliente", status: "error" });
     }
   };
 
@@ -285,8 +290,10 @@ export function ClientesView() {
       setIsEditOpen(false);
       setSelectedClient(null);
       await loadClients();
+      showToast({ title: "Cliente atualizado com sucesso", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao atualizar cliente", status: "error" });
     }
   };
 
@@ -302,8 +309,10 @@ export function ClientesView() {
       setIsDeleteOpen(false);
       setSelectedClient(null);
       await loadClients();
+      showToast({ title: "Cliente excluído com sucesso", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao excluir cliente", status: "error" });
     }
   };
 
@@ -477,23 +486,25 @@ export function ClientesView() {
                         <Key className="w-3.5 h-3.5" />
                         {client.accessCode}
                       </Badge>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => {
-                          navigator.clipboard.writeText(client.accessCode);
-                          setCopiedId(client.id);
-                          setTimeout(() => setCopiedId(null), 2000);
-                        }}
-                        className="w-6 h-6 rounded-md text-slate-400 hover:text-slate-900"
-                        title="Copiar Código de Acesso"
-                      >
-                        {copiedId === client.id ? (
-                          <Check className="w-3.5 h-3.5 text-green-600 animate-in fade-in zoom-in duration-200" />
-                        ) : (
-                          <Copy className="w-3.5 h-3.5" />
-                        )}
-                      </Button>
+                      <Tooltip content="Copiar Código">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => {
+                            navigator.clipboard.writeText(client.accessCode);
+                            setCopiedId(client.id);
+                            setTimeout(() => setCopiedId(null), 2000);
+                            showToast({ title: "Código copiado", status: "info" });
+                          }}
+                          className="w-6 h-6 rounded-md text-slate-400 hover:text-slate-900"
+                        >
+                          {copiedId === client.id ? (
+                            <Check className="w-3.5 h-3.5 text-green-600 animate-in fade-in zoom-in duration-200" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </Button>
+                      </Tooltip>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -509,34 +520,39 @@ export function ClientesView() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => {
-                          setNewlyCreatedClient(client);
-                          setIsCardOpen(true);
-                        }}
-                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
-                        title="Imprimir Cartão de Acesso"
-                      >
-                        <Printer className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleEditClick(client)}
-                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleDeleteClick(client)}
-                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <Tooltip content="Imprimir Cartão">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => {
+                            setNewlyCreatedClient(client);
+                            setIsCardOpen(true);
+                          }}
+                          className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
+                        >
+                          <Printer className="w-4 h-4" />
+                        </Button>
+                      </Tooltip>
+                      <Tooltip content="Editar">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleEditClick(client)}
+                          className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </Button>
+                      </Tooltip>
+                      <Tooltip content="Excluir">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleDeleteClick(client)}
+                          className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </Tooltip>
                     </div>
                   </TableCell>
                 </TableRow>

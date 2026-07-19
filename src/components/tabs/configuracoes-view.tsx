@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Building2, Percent, Check, RefreshCw } from "lucide-react";
 import { getSettings, updateSettings } from "@/app/actions";
+import { useToast } from "@/components/providers/toast-provider";
 
 export function ConfiguracoesView() {
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
 
@@ -53,8 +55,10 @@ export function ConfiguracoesView() {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
       await loadSettings();
+      showToast({ title: "Configurações salvas", status: "success" });
     } catch (err) {
       console.error(err);
+      showToast({ title: "Erro ao salvar configurações", status: "error" });
     }
   };
 

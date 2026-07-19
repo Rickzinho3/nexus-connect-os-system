@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/motion/popover";
 import {
   Smartphone,
   Calendar,
@@ -434,9 +435,45 @@ export default function ClientPortal() {
                   <Smartphone className="w-3.5 h-3.5" />
                   Código: {result.client.accessCode}
                 </Badge>
-                <Button size="icon" variant="ghost" className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 shadow-sm">
-                  <Bell className="w-4 h-4" />
-                </Button>
+                <Popover align="end" sideOffset={12}>
+                  <PopoverTrigger>
+                    <Button size="icon" variant="ghost" className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 shadow-sm relative">
+                      <Bell className="w-4 h-4" />
+                      <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-0 bg-white shadow-2xl border border-slate-100 rounded-[24px] overflow-hidden z-50">
+                    <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                      <h4 className="font-bold text-slate-900">Notificações</h4>
+                      <Badge className="bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Marcar lidas</Badge>
+                    </div>
+                    <div className="max-h-[300px] overflow-y-auto p-2">
+                      <div className="p-3 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer flex gap-3 items-start">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900">Orçamento Aprovado</p>
+                          <p className="text-xs text-slate-500 mt-1">O conserto do seu aparelho foi iniciado.</p>
+                          <p className="text-[10px] text-slate-400 mt-2 font-medium">Há 2 horas</p>
+                        </div>
+                      </div>
+                      <div className="p-3 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer flex gap-3 items-start">
+                        <div className="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shrink-0 mt-0.5">
+                          <Gift className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900">Novo Benefício!</p>
+                          <p className="text-xs text-slate-500 mt-1">Você desbloqueou um novo voucher de desconto.</p>
+                          <p className="text-[10px] text-slate-400 mt-2 font-medium">Ontem</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-3 border-t border-slate-100 text-center bg-slate-50/50">
+                      <button className="text-xs font-bold text-slate-600 hover:text-slate-900">Ver todas as notificações</button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             </header>
 
