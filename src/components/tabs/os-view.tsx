@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -22,7 +23,17 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, PlusCircle, FileText, Smartphone, PenTool, Edit3, Trash2, CheckCircle } from "lucide-react";
+import { Search, PlusCircle, FileText, Smartphone, PenTool, Edit3, Trash2, CheckCircle, Camera, Eye } from "lucide-react";
+import { 
+  Attachment,
+  AttachmentGroup,
+  AttachmentMedia,
+  AttachmentContent,
+  AttachmentTitle,
+  AttachmentDescription,
+  AttachmentActions,
+  AttachmentAction,
+} from "@/components/ui/attachment";
 import { getServiceOrders, addServiceOrder, updateServiceOrder, deleteServiceOrder, getClients } from "@/app/actions";
 
 interface ServiceOrder {
@@ -43,6 +54,7 @@ interface ClientOption {
 }
 
 export function OSView() {
+  const router = useRouter();
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const [clients, setClients] = useState<ClientOption[]>([]);
   const [search, setSearch] = useState("");
@@ -61,6 +73,20 @@ export function OSView() {
   const [serviceType, setServiceType] = useState("");
   const [value, setValue] = useState("");
   const [notes, setNotes] = useState("");
+  const [photoPreviews, setPhotoPreviews] = useState<{file: File, url: string}[]>([]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPhotoPreviews(prev => [...prev, { file, url: reader.result as string }]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
 
   // Form states (Edit)
   const [editDeviceName, setEditDeviceName] = useState("");
@@ -97,6 +123,7 @@ export function OSView() {
         deviceName,
         serviceType,
         value: parseFloat(value),
+        photos: photoPreviews.map(p => p.url),
       });
 
       setIsCreateOpen(false);
@@ -105,6 +132,7 @@ export function OSView() {
       setServiceType("");
       setValue("");
       setNotes("");
+      setPhotoPreviews([]);
       await loadData();
     } catch (err) {
       console.error(err);
@@ -269,6 +297,42 @@ export function OSView() {
                     required
                   />
                 </div>
+
+                <div className="space-y-1.5 pt-2">
+                  <label className="text-xs font-semibold text-slate-500">Fotos do Aparelho (Chegada)</label>
+                  <div className="flex flex-col gap-3">
+                    <label className="flex items-center justify-center w-full h-20 border-2 border-dashed border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors">
+                      <div className="flex flex-col items-center justify-center text-slate-500">
+                        <Camera className="w-5 h-5 mb-1 text-slate-400" />
+                        <span className="text-xs font-medium">Adicionar imagens</span>
+                      </div>
+                      <input type="file" multiple accept="image/*" className="hidden" onChange={handleFileChange} />
+                    </label>
+                    {photoPreviews.length > 0 && (
+                      <AttachmentGroup>
+                        {photoPreviews.map((preview, idx) => (
+                          <Attachment key={idx} size="sm" className="bg-slate-50">
+                            <AttachmentMedia variant="image">
+                              <img src={preview.url} alt={`Preview ${idx}`} />
+                            </AttachmentMedia>
+                            <AttachmentContent>
+                              <AttachmentTitle className="text-xs truncate max-w-24">{preview.file.name}</AttachmentTitle>
+                              <AttachmentDescription>{(preview.file.size / 1024).toFixed(0)} KB</AttachmentDescription>
+                            </AttachmentContent>
+                            <AttachmentActions>
+                              <AttachmentAction 
+                                onClick={() => setPhotoPreviews(prev => prev.filter((_, i) => i !== idx))} 
+                                type="button"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                              </AttachmentAction>
+                            </AttachmentActions>
+                          </Attachment>
+                        ))}
+                      </AttachmentGroup>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <DialogFooter>
@@ -355,6 +419,15 @@ export function OSView() {
                   <TableCell className="text-slate-400 text-xs font-semibold">{order.date}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => router.push(`/os/${order.id}`)}
+                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900"
+                        title="Ver Detalhes e Fotos"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
                       <Button
                         size="icon"
                         variant="ghost"

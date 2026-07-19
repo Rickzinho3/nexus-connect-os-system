@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, integer, numeric, timestamp, serial } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, integer, numeric, timestamp, serial, jsonb } from "drizzle-orm/pg-core";
 
 // tenants (Assistências) table for future auth / SaaS expansion
 export const tenants = pgTable("tenants", {
@@ -42,6 +42,7 @@ export const serviceOrders = pgTable("service_orders", {
   value: numeric("value").notNull(),
   status: text("status").default("Pendente").notNull(), // Pendente, Em Andamento, Concluído, Cancelado
   notes: text("notes"),
+  photos: jsonb("photos"),
   date: text("date").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

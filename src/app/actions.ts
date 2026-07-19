@@ -111,6 +111,7 @@ export async function getServiceOrders() {
       status: serviceOrders.status,
       date: serviceOrders.date,
       notes: serviceOrders.notes,
+      photos: serviceOrders.photos,
     })
     .from(serviceOrders)
     .innerJoin(clients, eq(serviceOrders.clientId, clients.id))
@@ -129,6 +130,7 @@ export async function addServiceOrder(formData: {
   deviceName: string;
   serviceType: string;
   value: number;
+  photos?: string[];
 }) {
   const tenantId = await getOrCreateTenantId();
   const id = `OS-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -142,10 +144,44 @@ export async function addServiceOrder(formData: {
       serviceType: formData.serviceType,
       value: formData.value.toString(),
       status: "Pendente",
+      photos: formData.photos || null,
       date: new Date().toLocaleDateString("pt-BR"),
     })
     .returning();
   return created;
+}
+
+export async function getServiceOrderById(id: string) {
+  const tenantId = await getOrCreateTenantId();
+  const [order] = await db
+    .select({
+      id: serviceOrders.id,
+      clientId: serviceOrders.clientId,
+      client: clients.name,
+      clientPhone: clients.phone,
+      clientEmail: clients.email,
+      device: serviceOrders.deviceName,
+      serviceType: serviceOrders.serviceType,
+      value: serviceOrders.value,
+      status: serviceOrders.status,
+      date: serviceOrders.date,
+      notes: serviceOrders.notes,
+      photos: serviceOrders.photos,
+      createdAt: serviceOrders.createdAt,
+    })
+    .from(serviceOrders)
+    .innerJoin(clients, eq(serviceOrders.clientId, clients.id))
+    .where(and(eq(serviceOrders.id, id), eq(serviceOrders.tenantId, tenantId)))
+    .limit(1);
+    
+  if (order) {
+    return {
+      ...order,
+      value: parseFloat(order.value),
+      status: order.status as "Pendente" | "Em Andamento" | "Concluído" | "Cancelado"
+    };
+  }
+  return null;
 }
 
 async function registerOSPayment(osId: string, value: number, deviceName: string, clientId: string) {
@@ -975,15 +1011,64 @@ export async function getGoals() {
     .where(eq(goals.tenantId, tenantId))
     .orderBy(goals.id);
 
-  return list.map(g => ({
-    id: g.id,
-    name: g.name,
-    category: g.category,
-    current: parseFloat(g.current),
-    target: parseFloat(g.target),
-    unit: g.unit,
-    deadline: g.deadline,
-  }));
+  // Auto-calculate real current values for the current month
+  const now = new Date();
+  const currentMonthIdx = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  const allTxs = await db.select().from(financialTransactions).where(eq(financialTransactions.tenantId, tenantId));
+  const currentMonthRevenue = allTxs.reduce((sum, tx) => {
+    if (tx.type !== "Receita" || tx.status !== "Pago") return sum;
+    const parts = tx.date.split("/");
+    if (parts.length === 3) {
+      const month = parseInt(parts[1], 10) - 1;
+      const year = parseInt(parts[2], 10);
+      if (month === currentMonthIdx && year === currentYear) {
+        return sum + parseFloat(tx.amount);
+      }
+    }
+    return sum;
+  }, 0);
+
+  const allOs = await db.select().from(serviceOrders).where(eq(serviceOrders.tenantId, tenantId));
+  const currentMonthOS = allOs.reduce((sum, os) => {
+    if (os.status !== "Concluído") return sum;
+    const parts = os.date.split("/");
+    if (parts.length === 3) {
+      const month = parseInt(parts[1], 10) - 1;
+      const year = parseInt(parts[2], 10);
+      if (month === currentMonthIdx && year === currentYear) {
+        return sum + 1;
+      }
+    }
+    return sum;
+  }, 0);
+
+  return list.map(g => {
+    let currentVal = parseFloat(g.current);
+    
+    const nameLower = g.name.toLowerCase();
+    
+    // Auto-update Faturamento
+    if (g.category === "Financeiro" && nameLower.includes("faturamento")) {
+      currentVal = currentMonthRevenue;
+    }
+    
+    // Auto-update O.S. Concluídas
+    if (g.category === "Operacional" && (nameLower.includes("os") || nameLower.includes("ordem") || nameLower.includes("concluída"))) {
+      currentVal = currentMonthOS;
+    }
+
+    return {
+      id: g.id,
+      name: g.name,
+      category: g.category,
+      current: currentVal,
+      target: parseFloat(g.target),
+      unit: g.unit,
+      deadline: g.deadline,
+    };
+  });
 }
 
 export async function addGoal(formData: {
