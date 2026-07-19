@@ -24,6 +24,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/motion/select";
 import { Search, PlusCircle, Check, X, FileText, Smartphone, Edit3, Trash2 } from "lucide-react";
 import { getQuotes, addQuote, updateQuote, deleteQuote, approveQuote, rejectQuote, getClients } from "@/app/actions";
+import { Tooltip } from "../motion/tooltip";
 
 interface Quote {
   id: string;
@@ -382,24 +383,31 @@ export function OrcamentosView() {
                     <div className="flex items-center justify-end gap-1">
                       {quote.status === "Pendente" && (
                         <>
+                          <Tooltip content="Aprovar" side="top">
                           <Button
                             size="icon"
                             variant="ghost"
                             onClick={() => handleApprove(quote.id)}
-                            className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
+                            className="w-8 h-8 rounded-lg text-slate-400 hover:text-green-600 hover:bg-green-50"
                           >
                             <Check className="w-4 h-4" />
                           </Button>
+                          </Tooltip>
+
+                          <Tooltip content="Rejeitar" side="top">
                           <Button
                             size="icon"
                             variant="ghost"
                             onClick={() => handleReject(quote.id)}
-                            className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
+                            className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
                           >
                             <X className="w-4 h-4" />
                           </Button>
+                          </Tooltip>
                         </>
                       )}
+
+                      <Tooltip content="Editar" side="top">
                       <Button
                         size="icon"
                         variant="ghost"
@@ -408,17 +416,21 @@ export function OrcamentosView() {
                       >
                         <Edit3 className="w-4 h-4" />
                       </Button>
+                      </Tooltip>
+
+                      <Tooltip content="Deletar" side="top">
                       <Button
                         size="icon"
                         variant="ghost"
                         onClick={() => handleDeleteClick(quote)}
-                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
+                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
+                      </Tooltip>
                     </div>
                   </TableCell>
-                </TableRow>
+                </TableRow> 
               ))
             ) : (
               <TableRow>

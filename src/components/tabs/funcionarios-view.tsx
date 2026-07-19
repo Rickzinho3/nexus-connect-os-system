@@ -24,6 +24,7 @@ import {
 import { Users, Search, PlusCircle, Mail, Phone, Wrench, Shield, Edit3, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getEmployees, addEmployee, updateEmployee, deleteEmployee } from "@/app/actions";
+import { Tooltip } from "@/components/motion/tooltip";
 
 interface Employee {
   id: string;
@@ -320,6 +321,7 @@ export function FuncionariosView() {
                   <TableCell>{getStatusBadge(emp.status)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
+                      <Tooltip content="Editar" side="top">
                       <Button
                         size="icon"
                         variant="ghost"
@@ -328,14 +330,17 @@ export function FuncionariosView() {
                       >
                         <Edit3 className="w-4 h-4" />
                       </Button>
+                      </Tooltip>
+                      <Tooltip content="Excluir" side="top">
                       <Button
                         size="icon"
                         variant="ghost"
                         onClick={() => handleDeleteClick(emp)}
-                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
+                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
+                      </Tooltip>
                     </div>
                   </TableCell>
                 </TableRow>

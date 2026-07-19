@@ -37,8 +37,10 @@ import {
   Check,
   Menu,
   X,
-  Ticket
+  Ticket,
+  XCircle
 } from "lucide-react";
+import { Loader } from "@/components/motion/loader";
 
 interface TrackedOS {
   id: string;
@@ -262,9 +264,6 @@ export default function ClientPortal() {
         <div className="flex-1 flex flex-col justify-center items-center px-4 py-16">
           <div className="w-full max-w-[420px] space-y-6">
             <div className="text-center space-y-3">
-              <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-900 border border-slate-200">
-                <Smartphone className="w-7 h-7" />
-              </div>
               <h2 className="text-3xl font-black tracking-tight text-slate-900">Portal do Cliente</h2>
               <p className="text-sm text-slate-500">
                 Consulte o status do seu aparelho e acesse seus benefícios exclusivos.
@@ -306,8 +305,7 @@ export default function ClientPortal() {
                     disabled={loading}
                     className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold flex items-center justify-center gap-2 mt-4 text-xs transition-colors"
                   >
-                    {loading ? "Verificando..." : "Entrar no Portal"}
-                    <ArrowRight className="w-4 h-4" />
+                    {loading ? <Loader variant="dots" size={25} className="text-white" /> : <>Entrar no Portal <ArrowRight className="w-4 h-4" /></>}
                   </Button>
                 </form>
               </CardContent>
@@ -333,18 +331,15 @@ export default function ClientPortal() {
               {/* Branding and Logo */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="h-9 w-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-900 border border-slate-200">
-                    <Smartphone className="w-5 h-5" />
-                  </div>
-                  <span className="font-black text-sm tracking-tight text-slate-900">CLIENT PORTAL</span>
+                  <span className="font-black text-sm tracking-tight text-slate-900">ÁREA DO CLIENTE</span>
                 </div>
                 <Button
                   size="icon"
                   variant="ghost"
                   onClick={() => setSidebarOpen(false)}
-                  className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900"
+                  className="w-10 h-10 rounded-lg text-slate-400 hover:text-slate-900"
                 >
-                  <X className="w-5 h-5" />
+                  <XCircle size={20} />
                 </Button>
               </div>
 
@@ -432,7 +427,6 @@ export default function ClientPortal() {
               
               <div className="flex items-center gap-3">
                 <Badge className="bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-extrabold text-xs px-3.5 h-10 gap-1 shadow-sm">
-                  <Smartphone className="w-3.5 h-3.5" />
                   Código: {result.client.accessCode}
                 </Badge>
                 {/* <Popover align="end" sideOffset={12}>

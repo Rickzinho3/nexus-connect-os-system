@@ -48,6 +48,7 @@ interface SidebarProps {
   isCollapsed: boolean;
   isMobileOpen: boolean;
   closeMobile: () => void;
+  tenantName?: string;
 }
 
 interface MenuItem {
@@ -67,6 +68,7 @@ export function Sidebar({
   isCollapsed,
   isMobileOpen,
   closeMobile,
+  tenantName,
 }: SidebarProps) {
   const { data: session } = useSession();
   const role = (session?.user as any)?.role || "Atendente";
@@ -126,6 +128,7 @@ export function Sidebar({
           title: "Sistema (Admin)",
           items: [
             { id: "empresas", label: "Empresas", icon: Building2 },
+            { id: "funcionarios", label: "Funcionários", icon: UserCheck },
             { id: "configuracoes", label: "Configurações", icon: Settings },
           ],
         }
@@ -161,7 +164,7 @@ export function Sidebar({
               }}
               title={isCollapsed ? item.label : undefined}
               className={cn(
-                "flex items-center w-full py-2 text-sm font-medium rounded-lg transition-all duration-150 gap-3 group text-left",
+                "flex items-center w-full py-2 text-sm font-medium rounded-lg transition-all duration-150 cursor-pointer gap-3 group text-left",
                 isCollapsed ? "justify-center px-0" : "px-3",
                 isActive
                   ? "bg-white/10 text-white"
@@ -194,7 +197,7 @@ export function Sidebar({
 
       <aside
         className={cn(
-          "fixed md:relative inset-y-0 left-0 z-50 h-full flex flex-col justify-between py-6 bg-[#0c0b14] select-none text-slate-300 overflow-y-auto shrink-0 border-r border-slate-800/40 transition-all duration-300",
+          "fixed md:relative inset-y-0 left-0 z-50 h-full flex flex-col justify-between py-6 bg-[#0c0b14] select-none text-slate-300 overflow-y-auto shrink-0 border-r border-slate-800/40 transition-all duration-300 no-scrollbar",
           isCollapsed ? "w-20 px-2" : "w-64 px-4",
           isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
@@ -208,9 +211,9 @@ export function Sidebar({
             )}
           >
             <div className="flex items-center gap-3">
-              <BarChart2 className="w-6 h-6 text-white shrink-0" />
+              {/* <BarChart2 className="w-6 h-6 text-white shrink-0" /> */}
               {!isCollapsed && (
-                <span className="text-lg font-bold tracking-wide truncate">Nexus Connect</span>
+                <span className="text-lg font-bold tracking-wide truncate">{tenantName || "Empresa"}</span>
               )}
             </div>
             {!isCollapsed && (

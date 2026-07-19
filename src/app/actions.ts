@@ -1,7 +1,7 @@
 "use server";
 
 import { db, tenants, clients, serviceOrders, quotes, parts, sales, employees, cashLogs, goals, cashSessions, financialTransactions } from "@/db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, not } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 
@@ -9,9 +9,17 @@ import { auth } from "@/auth";
 
 export async function getTenants() {
   const session = await auth();
-  if ((session?.user as any)?.role !== "Super Admin") {
+  const role = (session?.user as any)?.role;
+  const myTenantId = (session?.user as any)?.tenantId;
+
+  if (role !== "Super Admin") {
     throw new Error("Não autorizado");
   }
+
+  if (myTenantId) {
+    return await db.select().from(tenants).where(not(eq(tenants.id, myTenantId)));
+  }
+
   const allTenants = await db.select().from(tenants);
   return allTenants;
 }
@@ -1384,4 +1392,14 @@ export async function seedInitialDatabase() {
     { tenantId, name: "Satisfação do Cliente (NPS)", category: "Qualidade", current: "88.00", target: "95.00", unit: "%", deadline: "31/12/2026" },
     { tenantId, name: "Retrabalho Operacional", category: "Redução", current: "2.00", target: "5.00", unit: "%", deadline: "31/07/2026" },
   ]);
+}
+
+export async function getCurrentTenantInfo() {
+  const session = await auth();
+  const tenantId = (session?.user as any)?.tenantId;
+
+  if (!tenantId) return null;
+
+  const currentTenant = await db.select().from(tenants).where(eq(tenants.id, tenantId));
+  return currentTenant[0] || null;
 }

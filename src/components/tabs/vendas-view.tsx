@@ -288,13 +288,13 @@ export function VendasView() {
                   <TableCell className="text-slate-400 text-xs font-semibold">{sale.date}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Tooltip content="Editar Venda" side="top">
+                      <Tooltip content="Editar" side="top">
                         <Button size="icon" variant="ghost" onClick={() => handleEditClick(sale)} className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 cursor-pointer">
                           <Edit3 className="w-4 h-4" />
                         </Button>
                       </Tooltip>
-                      <Tooltip content="Excluir Venda" side="top">
-                        <Button size="icon" variant="ghost" onClick={() => handleDeleteClick(sale)} className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer">
+                      <Tooltip content="Excluir" side="top">
+                        <Button size="icon" variant="ghost" onClick={() => handleDeleteClick(sale)} className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 cursor-pointer">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </Tooltip>

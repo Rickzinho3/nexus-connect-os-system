@@ -548,7 +548,7 @@ export function ClientesView() {
                           size="icon"
                           variant="ghost"
                           onClick={() => handleDeleteClick(client)}
-                          className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
+                          className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
