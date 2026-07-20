@@ -168,7 +168,7 @@ export function VendasView() {
 
         {/* Dialog for New Sale */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger render={<Button className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 gap-2 shrink-0 self-start sm:self-auto cursor-pointer" />}>
+          <DialogTrigger render={<Button className="rounded-xl h-10 bg-slate-900 text-white hover:bg-slate-800 gap-2 shrink-0 self-start sm:self-auto cursor-pointer" />}>
             <span className="flex items-center gap-2">
               <PlusCircle className="w-4 h-4" /> Nova Venda
             </span>
@@ -226,12 +226,13 @@ export function VendasView() {
                 <Button
                   type="button"
                   variant="outline"
+                  size={"lg"}
                   onClick={() => setIsDialogOpen(false)}
                   className="rounded-xl border-slate-200 cursor-pointer"
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white cursor-pointer">
+                <Button size={"lg"} type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white cursor-pointer">
                   Confirmar Venda
                 </Button>
               </DialogFooter>

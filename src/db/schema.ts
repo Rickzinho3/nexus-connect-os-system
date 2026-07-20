@@ -7,6 +7,8 @@ export const tenants = pgTable("tenants", {
   cnpj: text("cnpj"),
   address: text("address"),
   phone: text("phone"),
+  email: text("email"),
+  profilePhoto: text("profile_photo"),
   taxRate: numeric("tax_rate").default("12.5"),
   commissionRate: numeric("commission_rate").default("8.0"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

@@ -105,7 +105,7 @@ export function ConfiguracoesView() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-500">CNPJ</label>
+              <label className="text-xs font-semibold text-slate-500">CPF / CNPJ</label>
               <Input
                 value={cnpj}
                 onChange={(e) => setCnpj(e.target.value)}

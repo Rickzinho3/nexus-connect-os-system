@@ -23,9 +23,10 @@ import { Button } from "@/components/ui/button";
 
 interface HomeClientProps {
   tenantName?: string;
+  tenantData?: any;
 }
 
-export default function Home({ tenantName }: HomeClientProps) {
+export default function Home({ tenantName, tenantData }: HomeClientProps) {
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -77,6 +78,7 @@ export default function Home({ tenantName }: HomeClientProps) {
       {/* Sidebar Navigation */}
       <Sidebar
         tenantName={tenantName}
+        tenantData={tenantData}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isCollapsed={isSidebarCollapsed}

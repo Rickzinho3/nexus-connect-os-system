@@ -178,7 +178,7 @@ export function PecasView() {
 
         {/* Dialog for New Part */}
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger render={<Button className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 gap-2 shrink-0 self-start sm:self-auto cursor-pointer" />}>
+          <DialogTrigger render={<Button className="rounded-xl h-10 bg-slate-900 text-white hover:bg-slate-800 gap-2 shrink-0 self-start sm:self-auto cursor-pointer" />}>
             <span className="flex items-center gap-2">
               <PlusCircle className="w-4 h-4" /> Cadastrar Peça
             </span>
@@ -274,12 +274,13 @@ export function PecasView() {
                 <Button
                   type="button"
                   variant="outline"
+                  size={"lg"}
                   onClick={() => setIsCreateOpen(false)}
                   className="rounded-xl border-slate-200 cursor-pointer"
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold cursor-pointer">
+                <Button size={"lg"} type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold cursor-pointer">
                   Confirmar Cadastro
                 </Button>
               </DialogFooter>

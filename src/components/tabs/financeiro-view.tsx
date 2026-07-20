@@ -330,7 +330,7 @@ export function FinanceiroView() {
 
         {/* Lançar Dialog */}
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger render={<Button className="rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-bold gap-2" />}>
+          <DialogTrigger render={<Button className="rounded-xl bg-slate-950 h-10 hover:bg-slate-900 text-white font-bold gap-2" />}>
             <span className="flex items-center gap-2">
               <PlusCircle className="w-4 h-4" /> Lançar Movimentação
             </span>
@@ -437,7 +437,7 @@ export function FinanceiroView() {
                       onClick={() => setStatus("Pendente")}
                       variant={status === "Pendente" ? "default" : "outline"}
                       className={`rounded-xl h-10 ${
-                        status === "Pendente" ? "bg-slate-955 text-white" : "border-slate-200 bg-white"
+                        status === "Pendente" ? "bg-slate-950 text-white" : "border-slate-200 bg-white"
                       }`}
                     >
                       Pendente (A Faturar)
@@ -517,12 +517,13 @@ export function FinanceiroView() {
                 <Button
                   type="button"
                   variant="outline"
+                  size={"lg"}
                   onClick={() => setIsAddOpen(false)}
                   className="rounded-xl border-slate-200"
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" className="rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-bold">
+                <Button size={"lg"} type="submit" className="rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-bold">
                   Salvar Lançamento
                 </Button>
               </DialogFooter>

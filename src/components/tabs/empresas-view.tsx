@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { getTenants, createTenant, updateTenant, deleteTenant } from "@/app/actions";
 import { Tooltip } from "@/components/motion/tooltip";
 import { useToast } from "@/components/providers/toast-provider";
+import { Loader } from "../motion/loader";
 
 const formatCpfCnpj = (value: string) => {
   const digits = value.replace(/\D/g, "");
@@ -120,17 +121,17 @@ export function EmpresasView() {
   };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             Gestão de Empresas
           </h1>
-          <p className="text-slate-500 mt-2">
+          <p className="text-slate-500 text-sm">
             Área exclusiva do Super Admin para gerenciar as empresas clientes (Tenants).
           </p>
         </div>
-        <Button onClick={openAddModal} className="bg-slate-900 hover:bg-slate-800 text-slate-200 gap-2 cursor-pointer">
+        <Button  onClick={openAddModal} className="bg-slate-900 h-10 hover:bg-slate-800 text-slate-200 gap-2 cursor-pointer">
           <PlusCircle className="w-4 h-4" />
           Nova Empresa
         </Button>
@@ -146,7 +147,7 @@ export function EmpresasView() {
         </div>
 
         {initialLoading ? (
-          <div className="p-8 text-center text-slate-500">Carregando...</div>
+          <div className="p-8 text-center text-slate-500 flex justify-center items-center gap-4"><>Carregando <Loader variant="metaballs"/></></div>
         ) : tenants.length === 0 ? (
           <div className="p-8 text-center text-slate-500">
             Nenhuma empresa cadastrada ainda.
@@ -197,7 +198,7 @@ export function EmpresasView() {
             </DialogDescription>
           </DialogHeader>
           
-          <form onSubmit={handleSubmit} className="space-y-4 py-4">
+          <form onSubmit={handleSubmit} className="space-y-4 pt-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-slate-700">Nome da Empresa</Label>
               <Input
@@ -210,7 +211,7 @@ export function EmpresasView() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="cnpj" className="text-slate-700">CNPJ</Label>
+              <Label htmlFor="cnpj" className="text-slate-700">CPF/CNPJ</Label>
               <Input
                 id="cnpj"
                 value={formData.cnpj}
@@ -232,11 +233,11 @@ export function EmpresasView() {
             </div>
             
             <DialogFooter className="mt-6">
-              <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-slate-900 cursor-pointer">
+              <Button size={"lg"} type="button" variant="ghost" onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-slate-900 cursor-pointer">
                 Cancelar
               </Button>
-              <Button type="submit" disabled={loading} className="bg-slate-900 hover:bg-slate-800 text-slate-200 cursor-pointer">
-                {loading ? "Salvando..." : "Salvar Empresa"}
+              <Button size={"lg"} type="submit" disabled={loading} className="bg-slate-900 hover:bg-slate-800 text-slate-200 cursor-pointer">
+                {loading ? <Loader className="text-white" variant="metaballs"/> : "Salvar Empresa"}
               </Button>
             </DialogFooter>
           </form>
@@ -301,7 +302,7 @@ export function EmpresasView() {
               Cancelar
             </Button>
             <Button type="button" disabled={loading} onClick={executeDelete} className="bg-red-600 hover:bg-red-700 text-white cursor-pointer">
-              {loading ? "Excluindo..." : "Sim, excluir"}
+              {loading ? <Loader className="text-white" variant="metaballs"/> : "Sim, excluir"}
             </Button>
           </DialogFooter>
         </DialogContent>

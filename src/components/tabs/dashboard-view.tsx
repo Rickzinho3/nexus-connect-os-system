@@ -235,9 +235,9 @@ export function DashboardView() {
               <button 
                 key={p} 
                 onClick={() => setPeriod(p as FilterPeriod)}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${
+                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer duration-300 ${
                   period === p 
-                  ? 'bg-slate-500 text-white shadow-md' 
+                  ? 'bg-slate-900 text-white shadow-md' 
                   : 'text-slate-500 hover:text-slate-800'
                 }`}
               >

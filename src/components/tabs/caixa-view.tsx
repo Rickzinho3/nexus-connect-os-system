@@ -284,7 +284,7 @@ export function CaixaView() {
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-500 uppercase">Valor Inicial em Caixa (Troco)</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-slate-400 font-semibold text-sm">R$</span>
+                    <span className="absolute left-3 top-[6px] text-slate-400 font-semibold text-sm">R$</span>
                     <Input
                       type="number"
                       step="0.01"

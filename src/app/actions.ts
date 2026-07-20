@@ -1403,3 +1403,33 @@ export async function getCurrentTenantInfo() {
   const currentTenant = await db.select().from(tenants).where(eq(tenants.id, tenantId));
   return currentTenant[0] || null;
 }
+
+export async function updateTenantProfile(formData: {
+  name?: string;
+  cnpj?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  profilePhoto?: string;
+}) {
+  const session = await auth();
+  const tenantId = (session?.user as any)?.tenantId;
+  const role = (session?.user as any)?.role;
+
+  if (!tenantId) throw new Error("Tenant não encontrado");
+  if (role !== "Dono" && role !== "Super Admin") throw new Error("Não autorizado");
+
+  await db.update(tenants).set({
+    name: formData.name,
+    cnpj: formData.cnpj,
+    phone: formData.phone,
+    email: formData.email,
+    address: formData.address,
+    profilePhoto: formData.profilePhoto,
+  }).where(eq(tenants.id, tenantId));
+
+  revalidatePath("/");
+
+  const updated = await db.select().from(tenants).where(eq(tenants.id, tenantId));
+  return updated[0] || null;
+}

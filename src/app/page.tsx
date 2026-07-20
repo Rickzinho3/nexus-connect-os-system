@@ -5,6 +5,6 @@ export default async function Page() {
   const currentTenant = await getCurrentTenantInfo();
 
   return (
-    <HomeClient tenantName={currentTenant?.name} />
+    <HomeClient tenantName={currentTenant?.name} tenantData={currentTenant} />
   );
 }
