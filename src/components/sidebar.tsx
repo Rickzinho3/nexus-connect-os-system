@@ -28,7 +28,10 @@ import {
   MapPin,
   Store,
   Save,
-  FileDigit
+  FileDigit,
+  Headset,
+  PanelLeftOpen,
+  PanelRightOpen
 } from "lucide-react";
 import { waveCircle } from "@lucide/lab"
 import { cn } from "@/lib/utils";
@@ -272,7 +275,7 @@ export function Sidebar({
         {/* Top Header / Logo */}
         <div
           className={cn(
-            "flex items-center mb-6 shrink-0",
+            "flex items-center gap-3 mb-6 shrink-0",
             isCollapsed ? "justify-center" : "justify-between px-3"
           )}
         >
@@ -289,7 +292,7 @@ export function Sidebar({
               className="md:hidden text-slate-400 hover:text-white hover:bg-white/10 w-8 h-8 rounded-lg"
               onClick={closeMobile}
             >
-              <X className="w-5 h-5" />
+              <PanelRightOpen className="w-5 h-5" />
             </Button>
           )}
         </div>

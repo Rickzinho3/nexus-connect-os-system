@@ -99,7 +99,7 @@ export default function Home({ tenantName, tenantData }: HomeClientProps) {
               className="md:hidden w-10 h-10 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 -ml-2 mr-2"
               onClick={() => setIsMobileOpen(true)}
             >
-              <Menu className="w-5 h-5" />
+              <PanelLeftOpen className="w-5 h-5" />
             </Button>
             
             {/* Desktop Collapse Button */}
