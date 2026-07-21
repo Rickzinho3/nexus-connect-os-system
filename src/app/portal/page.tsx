@@ -611,7 +611,7 @@ const route = useRouter()
                                 <span className={step >= 2 ? "text-slate-900 font-black" : ""}>Reparo Técnico</span>
                                 <span className={step >= 3 ? "text-slate-900 font-black" : ""}>Pronto Retirada</span>
                               </div>
-                              <Progress value={step === 1 ? 33 : step === 2 ? 66 : step === 3 ? 100 : 0} className="h-2 bg-slate-100 [&>div]:bg-slate-950 rounded-full" />
+                              <Progress value={step === 1 ? 33 : step === 2 ? 66 : step === 3 ? 100 : 0} className="h-2 bg-slate-100 [&>div]:bg-slate-200 rounded-full" />
                             </div>
                           </Card>
                         );

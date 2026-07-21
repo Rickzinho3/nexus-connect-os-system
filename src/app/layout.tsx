@@ -11,7 +11,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Assistência Técnica - Gestão",
+  title: "Nexus Connect OS",
   description: "Sistema de Gestão para Assistência Técnica",
 };
 
