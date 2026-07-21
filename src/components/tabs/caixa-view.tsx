@@ -21,7 +21,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/motion/select";
 import {
   Landmark,
   RefreshCw,
@@ -268,8 +268,8 @@ export function CaixaView() {
       ) : !activeSession ? (
         /* CAIXA FECHADO - MOSTRAR ABERTURA */
         <div className="max-w-md mx-auto mt-6">
-          <Card className="border border-slate-150 shadow-xl rounded-2xl overflow-hidden">
-            <CardHeader className="bg-slate-950 text-white p-6 relative">
+          <Card className="border border-slate-150 shadow-xl rounded-2xl overflow-visible">
+            <CardHeader className="bg-slate-950 text-white p-6 relative rounded-t-2xl">
               <div className="absolute right-6 top-6 bg-red-500/20 text-red-300 border border-red-500/30 rounded-full p-2">
                 <Lock className="w-5 h-5" />
               </div>
@@ -298,7 +298,7 @@ export function CaixaView() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-500 uppercase">Operador Responsável</label>
-                  <Select value={openingResponsible} onValueChange={(val) => setOpeningResponsible(val || "")} required>
+                  <Select value={openingResponsible} onValueChange={(val) => setOpeningResponsible(val || "")}>
                     <SelectTrigger className="rounded-xl border-slate-200">
                       <SelectValue placeholder="Selecione um funcionário..." />
                     </SelectTrigger>
@@ -508,7 +508,7 @@ export function CaixaView() {
                         </div>
                         <div className="space-y-1.5">
                           <label className="text-xs font-bold text-slate-500 uppercase">Responsável</label>
-                          <Select value={txResponsible} onValueChange={(val) => setTxResponsible(val || "")} required>
+                          <Select value={txResponsible} onValueChange={(val) => setTxResponsible(val || "")}>
                             <SelectTrigger className="rounded-xl border-slate-200">
                               <SelectValue placeholder="Selecione..." />
                             </SelectTrigger>
@@ -617,7 +617,7 @@ export function CaixaView() {
 
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold text-slate-500 uppercase">Responsável pelo Fechamento</label>
-                        <Select value={closingResponsible} onValueChange={(val) => setClosingResponsible(val || "")} required>
+                        <Select value={closingResponsible} onValueChange={(val) => setClosingResponsible(val || "")}>
                           <SelectTrigger className="rounded-xl border-slate-200">
                             <SelectValue placeholder="Selecione..." />
                           </SelectTrigger>

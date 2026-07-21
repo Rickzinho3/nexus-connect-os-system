@@ -751,7 +751,7 @@ export function ClientesView() {
             </Button>
             <Button
               onClick={handleConfirmDelete}
-              className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold"
+              className="rounded-xl bg-destructive hover:bg-red-600 text-white font-semibold"
             >
               Confirmar Exclusão
             </Button>

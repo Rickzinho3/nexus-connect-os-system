@@ -502,7 +502,7 @@ export function MetasView() {
           <DialogHeader>
             <DialogTitle className="text-slate-900 font-bold">Excluir Meta</DialogTitle>
             <DialogDescription>
-              Você tem certeza que deseja excluir a meta "{selectedGoal?.name}"? Esta ação não pode ser desfeita.
+              Você tem certeza que deseja excluir a meta <span className="font-bold">"{selectedGoal?.name}"</span>? Esta ação não pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
@@ -515,7 +515,7 @@ export function MetasView() {
             </Button>
             <Button
               onClick={handleConfirmDelete}
-              className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold"
+              className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold"
             >
               Confirmar Exclusão
             </Button>

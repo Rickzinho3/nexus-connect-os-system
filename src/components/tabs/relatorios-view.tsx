@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/motion/select";
 import { Button } from "@/components/ui/button";
 import { FileBarChart, Download, Printer, RefreshCw, FileText } from "lucide-react";
 import { getCashLogs, getServiceOrders, getParts, getSales } from "@/app/actions";
@@ -217,7 +217,7 @@ export function RelatoriosView() {
         </p>
       </div>
 
-      <Card className="border border-slate-100 shadow-sm rounded-2xl">
+      <Card className="border border-slate-100 shadow-sm rounded-2xl overflow-visible">
         <CardHeader>
           <CardTitle className="text-base font-semibold text-slate-950">Filtros de Exportação</CardTitle>
           <CardDescription>Configure os parâmetros para extração de dados do banco</CardDescription>

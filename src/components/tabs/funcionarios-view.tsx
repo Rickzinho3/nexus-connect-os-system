@@ -23,8 +23,17 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Users, Search, PlusCircle, Mail, Phone, Wrench, Shield, Edit3, Trash2, Pencil } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/motion/select";
 import { getEmployees, addEmployee, updateEmployee, deleteEmployee } from "@/app/actions";
+
+const formatPhone = (value: string) => {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length <= 10) {
+    return digits.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3").replace(/-$/, "");
+  } else {
+    return digits.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3").replace(/-$/, "");
+  }
+};
 import { Tooltip } from "@/components/motion/tooltip";
 
 interface Employee {
@@ -165,9 +174,9 @@ export function FuncionariosView() {
 
   const getRoleIcon = (role: string) => {
     if (role.toLowerCase().includes("técnico")) {
-      return <Wrench className="w-7 h-7 md:w-4 md:h-4 text-slate-900" />;
+      return <Wrench className="w-7 h-7 md:w-4 md:h-4 md:mr-4 text-slate-900" />;
     }
-    return <Shield className="w-7 h-7 md:w-4 md:h-4 text-slate-900" />;
+    return <Shield className="w-7 h-7 md:w-4 md:h-4 md:mr-4 text-slate-900" />;
   };
 
   return (
@@ -249,7 +258,8 @@ export function FuncionariosView() {
                     <Input
                       placeholder="Ex: (11) 98888-8888"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      onChange={(e) => setPhone(formatPhone(e.target.value))}
+                      maxLength={15}
                       className="pl-10 rounded-xl border-slate-200"
                       required
                     />
@@ -466,7 +476,8 @@ export function FuncionariosView() {
                   <label className="text-xs font-semibold text-slate-500">Telefone</label>
                   <Input
                     value={editPhone}
-                    onChange={(e) => setEditPhone(e.target.value)}
+                    onChange={(e) => setEditPhone(formatPhone(e.target.value))}
+                    maxLength={15}
                     className="rounded-xl border-slate-200"
                     required
                   />
@@ -523,7 +534,7 @@ export function FuncionariosView() {
             </Button>
             <Button
               onClick={handleConfirmDelete}
-              className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold"
+              className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold"
             >
               Confirmar Exclusão
             </Button>

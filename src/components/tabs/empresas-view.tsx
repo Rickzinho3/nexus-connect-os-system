@@ -11,6 +11,15 @@ import { Tooltip } from "@/components/motion/tooltip";
 import { toast } from "sonner";
 import { Loader } from "../motion/loader";
 
+const formatPhone = (value: string) => {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length <= 10) {
+    return digits.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3").replace(/-$/, "");
+  } else {
+    return digits.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3").replace(/-$/, "");
+  }
+};
+
 const formatCpfCnpj = (value: string) => {
   const digits = value.replace(/\D/g, "");
   if (digits.length <= 11) {
@@ -288,16 +297,17 @@ export function EmpresasView() {
               <Input
                 id="phone"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, phone: formatPhone(e.target.value) })}
+                maxLength={15}
                 className="bg-white border-slate-200 focus-visible:ring-slate-900"
               />
             </div>
             
             <DialogFooter className="mt-6">
-              <Button size={"lg"} type="button" variant="ghost" onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-slate-900 cursor-pointer">
+              <Button size={"lg"} type="button" variant="ghost" onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-slate-900 cursor-pointer rounded-xl border-slate-200">
                 Cancelar
               </Button>
-              <Button size={"lg"} type="submit" disabled={loading} className="bg-slate-900 hover:bg-slate-800 text-slate-200 cursor-pointer">
+              <Button size={"lg"} type="submit" disabled={loading} className="bg-slate-900 hover:bg-slate-800 text-slate-200 cursor-pointer rounded-xl">
                 {loading ? <Loader className="text-white" variant="metaballs"/> : "Salvar Empresa"}
               </Button>
             </DialogFooter>
@@ -359,10 +369,10 @@ export function EmpresasView() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-6">
-            <Button type="button" variant="ghost" onClick={() => setTenantToDelete(null)} className="text-slate-500 hover:text-slate-900 cursor-pointer">
+            <Button type="button" variant="ghost" onClick={() => setTenantToDelete(null)} className="text-slate-500 border-slate-200 hover:text-slate-900 cursor-pointer rounded-xl">
               Cancelar
             </Button>
-            <Button type="button" disabled={loading} onClick={executeDelete} className="bg-red-600 hover:bg-red-700 text-white cursor-pointer">
+            <Button type="button" disabled={loading} onClick={executeDelete} className="bg-red-600 hover:bg-red-700 text-white cursor-pointer rounded-xl">
               {loading ? <Loader className="text-white" variant="metaballs"/> : "Sim, excluir"}
             </Button>
           </DialogFooter>

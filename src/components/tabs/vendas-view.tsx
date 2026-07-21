@@ -441,7 +441,7 @@ export function VendasView() {
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)} className="rounded-xl border-slate-200 cursor-pointer">
               Cancelar
             </Button>
-            <Button onClick={handleConfirmDelete} className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold cursor-pointer">
+            <Button onClick={handleConfirmDelete} className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold cursor-pointer">
               Confirmar Exclusão
             </Button>
           </DialogFooter>
