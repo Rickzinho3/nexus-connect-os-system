@@ -40,6 +40,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useSession, signOut } from "next-auth/react";
 import { updateTenantProfile } from "@/app/actions";
 import { Loader } from "./motion/loader";
+import Image from "next/image";
+import { Tooltip } from "@/components/motion/tooltip";
 
 export type TabId =
   | "dashboard"
@@ -71,7 +73,8 @@ interface SidebarProps {
 interface MenuItem {
   id: TabId;
   label: string;
-  icon: React.ComponentType<any>;
+  iconOutline: string;
+  iconBold: string;
 }
 
 interface MenuGroup {
@@ -91,6 +94,8 @@ export function Sidebar({
   const { data: session } = useSession();
   const role = (session?.user as any)?.role || "Atendente";
   const userName = session?.user?.name || "Usuário";
+
+  const effectiveIsCollapsed = isCollapsed && !isMobileOpen;
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -148,19 +153,59 @@ export function Sidebar({
     {
       title: "Gestão",
       items: [
-        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-        { id: "metas", label: "Metas", icon: Target },
-        { id: "os", label: "Ordens de Serviço", icon: Wrench },
-        { id: "orcamentos", label: "Orçamentos", icon: FileText },
+        {
+          id: "dashboard",
+          label: "Dashboard",
+          iconOutline: "/iconsax-home-9689b9a8a111-.svg",
+          iconBold: "/iconsax-home-1ef2f95ab697-.svg",
+        },
+        {
+          id: "metas",
+          label: "Metas",
+          iconOutline: "/iconsax-flag-7c42ba31a052-.svg",
+          iconBold: "/iconsax-flag-765e7531a8c1-.svg",
+        },
+        {
+          id: "os",
+          label: "Ordens de Serviço",
+          iconOutline: "/iconsax-clipboard-text-f8d0bf607903-.svg",
+          iconBold: "/iconsax-clipboard-text-1b6ad74fb4dc-.svg",
+        },
+        {
+          id: "orcamentos",
+          label: "Orçamentos",
+          iconOutline: "/iconsax-document-text-16311d302a7a-.svg",
+          iconBold: "/iconsax-document-text-a1b8980bff3e-.svg",
+        },
       ],
     },
     {
       title: "Comercial",
       items: [
-        { id: "clientes", label: "Clientes", icon: UsersRound },
-        { id: "pecas", label: "Peças", icon: Package },
-        { id: "estoque", label: "Estoque", icon: Boxes },
-        { id: "vendas", label: "Vendas", icon: ShoppingCart },
+        {
+          id: "clientes",
+          label: "Clientes",
+          iconOutline: "/iconsax-profile-2user-d05a131c28ed-.svg",
+          iconBold: "/iconsax-profile-2user-bdeb1e163889-.svg",
+        },
+        {
+          id: "pecas",
+          label: "Peças",
+          iconOutline: "/iconsax-3dcube-fd02a73965f4-.svg",
+          iconBold: "/iconsax-3dcube-cba7010189bf-.svg",
+        },
+        {
+          id: "estoque",
+          label: "Estoque",
+          iconOutline: "/iconsax-archive-abf679bfef9d-.svg",
+          iconBold: "/iconsax-archive-6f07eb458275-.svg",
+        },
+        {
+          id: "vendas",
+          label: "Vendas",
+          iconOutline: "/iconsax-shopping-cart-51e8cf593192-.svg",
+          iconBold: "/iconsax-shopping-cart-13a623b99687-.svg",
+        },
       ],
     },
   ];
@@ -170,9 +215,24 @@ export function Sidebar({
     menuGroups.push({
       title: "Financeiro",
       items: [
-        { id: "financeiro", label: "Financeiro", icon: Wallet },
-        { id: "caixa", label: "Caixa", icon: Landmark },
-        { id: "relatorios", label: "Relatórios", icon: BarChart3 },
+        {
+          id: "financeiro",
+          label: "Financeiro",
+          iconOutline: "/iconsax-wallet-minus-516cd552e747-.svg",
+          iconBold: "/iconsax-wallet-minus-04232ec5c444-.svg",
+        },
+        {
+          id: "caixa",
+          label: "Caixa",
+          iconOutline: "/iconsax-money-recive-4ccf489d66f9-.svg",
+          iconBold: "/iconsax-money-recive-bf9a7173da9c-.svg",
+        },
+        {
+          id: "relatorios",
+          label: "Relatórios",
+          iconOutline: "/iconsax-chart-f70454b57869-.svg",
+          iconBold: "/iconsax-chart-304bd2a81211-.svg",
+        },
       ],
     });
   } else {
@@ -180,7 +240,12 @@ export function Sidebar({
     menuGroups.push({
       title: "Financeiro",
       items: [
-        { id: "caixa", label: "Caixa", icon: Landmark },
+        {
+          id: "caixa",
+          label: "Caixa",
+          iconOutline: "/iconsax-money-recive-4ccf489d66f9-.svg",
+          iconBold: "/iconsax-money-recive-bf9a7173da9c-.svg",
+        },
       ],
     });
   }
@@ -188,7 +253,12 @@ export function Sidebar({
   menuGroups.push({
     title: "Suporte",
     items: [
-      { id: "guia", label: "Guia do Portal", icon: Compass },
+      {
+        id: "guia",
+        label: "Guia do Portal",
+        iconOutline: "/iconsax-message-question-9ed9a8da9fec-.svg",
+        iconBold: "/iconsax-message-question-efe1e30aabc8-.svg",
+      },
     ],
   });
 
@@ -197,58 +267,94 @@ export function Sidebar({
       ? {
           title: "Sistema (Admin)",
           items: [
-            { id: "empresas", label: "Empresas", icon: Building2 },
-            { id: "funcionarios", label: "Funcionários", icon: UserRoundCheck },
-            { id: "configuracoes", label: "Configurações", icon: Settings },
+            {
+              id: "empresas",
+              label: "Empresas",
+              iconOutline: "/iconsax-building-ac5d68617373-.svg",
+              iconBold: "/iconsax-building-c5462f25e27e-.svg",
+            },
+            {
+              id: "funcionarios",
+              label: "Funcionários",
+              iconOutline: "/iconsax-user-6a38c8915083-.svg",
+              iconBold: "/iconsax-user-3cf892c194e4-.svg",
+            },
+            {
+              id: "configuracoes",
+              label: "Configurações",
+              iconOutline: "/iconsax-setting-ccbc060fa375-.svg",
+              iconBold: "/iconsax-setting-cc2e04f5916f-.svg",
+            },
           ],
         }
       : role === "Dono"
       ? {
           title: "Administração",
           items: [
-            { id: "funcionarios", label: "Funcionários", icon: UserRoundCheck },
-            { id: "configuracoes", label: "Configurações", icon: Settings },
+            {
+              id: "funcionarios",
+              label: "Funcionários",
+              iconOutline: "/iconsax-user-6a38c8915083-.svg",
+              iconBold: "/iconsax-user-3cf892c194e4-.svg",
+            },
+            {
+              id: "configuracoes",
+              label: "Configurações",
+              iconOutline: "/iconsax-setting-ccbc060fa375-.svg",
+              iconBold: "/iconsax-setting-cc2e04f5916f-.svg",
+            },
           ],
         }
       : null;
 
   const renderGroup = (group: MenuGroup) => (
     <div key={group.title} className="mb-5">
-      {!isCollapsed && (
+      {!effectiveIsCollapsed && (
         <h3 className="px-3 mb-2 text-xs font-medium tracking-wider text-slate-500 uppercase">
           {group.title}
         </h3>
       )}
-      <div className="space-y-1">
+      <div className="flex flex-col gap-1">
         {group.items.map((item) => {
-          const Icon = item.icon;
           const isActive = activeTab === item.id;
-          return (
+          const iconSrc = isActive ? item.iconBold : item.iconOutline;
+          
+          const content = (
             <button
-              key={item.id}
               onClick={() => {
                 setActiveTab(item.id);
                 if (window.innerWidth < 768) {
                   closeMobile();
                 }
               }}
-              title={isCollapsed ? item.label : undefined}
               className={cn(
                 "flex items-center w-full py-2 text-sm font-medium rounded-lg transition-all duration-150 cursor-pointer gap-3 group text-left",
-                isCollapsed ? "justify-center px-0" : "px-3",
+                effectiveIsCollapsed ? "justify-center px-0" : "px-3",
                 isActive
                   ? "bg-white/10 text-white"
                   : "text-slate-400 hover:text-white hover:bg-white/5"
               )}
             >
-              <Icon
+              <img
+                src={iconSrc}
+                alt=""
                 className={cn(
-                  "w-5 h-5 shrink-0 transition-colors duration-150",
-                  isActive ? "text-white" : "text-slate-400 group-hover:text-white"
+                  "w-5 h-5 shrink-0 transition-all duration-300",
+                  isActive ? "opacity-100" : "opacity-60 group-hover:opacity-100 group-hover:rotate-10"
                 )}
               />
-              {!isCollapsed && <span className="truncate">{item.label}</span>}
+              {!effectiveIsCollapsed && <span className="truncate">{item.label}</span>}
             </button>
+          );
+
+          return effectiveIsCollapsed ? (
+            <Tooltip key={item.id} content={item.label} side="right">
+              {content}
+            </Tooltip>
+          ) : (
+            <React.Fragment key={item.id}>
+              {content}
+            </React.Fragment>
           );
         })}
       </div>
@@ -260,7 +366,7 @@ export function Sidebar({
       {/* Mobile overlay backdrop */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 md:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 md:hidden"
           onClick={closeMobile}
         />
       )}
@@ -268,7 +374,7 @@ export function Sidebar({
       <aside
         className={cn(
           "fixed md:relative inset-y-0 left-0 z-50 h-full flex flex-col py-6 bg-[#0c0b14] select-none text-slate-300 shrink-0 transition-all duration-300",
-          isCollapsed ? "w-20 px-2" : "w-64 px-4",
+          effectiveIsCollapsed ? "w-20 px-2" : "w-64 px-4",
           isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
@@ -276,23 +382,22 @@ export function Sidebar({
         <div
           className={cn(
             "flex items-center gap-3 mb-6 shrink-0",
-            isCollapsed ? "justify-center" : "justify-between px-3"
+            effectiveIsCollapsed ? "justify-center" : "justify-between px-3"
           )}
         >
           <div className="flex items-center gap-3">
-            {/* <Icon iconNode={waveCircle}/> */}
-            {!isCollapsed && (
+            {!effectiveIsCollapsed && (
               <span className="text-lg font-bold tracking-wide truncate">{tenantName || "Empresa"}</span>
             )}
           </div>
-          {!isCollapsed && (
+          {!effectiveIsCollapsed && (
             <Button
               size="icon"
               variant="ghost"
               className="md:hidden text-slate-400 hover:text-white hover:bg-white/10 w-8 h-8 rounded-lg"
               onClick={closeMobile}
             >
-              <PanelRightOpen className="w-5 h-5" />
+              <Image src={"iconsax-sidebar-left-70e3767d1ebc-.svg"} alt="Close Menu" width={20} height={20} />
             </Button>
           )}
         </div>
@@ -307,7 +412,7 @@ export function Sidebar({
 
         {/* User Profile / Logout */}
         <div className="pt-4 border-t border-slate-800/50 px-2 shrink-0">
-          {!isCollapsed ? (
+          {!effectiveIsCollapsed ? (
             <div className="flex items-center justify-between">
               <div
                 className="flex items-center gap-3 overflow-hidden hover:bg-white/5 p-2 -ml-2 rounded-lg transition-colors text-left flex-1 mr-2 cursor-pointer"
@@ -332,32 +437,35 @@ export function Sidebar({
                 className="text-slate-400 hover:text-red-400 hover:bg-red-500/10 shrink-0"
                 title="Sair"
               >
-                <LogOut className="w-4 h-4" />
+                <img src="/iconsax-logout-77f33fb7b3b3-.svg" alt="Sair" className="w-5 h-5 opacity-40 hover:opacity-100 transition-opacity" />
               </Button>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-4">
-              <div
-                className="cursor-pointer"
-                onClick={() => setIsProfileOpen(true)}
-              >
-                {profilePhoto ? (
-                  <img src={profilePhoto} alt="Profile" className="w-9 h-9 rounded-full object-cover border border-zinc-700" title={editBusinessName || userName} />
-                ) : (
-                  <div className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center font-semibold text-zinc-300 hover:bg-zinc-700 transition-colors" title={editBusinessName || userName}>
-                    {editBusinessName?.charAt(0)?.toUpperCase() || userName.charAt(0).toUpperCase()}
-                  </div>
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => signOut()}
-                className="text-slate-400 hover:text-red-400 hover:bg-red-500/10"
-                title="Sair"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
+              <Tooltip content={editBusinessName || userName} side="right">
+                <div
+                  className="cursor-pointer"
+                  onClick={() => setIsProfileOpen(true)}
+                >
+                  {profilePhoto ? (
+                    <img src={profilePhoto} alt="Profile" className="w-9 h-9 rounded-full object-cover border border-zinc-700" />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center font-semibold text-zinc-300 hover:bg-zinc-700 transition-colors">
+                      {editBusinessName?.charAt(0)?.toUpperCase() || userName.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+              </Tooltip>
+              <Tooltip content="Sair" side="right">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => signOut()}
+                  className="text-slate-400 hover:text-red-400 hover:bg-red-500/10"
+                >
+                  <img src="/iconsax-logout-77f33fb7b3b3-.svg" alt="Sair" className="w-5 h-5 opacity-40 hover:opacity-100 transition-opacity" />
+                </Button>
+              </Tooltip>
             </div>
           )}
 

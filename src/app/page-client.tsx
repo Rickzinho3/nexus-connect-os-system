@@ -20,6 +20,7 @@ import { EmpresasView } from "@/components/tabs/empresas-view";
 import { seedInitialDatabase } from "@/app/actions";
 import { Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 interface HomeClientProps {
   tenantName?: string;
@@ -99,7 +100,7 @@ export default function Home({ tenantName, tenantData }: HomeClientProps) {
               className="md:hidden w-10 h-10 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 -ml-2 mr-2"
               onClick={() => setIsMobileOpen(true)}
             >
-              <PanelLeftOpen className="w-5 h-5" />
+              <Image src={"iconsax-sidebar-right-slate-500.svg"} alt="Close Menu" width={20} height={20}/>
             </Button>
             
             {/* Desktop Collapse Button */}
@@ -111,9 +112,9 @@ export default function Home({ tenantName, tenantData }: HomeClientProps) {
               title={isSidebarCollapsed ? "Expandir Menu" : "Recolher Menu"}
             >
               {isSidebarCollapsed ? (
-                <PanelLeftOpen className="w-5 h-5" />
+                <Image src={"/iconsax-sidebar-right-slate-500.svg"} alt="Close Menu" width={20} height={20}/>
               ) : (
-                <PanelLeftClose className="w-5 h-5" />
+                <Image src={"/iconsax-sidebar-left-slate-500.svg"} alt="Close Menu" width={20} height={20}/>
               )}
             </Button>
             
