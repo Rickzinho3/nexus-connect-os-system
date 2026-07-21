@@ -25,7 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Users, Search, PlusCircle, Mail, Phone, Smartphone, Edit3, Trash2, Key, Copy, Check, Printer } from "lucide-react";
 import { getClients, addClient, updateClient, deleteClient } from "@/app/actions";
 import { Tooltip } from "@/components/motion/tooltip";
-import { useToast } from "@/components/providers/toast-provider";
+import { toast } from "sonner";
 
 interface Client {
   id: string;
@@ -68,7 +68,6 @@ function formatPhone(value: string) {
 }
 
 export function ClientesView() {
-  const { showToast } = useToast();
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -139,10 +138,10 @@ export function ClientesView() {
         setNewlyCreatedClient(created as any);
         setIsCardOpen(true);
       }
-      showToast({ title: "Cliente cadastrado com sucesso", status: "success" });
+      toast.success("Cliente cadastrado com sucesso");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao cadastrar cliente", status: "error" });
+      toast.error("Erro ao cadastrar cliente");
     }
   };
 
@@ -290,10 +289,10 @@ export function ClientesView() {
       setIsEditOpen(false);
       setSelectedClient(null);
       await loadClients();
-      showToast({ title: "Cliente atualizado com sucesso", status: "success" });
+      toast.success("Cliente atualizado com sucesso");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao atualizar cliente", status: "error" });
+      toast.error("Erro ao atualizar cliente");
     }
   };
 
@@ -309,10 +308,10 @@ export function ClientesView() {
       setIsDeleteOpen(false);
       setSelectedClient(null);
       await loadClients();
-      showToast({ title: "Cliente excluído com sucesso", status: "success" });
+      toast.success("Cliente excluído com sucesso");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao excluir cliente", status: "error" });
+      toast.error("Erro ao excluir cliente");
     }
   };
 
@@ -495,7 +494,7 @@ export function ClientesView() {
                             navigator.clipboard.writeText(client.accessCode);
                             setCopiedId(client.id);
                             setTimeout(() => setCopiedId(null), 2000);
-                            showToast({ title: "Código copiado", status: "info" });
+                            toast.info("Código copiado");
                           }}
                           className="w-6 h-6 rounded-md text-slate-400 hover:text-slate-900"
                         >

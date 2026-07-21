@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -100,8 +101,10 @@ export function PecasView() {
       setMinQuantity("");
       setPrice("");
       await loadParts();
+      toast.success("Peça adicionada com sucesso!");
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao adicionar peça");
     }
   };
 
@@ -133,6 +136,7 @@ export function PecasView() {
       await loadParts();
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao atualizar peça");
     }
   };
 
@@ -150,6 +154,7 @@ export function PecasView() {
       await loadParts();
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao excluir peça");
     }
   };
 

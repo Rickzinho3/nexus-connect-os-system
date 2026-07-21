@@ -51,7 +51,7 @@ import {
   getEmployees
 } from "@/app/actions";
 import { Tooltip } from "@/components/motion/tooltip";
-import { useToast } from "@/components/providers/toast-provider";
+import { toast } from "sonner";
 
 interface DrawerLog {
   id: number;
@@ -80,7 +80,6 @@ interface CashSession {
 }
 
 export function CaixaView() {
-  const { showToast } = useToast();
   const [activeSession, setActiveSession] = useState<CashSession | null>(null);
   const [logs, setLogs] = useState<DrawerLog[]>([]);
   const [sessionsHistory, setSessionsHistory] = useState<CashSession[]>([]);
@@ -152,10 +151,10 @@ export function CaixaView() {
       setInitialValue("");
       setOpeningResponsible("");
       await loadData();
-      showToast({ title: "Sessão de caixa aberta", status: "success" });
+      toast.success("Sessão de caixa aberta");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao abrir o caixa", status: "error" });
+      toast.error("Erro ao abrir o caixa");
     }
   };
 
@@ -183,10 +182,10 @@ export function CaixaView() {
       setTxDescription("");
       setTxResponsible("");
       await loadData();
-      showToast({ title: "Movimentação registrada com sucesso", status: "success" });
+      toast.success("Movimentação registrada com sucesso");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao registrar movimentação", status: "error" });
+      toast.error("Erro ao registrar movimentação");
     }
   };
 
@@ -207,10 +206,10 @@ export function CaixaView() {
       setClosingNotes("");
       setClosingResponsible("");
       await loadData();
-      showToast({ title: "Sessão de caixa fechada", status: "success" });
+      toast.success("Sessão de caixa fechada");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao fechar o caixa", status: "error" });
+      toast.error("Erro ao fechar o caixa");
     }
   };
 
@@ -221,10 +220,10 @@ export function CaixaView() {
       setIsDeleteOpen(false);
       setDeleteTarget(null);
       await loadData();
-      showToast({ title: "Movimentação excluída com sucesso", status: "success" });
+      toast.success("Movimentação excluída com sucesso");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao excluir movimentação", status: "error" });
+      toast.error("Erro ao excluir movimentação");
     }
   };
 

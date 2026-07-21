@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
-import { ToastProvider } from "@/components/providers/toast-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -27,9 +27,8 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <SessionProvider>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
+          {children}
+          <Toaster position="top-center" richColors />
         </SessionProvider>
       </body>
     </html>

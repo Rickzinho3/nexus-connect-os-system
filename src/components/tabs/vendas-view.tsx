@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -91,8 +92,10 @@ export function VendasView() {
       setAmount("");
       // Reload
       await loadData();
+      toast.success("Venda registrada com sucesso!");
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao registrar venda");
     }
   };
 
@@ -118,6 +121,7 @@ export function VendasView() {
       await loadData();
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao atualizar venda");
     }
   };
 
@@ -135,6 +139,7 @@ export function VendasView() {
       await loadData();
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao excluir venda");
     }
   };
 

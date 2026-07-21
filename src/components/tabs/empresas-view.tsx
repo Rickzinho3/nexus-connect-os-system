@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { getTenants, createTenant, updateTenant, deleteTenant } from "@/app/actions";
 import { Tooltip } from "@/components/motion/tooltip";
-import { useToast } from "@/components/providers/toast-provider";
+import { toast } from "sonner";
 import { Loader } from "../motion/loader";
 
 const formatCpfCnpj = (value: string) => {
@@ -30,7 +30,6 @@ const formatCpfCnpj = (value: string) => {
 };
 
 export function EmpresasView() {
-  const { showToast } = useToast();
   const [tenants, setTenants] = useState<any[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
 
@@ -85,10 +84,10 @@ export function EmpresasView() {
       await deleteTenant(tenantToDelete.id);
       setTenants(tenants.filter(t => t.id !== tenantToDelete.id));
       setTenantToDelete(null);
-      showToast({ title: "Empresa excluída com sucesso", status: "success" });
+      toast.success("Empresa excluída com sucesso");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao excluir a empresa", status: "error" });
+      toast.error("Erro ao excluir a empresa");
     } finally {
       setLoading(false);
     }
@@ -103,18 +102,18 @@ export function EmpresasView() {
         await updateTenant(editingTenant.id, formData);
         setTenants(tenants.map(t => t.id === editingTenant.id ? { ...t, ...formData } : t));
         setIsModalOpen(false);
-        showToast({ title: "Empresa atualizada com sucesso", status: "success" });
+        toast.success("Empresa atualizada com sucesso");
       } else {
         const res = await createTenant(formData);
         if (res.success && res.credentials) {
           setIsModalOpen(false);
           setSuccessCreds(res.credentials);
-          showToast({ title: "Empresa criada com sucesso", status: "success" });
+          toast.success("Empresa criada com sucesso");
         }
       }
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao salvar a empresa", status: "error" });
+      toast.error("Erro ao salvar a empresa");
     } finally {
       setLoading(false);
     }
@@ -131,7 +130,7 @@ export function EmpresasView() {
             Área exclusiva do Super Admin para gerenciar as empresas clientes (Tenants).
           </p>
         </div>
-        <Button  onClick={openAddModal} className="bg-slate-900 h-10 hover:bg-slate-800 text-slate-200 gap-2 cursor-pointer">
+        <Button  onClick={openAddModal} className="bg-slate-900 h-10 hover:bg-slate-800 text-slate-200 gap-2 cursor-pointer shrink-0 self-start sm:self-auto">
           <PlusCircle className="w-4 h-4" />
           Nova Empresa
         </Button>

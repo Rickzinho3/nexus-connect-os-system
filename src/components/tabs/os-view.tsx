@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/attachment";
 import { getServiceOrders, addServiceOrder, updateServiceOrder, deleteServiceOrder, getClients } from "@/app/actions";
 import { Tooltip } from "@/components/motion/tooltip";
-import { useToast } from "@/components/providers/toast-provider";
+import { toast } from "sonner";
 
 interface ServiceOrder {
   id: string;
@@ -57,7 +57,6 @@ interface ClientOption {
 
 export function OSView() {
   const router = useRouter();
-  const { showToast } = useToast();
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const [clients, setClients] = useState<ClientOption[]>([]);
   const [search, setSearch] = useState("");
@@ -137,10 +136,10 @@ export function OSView() {
       setNotes("");
       setPhotoPreviews([]);
       await loadData();
-      showToast({ title: "O.S. criada com sucesso", status: "success" });
+      toast.success("O.S. criada com sucesso");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao criar O.S.", status: "error" });
+      toast.error("Erro ao criar O.S.");
     }
   };
 
@@ -170,10 +169,10 @@ export function OSView() {
       setIsEditOpen(false);
       setSelectedOrder(null);
       await loadData();
-      showToast({ title: "O.S. atualizada com sucesso", status: "success" });
+      toast.success("O.S. atualizada com sucesso");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao atualizar O.S.", status: "error" });
+      toast.error("Erro ao atualizar O.S.");
     }
   };
 
@@ -189,10 +188,10 @@ export function OSView() {
       setIsDeleteOpen(false);
       setSelectedOrder(null);
       await loadData();
-      showToast({ title: "O.S. excluída com sucesso", status: "success" });
+      toast.success("O.S. excluída com sucesso");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao excluir O.S.", status: "error" });
+      toast.error("Erro ao excluir O.S.");
     }
   };
 

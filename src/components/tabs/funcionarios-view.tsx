@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -87,8 +88,10 @@ export function FuncionariosView() {
       setEmail("");
       setPhone("");
       await loadEmployees();
+      toast.success("Funcionário cadastrado com sucesso!");
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao cadastrar funcionário");
     }
   };
 
@@ -119,6 +122,7 @@ export function FuncionariosView() {
       await loadEmployees();
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao atualizar funcionário");
     }
   };
 
@@ -136,6 +140,7 @@ export function FuncionariosView() {
       await loadEmployees();
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao excluir funcionário");
     }
   };
 

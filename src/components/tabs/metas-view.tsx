@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -23,7 +24,15 @@ import {
 } from "@/components/ui/dialog";
 import { Target, TrendingUp, ShieldAlert, Award, PlusCircle, Edit3, Trash2 } from "lucide-react";
 import { getGoals, addGoal, updateGoal, deleteGoal } from "@/app/actions";
-
+import { Tooltip } from "../motion/tooltip";
+import { DatePicker } from "@/components/ui/date-picker";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/motion/select";
 interface Goal {
   id: number;
   name: string;
@@ -87,8 +96,10 @@ export function MetasView() {
       setUnit("");
       setDeadline("");
       await loadGoals();
+      toast.success("Meta criada com sucesso!");
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao criar meta");
     }
   };
 
@@ -121,6 +132,7 @@ export function MetasView() {
       await loadGoals();
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao atualizar meta");
     }
   };
 
@@ -138,6 +150,7 @@ export function MetasView() {
       await loadGoals();
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao excluir meta");
     }
   };
 
@@ -151,7 +164,7 @@ export function MetasView() {
 
   return (
     <div className="space-y-6 font-sans">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">Metas Corporativas</h1>
           <p className="text-sm text-slate-500">
@@ -161,7 +174,7 @@ export function MetasView() {
 
         {/* Create Modal Trigger */}
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger render={<Button className="rounded-xl h-10 bg-slate-900 text-white hover:bg-slate-800 gap-2" />}>
+          <DialogTrigger render={<Button className="rounded-xl h-10 bg-slate-900 text-white hover:bg-slate-800 gap-2 shrink-0 self-start sm:self-auto" />}>
             <span className="flex items-center gap-2">
               <PlusCircle className="w-4 h-4" /> Criar Meta
             </span>
@@ -191,18 +204,17 @@ export function MetasView() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-500">Categoria</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                    required
-                  >
-                    <option value="" disabled>Selecione uma Categoria...</option>
-                    <option value="Financeiro">Financeiro</option>
-                    <option value="Operacional">Operacional</option>
-                    <option value="Qualidade">Qualidade</option>
-                    <option value="Comercial">Comercial</option>
-                  </select>
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger className="rounded-xl border-slate-200">
+                      <SelectValue placeholder="Selecione uma Categoria..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Financeiro">Financeiro</SelectItem>
+                      <SelectItem value="Operacional">Operacional</SelectItem>
+                      <SelectItem value="Qualidade">Qualidade</SelectItem>
+                      <SelectItem value="Comercial">Comercial</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -220,32 +232,34 @@ export function MetasView() {
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-500">Unidade</label>
-                    <select
-                      value={unit}
-                      onChange={(e) => setUnit(e.target.value)}
-                      className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                      required
-                    >
-                      <option value="" disabled>Selecione uma Unidade...</option>
-                      <option value="R$">R$</option>
-                      <option value="OS">OS (Ordens de Serviço)</option>
-                      <option value="%">% (Porcentagem)</option>
-                      <option value="un">Unidades</option>
-                    </select>
+                    <Select value={unit} onValueChange={setUnit}>
+                      <SelectTrigger className="rounded-xl border-slate-200">
+                        <SelectValue placeholder="Selecione uma Unidade..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="R$">R$</SelectItem>
+                        <SelectItem value="OS">OS (Ordens de Serviço)</SelectItem>
+                        <SelectItem value="%">% (Porcentagem)</SelectItem>
+                        <SelectItem value="un">Unidades</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-500">Prazo de Conclusão</label>
-                  <input
-                    type="date"
-                    value={deadline.includes("/") ? deadline.split("/").reverse().join("-") : deadline}
-                    onChange={(e) => {
-                      const [y, m, d] = e.target.value.split("-");
-                      setDeadline(`${d}/${m}/${y}`);
+                  <DatePicker
+                    value={deadline ? new Date(deadline.includes("/") ? deadline.split("/").reverse().join("-") + "T12:00:00" : deadline + "T12:00:00") : undefined}
+                    onChange={(date) => {
+                      if (date) {
+                        const d = String(date.getDate()).padStart(2, '0');
+                        const m = String(date.getMonth() + 1).padStart(2, '0');
+                        const y = date.getFullYear();
+                        setDeadline(`${d}/${m}/${y}`);
+                      } else {
+                        setDeadline("");
+                      }
                     }}
-                    className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                    required
                   />
                 </div>
               </div>
@@ -315,6 +329,7 @@ export function MetasView() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5">
+                    <Tooltip content="Editar">
                     <Button
                       size="icon"
                       variant="ghost"
@@ -323,14 +338,17 @@ export function MetasView() {
                     >
                       <Edit3 className="w-4 h-4" />
                     </Button>
+                    </Tooltip>
+                    <Tooltip content="Excluir">
                     <Button
                       size="icon"
                       variant="ghost"
                       onClick={() => handleDeleteClick(goal)}
-                      className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
+                      className="w-7 h-7 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
+                    </Tooltip>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -389,18 +407,17 @@ export function MetasView() {
 
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-500">Categoria</label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                  required
-                >
-                  <option value="" disabled>Selecione uma Categoria...</option>
-                  <option value="Financeiro">Financeiro</option>
-                  <option value="Operacional">Operacional</option>
-                  <option value="Qualidade">Qualidade</option>
-                  <option value="Comercial">Comercial</option>
-                </select>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger className="rounded-xl border-slate-200">
+                    <SelectValue placeholder="Selecione uma Categoria..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Financeiro">Financeiro</SelectItem>
+                    <SelectItem value="Operacional">Operacional</SelectItem>
+                    <SelectItem value="Qualidade">Qualidade</SelectItem>
+                    <SelectItem value="Comercial">Comercial</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -431,30 +448,32 @@ export function MetasView() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-500">Unidade</label>
-                  <select
-                    value={unit}
-                    onChange={(e) => setUnit(e.target.value)}
-                    className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                    required
-                  >
-                    <option value="" disabled>Selecione uma Unidade...</option>
-                    <option value="R$">R$</option>
-                    <option value="OS">OS (Ordens de Serviço)</option>
-                    <option value="%">% (Porcentagem)</option>
-                    <option value="un">Unidades</option>
-                  </select>
+                  <Select value={unit} onValueChange={setUnit}>
+                    <SelectTrigger className="rounded-xl border-slate-200">
+                      <SelectValue placeholder="Selecione uma Unidade..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="R$">R$</SelectItem>
+                      <SelectItem value="OS">OS (Ordens de Serviço)</SelectItem>
+                      <SelectItem value="%">% (Porcentagem)</SelectItem>
+                      <SelectItem value="un">Unidades</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-500">Prazo</label>
-                  <input
-                    type="date"
-                    value={deadline.includes("/") ? deadline.split("/").reverse().join("-") : deadline}
-                    onChange={(e) => {
-                      const [y, m, d] = e.target.value.split("-");
-                      setDeadline(`${d}/${m}/${y}`);
+                  <DatePicker
+                    value={deadline ? new Date(deadline.includes("/") ? deadline.split("/").reverse().join("-") + "T12:00:00" : deadline + "T12:00:00") : undefined}
+                    onChange={(date) => {
+                      if (date) {
+                        const d = String(date.getDate()).padStart(2, '0');
+                        const m = String(date.getMonth() + 1).padStart(2, '0');
+                        const y = date.getFullYear();
+                        setDeadline(`${d}/${m}/${y}`);
+                      } else {
+                        setDeadline("");
+                      }
                     }}
-                    className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                    required
                   />
                 </div>
               </div>

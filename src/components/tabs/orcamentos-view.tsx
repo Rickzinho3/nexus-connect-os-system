@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -24,6 +25,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/motion/select";
 import { Search, PlusCircle, Check, X, FileText, Smartphone, Edit3, Trash2 } from "lucide-react";
 import { getQuotes, addQuote, updateQuote, deleteQuote, approveQuote, rejectQuote, getClients } from "@/app/actions";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Tooltip } from "../motion/tooltip";
 
 interface Quote {
@@ -106,8 +108,10 @@ export function OrcamentosView() {
       setValue("");
       setValidUntil("");
       await loadData();
+      toast.success("Orçamento criado com sucesso!");
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao criar orçamento");
     }
   };
 
@@ -138,6 +142,7 @@ export function OrcamentosView() {
       await loadData();
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao atualizar orçamento");
     }
   };
 
@@ -155,6 +160,7 @@ export function OrcamentosView() {
       await loadData();
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao excluir orçamento");
     }
   };
 
@@ -164,6 +170,7 @@ export function OrcamentosView() {
       await loadData();
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao aprovar orçamento");
     }
   };
 
@@ -173,6 +180,7 @@ export function OrcamentosView() {
       await loadData();
     } catch (err) {
       console.error(err);
+      toast.error("Erro ao rejeitar orçamento");
     }
   };
 
@@ -283,15 +291,18 @@ export function OrcamentosView() {
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-500">Validade</label>
-                    <input
-                      type="date"
-                      value={validUntil.includes("/") ? validUntil.split("/").reverse().join("-") : validUntil}
-                      onChange={(e) => {
-                        const [y, m, d] = e.target.value.split("-");
-                        setValidUntil(`${d}/${m}/${y}`);
+                    <DatePicker
+                      value={validUntil ? new Date(validUntil.includes("/") ? validUntil.split("/").reverse().join("-") + "T12:00:00" : validUntil + "T12:00:00") : undefined}
+                      onChange={(date) => {
+                        if (date) {
+                          const d = String(date.getDate()).padStart(2, '0');
+                          const m = String(date.getMonth() + 1).padStart(2, '0');
+                          const y = date.getFullYear();
+                          setValidUntil(`${d}/${m}/${y}`);
+                        } else {
+                          setValidUntil("");
+                        }
                       }}
-                      className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                      required
                     />
                   </div>
                 </div>
@@ -513,15 +524,18 @@ export function OrcamentosView() {
 
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-500">Validade do Orçamento</label>
-                <input
-                  type="date"
-                  value={editValidUntil.includes("/") ? editValidUntil.split("/").reverse().join("-") : editValidUntil}
-                  onChange={(e) => {
-                    const [y, m, d] = e.target.value.split("-");
-                    setEditValidUntil(`${d}/${m}/${y}`);
+                <DatePicker
+                  value={editValidUntil ? new Date(editValidUntil.includes("/") ? editValidUntil.split("/").reverse().join("-") + "T12:00:00" : editValidUntil + "T12:00:00") : undefined}
+                  onChange={(date) => {
+                    if (date) {
+                      const d = String(date.getDate()).padStart(2, '0');
+                      const m = String(date.getMonth() + 1).padStart(2, '0');
+                      const y = date.getFullYear();
+                      setEditValidUntil(`${d}/${m}/${y}`);
+                    } else {
+                      setEditValidUntil("");
+                    }
                   }}
-                  className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                  required
                 />
               </div>
             </div>

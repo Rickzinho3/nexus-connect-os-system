@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -26,6 +27,16 @@ export function RelatoriosView() {
   const [parts, setParts] = useState<any[]>([]);
   const [sales, setSales] = useState<any[]>([]);
 
+  const parseDate = (dateVal: any) => {
+    if (!dateVal) return new Date(0);
+    if (dateVal instanceof Date) return dateVal;
+    if (typeof dateVal === "number") return new Date(dateVal);
+    const str = String(dateVal);
+    const parts = str.split(" ")[0].split("/");
+    if (parts.length === 3) return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+    return new Date(str);
+  };
+
   const handleGenerate = async () => {
     setIsGenerating(true);
     setShowReport(false);
@@ -37,21 +48,23 @@ export function RelatoriosView() {
       
       if (reportType === "financeiro") {
         const logs = await getCashLogs();
-        setCashLogs(logs.filter((l: any) => new Date(l.createdAt) >= cutoffDate));
+        setCashLogs(logs.filter((l: any) => parseDate(l.createdAt || l.time || l.date) >= cutoffDate));
       } else if (reportType === "os") {
         const os = await getServiceOrders();
-        setServiceOrders(os.filter((o: any) => new Date(o.createdAt) >= cutoffDate));
+        setServiceOrders(os.filter((o: any) => parseDate(o.date || o.createdAt) >= cutoffDate));
       } else if (reportType === "estoque") {
         const pList = await getParts();
         setParts(pList);
       } else if (reportType === "vendas") {
         const s = await getSales();
-        setSales(s.filter((sItem: any) => new Date(sItem.createdAt) >= cutoffDate));
+        setSales(s.filter((sItem: any) => parseDate(sItem.date || sItem.createdAt) >= cutoffDate));
       }
       
       setShowReport(true);
+      toast.success("Relatório gerado com sucesso!");
     } catch (e) {
       console.error(e);
+      toast.error("Erro ao gerar relatório");
     } finally {
       setIsGenerating(false);
     }
@@ -98,7 +111,8 @@ export function RelatoriosView() {
       `;
       cashLogs.forEach(log => {
         const v = typeof log.value === 'number' ? log.value : parseFloat(log.value);
-        tableHTML += `<tr><td>${log.description}</td><td>${log.type}</td><td>${v.toFixed(2)}</td><td>${log.time || new Date(log.createdAt).toLocaleDateString()}</td></tr>`;
+        const dateStr = log.time || (log.createdAt ? parseDate(log.createdAt).toLocaleDateString("pt-BR") : "");
+        tableHTML += `<tr><td>${log.description}</td><td>${log.type}</td><td>${v.toFixed(2)}</td><td>${dateStr}</td></tr>`;
       });
     } else if (reportType === "os") {
       tableHTML += `
@@ -299,7 +313,7 @@ export function RelatoriosView() {
                               <TableCell className="font-semibold text-slate-800">{log.description}</TableCell>
                               <TableCell>{log.type}</TableCell>
                               <TableCell className="text-slate-900 font-medium">R$ {val.toFixed(2)}</TableCell>
-                              <TableCell className="text-slate-500">{log.time || new Date(log.createdAt).toLocaleDateString()}</TableCell>
+                              <TableCell className="text-slate-500">{log.time || (log.createdAt ? parseDate(log.createdAt).toLocaleDateString("pt-BR") : "")}</TableCell>
                             </TableRow>
                           );
                       })}

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AnimatedAmountInput } from "@/components/ui/animated-amount-input";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Dialog,
   DialogContent,
@@ -56,7 +57,7 @@ import {
   getEmployees
 } from "@/app/actions";
 import { Tooltip } from "@/components/motion/tooltip";
-import { useToast } from "@/components/providers/toast-provider";
+import { toast } from "sonner";
 
 interface Transaction {
   id: string;
@@ -75,7 +76,6 @@ interface Transaction {
 type PeriodFilter = "hoje" | "7dias" | "30dias" | "mes" | "todos";
 
 export function FinanceiroView() {
-  const { showToast } = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [employees, setEmployees] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
@@ -145,10 +145,10 @@ export function FinanceiroView() {
       setDueDate("");
       setResponsible("");
       await loadData();
-      showToast({ title: "Transação criada com sucesso", status: "success" });
+      toast.success("Transação criada com sucesso");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao criar transação", status: "error" });
+      toast.error("Erro ao criar transação");
     }
   };
 
@@ -162,10 +162,10 @@ export function FinanceiroView() {
       setPayTarget(null);
       setPayResponsible("");
       await loadData();
-      showToast({ title: "Pagamento registrado com sucesso", status: "success" });
+      toast.success("Pagamento registrado com sucesso");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao registrar pagamento", status: "error" });
+      toast.error("Erro ao registrar pagamento");
     }
   };
 
@@ -181,10 +181,10 @@ export function FinanceiroView() {
       setIsDeleteOpen(false);
       setDeleteTarget(null);
       await loadData();
-      showToast({ title: "Transação excluída com sucesso", status: "success" });
+      toast.success("Transação excluída com sucesso");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao excluir transação", status: "error" });
+      toast.error("Erro ao excluir transação");
     }
   };
 
@@ -330,7 +330,7 @@ export function FinanceiroView() {
 
         {/* Lançar Dialog */}
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger render={<Button className="rounded-xl bg-slate-950 h-10 hover:bg-slate-900 text-white font-bold gap-2" />}>
+          <DialogTrigger render={<Button className="rounded-xl bg-slate-950 h-10 hover:bg-slate-900 text-white font-bold gap-2 shrink-0 self-start sm:self-auto" />}>
             <span className="flex items-center gap-2">
               <PlusCircle className="w-4 h-4" /> Lançar Movimentação
             </span>
@@ -483,12 +483,18 @@ export function FinanceiroView() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-500 uppercase">Data de Vencimento</label>
-                      <Input
-                        type="date"
-                        value={dueDate}
-                        onChange={(e) => setDueDate(e.target.value)}
-                        className="rounded-xl border-slate-200"
-                        required
+                      <DatePicker
+                        value={dueDate ? new Date(dueDate + "T12:00:00") : undefined}
+                        onChange={(date) => {
+                          if (date) {
+                            const y = date.getFullYear();
+                            const m = String(date.getMonth() + 1).padStart(2, '0');
+                            const d = String(date.getDate()).padStart(2, '0');
+                            setDueDate(`${y}-${m}-${d}`);
+                          } else {
+                            setDueDate("");
+                          }
+                        }}
                       />
                     </div>
                     <div className="space-y-1.5">

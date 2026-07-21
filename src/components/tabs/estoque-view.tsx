@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { AlertCircle, Plus, CheckCircle, RefreshCcw } from "lucide-react";
 import { getParts, replenishStock } from "@/app/actions";
 import { Tooltip } from "@/components/motion/tooltip";
-import { useToast } from "@/components/providers/toast-provider";
+import { toast } from "sonner";
 
 interface StockItem {
   sku: string;
@@ -20,7 +20,6 @@ interface StockItem {
 }
 
 export function EstoqueView() {
-  const { showToast } = useToast();
   const [stockList, setStockList] = useState<StockItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState<string[]>([
@@ -55,10 +54,10 @@ export function EstoqueView() {
         ...prev,
       ]);
       await loadStock();
-      showToast({ title: "Estoque reabastecido", status: "success" });
+      toast.success("Estoque reabastecido");
     } catch (err) {
       console.error(err);
-      showToast({ title: "Erro ao reabastecer", status: "error" });
+      toast.error("Erro ao reabastecer");
     }
   };
 
