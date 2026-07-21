@@ -358,7 +358,7 @@ export function OrcamentosView() {
       </div>
 
       {/* Estimates Table */}
-      <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+      <div className="hidden md:block border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
         <Table>
           <TableHeader className="bg-slate-50">
             <TableRow>
@@ -400,42 +400,39 @@ export function OrcamentosView() {
                             size="icon"
                             variant="ghost"
                             onClick={() => handleApprove(quote.id)}
-                            className="w-8 h-8 rounded-lg text-slate-400 hover:text-green-600 hover:bg-green-50"
+                            className="w-8 h-8 rounded-lg text-slate-400 hover:text-green-600 hover:bg-green-50 cursor-pointer"
                           >
                             <Check className="w-4 h-4" />
                           </Button>
                           </Tooltip>
-
                           <Tooltip content="Rejeitar" side="top">
                           <Button
                             size="icon"
                             variant="ghost"
                             onClick={() => handleReject(quote.id)}
-                            className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                            className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 cursor-pointer"
                           >
                             <X className="w-4 h-4" />
                           </Button>
                           </Tooltip>
                         </>
                       )}
-
                       <Tooltip content="Editar" side="top">
                       <Button
                         size="icon"
                         variant="ghost"
                         onClick={() => handleEditClick(quote)}
-                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900"
+                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 cursor-pointer"
                       >
                         <Edit3 className="w-4 h-4" />
                       </Button>
                       </Tooltip>
-
                       <Tooltip content="Deletar" side="top">
                       <Button
                         size="icon"
                         variant="ghost"
                         onClick={() => handleDeleteClick(quote)}
-                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                        className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -455,6 +452,67 @@ export function OrcamentosView() {
         </Table>
       </div>
 
+      {/* Mobile View (Cards) */}
+      <div className="md:hidden space-y-4">
+        {loading ? (
+          <div className="text-center py-8 text-slate-400">Carregando orçamentos...</div>
+        ) : filteredQuotes.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            {filteredQuotes.map((quote) => (
+              <div key={quote.id} className="bg-white border border-slate-200 rounded-3xl p-5 relative shadow-sm z-0">
+                <div className="absolute top-4 left-4 right-4 h-28 bg-gradient-to-tr from-slate-200 to-slate-100 rounded-2xl -z-10"></div>
+                
+                <div className="relative z-10 pt-16">
+                  <div className="flex justify-between items-end">
+                    <div className="w-[72px] h-[72px] rounded-full bg-white border-4 border-white shadow-sm flex items-center justify-center text-slate-700">
+                      <FileText className="w-8 h-8" />
+                    </div>
+                    <div className="flex gap-2 mb-2">
+                      {quote.status === "Pendente" && (
+                        <>
+                          <Button variant="outline" size="icon" onClick={() => handleApprove(quote.id)} className="rounded-full bg-white text-slate-400 hover:text-green-600 hover:bg-green-50 h-9 w-9 cursor-pointer"><Check className="w-4 h-4" /></Button>
+                          <Button variant="outline" size="icon" onClick={() => handleReject(quote.id)} className="rounded-full bg-white text-slate-400 hover:text-red-600 hover:bg-red-50 h-9 w-9 cursor-pointer"><X className="w-4 h-4" /></Button>
+                        </>
+                      )}
+                      <Button variant="outline" size="icon" onClick={() => handleEditClick(quote)} className="w-9 h-9 rounded-full text-slate-400 hover:text-slate-900 cursor-pointer"><Edit3/></Button>
+                      <Button variant="outline" size="icon" onClick={() => handleDeleteClick(quote)} className="rounded-full bg-white text-slate-400 border-slate-200 hover:text-red-500 hover:bg-red-50 h-9 w-9 cursor-pointer"><Trash2 className="w-4 h-4" /></Button>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-3 flex justify-between items-start">
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900 tracking-tight leading-tight">{quote.client}</h3>
+                      <p className="text-sm text-slate-500 font-medium mt-0.5">{quote.device}</p>
+                    </div>
+                    <div className="text-right">
+                      {getStatusBadge(quote.status)}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                     <span className="font-semibold text-slate-900">Serviços / Peças:</span> <br/>
+                     {quote.description}
+                  </div>
+
+                  <div className="flex justify-between items-center mt-6 border-t border-slate-100 pt-5">
+                    <div>
+                      <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Orçamento / Val.</div>
+                      <div className="text-sm font-bold text-slate-900">#{quote.id}</div>
+                      <div className="text-xs text-slate-500">Até {quote.validUntil}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Valor Total</div>
+                      <div className="text-lg font-black text-slate-900">R$ {quote.value.toFixed(2)}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-slate-400">Nenhum orçamento encontrado.</div>
+        )}
+      </div>
       {/* Edit Quote Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="sm:max-w-[420px] rounded-2xl bg-white border border-slate-100">

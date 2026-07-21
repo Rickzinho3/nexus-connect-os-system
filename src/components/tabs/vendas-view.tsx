@@ -260,7 +260,7 @@ export function VendasView() {
       </div>
 
       {/* Sales Table */}
-      <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+      <div className="hidden md:block border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
         <Table>
           <TableHeader className="bg-slate-50">
             <TableRow>
@@ -317,6 +317,53 @@ export function VendasView() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile View (Cards) */}
+      <div className="md:hidden space-y-4">
+        {loading ? (
+          <div className="text-center py-8 text-slate-400">Carregando vendas...</div>
+        ) : filteredSales.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            {filteredSales.map((sale) => (
+              <div key={sale.id} className="bg-white border border-slate-200 rounded-3xl p-5 relative shadow-sm z-0">
+                <div className="absolute top-4 left-4 right-4 h-28 bg-gradient-to-tr from-slate-200 to-slate-100 rounded-2xl -z-10"></div>
+                
+                <div className="relative z-10 pt-16">
+                  <div className="flex justify-between items-end">
+                    <div className="w-[72px] h-[72px] rounded-full bg-white border-4 border-white shadow-sm flex items-center justify-center text-slate-700">
+                      <Banknote className="w-8 h-8" />
+                    </div>
+                    <div className="flex gap-2 mb-2">
+                      <Button variant="outline" size="icon" onClick={() => handleEditClick(sale)} className="w-9 h-9 rounded-full text-slate-400 hover:text-slate-900 cursor-pointer"><Edit3/></Button>
+                      <Button variant="outline" size="icon" onClick={() => handleDeleteClick(sale)} className="rounded-full bg-white text-slate-400 border-slate-200 hover:text-red-500 hover:bg-red-50 h-9 w-9 cursor-pointer"><Trash2 className="w-4 h-4" /></Button>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-3 flex justify-between items-start">
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900 tracking-tight">{sale.client}</h3>
+                      <div className="flex items-center gap-1.5 mt-0.5 text-sm text-slate-500 font-medium">
+                        {getPaymentIcon(sale.paymentMethod)}
+                        {sale.paymentMethod}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-black text-slate-900">R$ {sale.amount.toFixed(2)}</div>
+                      <div className="text-xs text-slate-400 font-semibold mt-1">{sale.date}</div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center mt-6 border-t border-slate-100 pt-5 text-sm text-slate-400">
+                     <span>Cód: <span className="font-bold text-slate-700">{sale.id}</span></span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-slate-400">Nenhuma venda encontrada.</div>
+        )}
       </div>
       {/* Edit Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>

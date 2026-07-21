@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Building2, Pencil, Trash2, CheckCircle2, Copy, PlusCircle } from "lucide-react";
+import { Plus, Building2, Pencil, Trash2, CheckCircle2, Copy, PlusCircle, Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -136,7 +136,7 @@ export function EmpresasView() {
         </Button>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="hidden md:block bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <div className="grid grid-cols-6 gap-4 p-4 border-b border-slate-100 text-sm font-medium text-slate-500 bg-slate-50/50">
           <div className="col-span-2">Empresa</div>
           <div>CNPJ</div>
@@ -180,6 +180,68 @@ export function EmpresasView() {
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </Tooltip>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Mobile View (Cards) */}
+      <div className="md:hidden space-y-4">
+        {initialLoading ? (
+          <div className="p-8 text-center text-slate-500 flex justify-center items-center gap-4"><>Carregando <Loader variant="metaballs"/></></div>
+        ) : tenants.length === 0 ? (
+          <div className="p-8 text-center text-slate-500">
+            Nenhuma empresa cadastrada ainda.
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {tenants.map((tenant) => (
+              <div key={tenant.id} className="bg-white border border-slate-200 rounded-3xl p-5 relative shadow-sm z-0">
+                {/* Decorative header */}
+                <div className="absolute top-4 left-4 right-4 h-28 bg-gradient-to-tr from-slate-200 to-slate-100 rounded-2xl -z-10"></div>
+                
+                <div className="relative z-10 pt-16">
+                  <div className="flex justify-between items-end">
+                    <div className="w-[72px] h-[72px] rounded-full bg-white border-4 border-white shadow-sm flex items-center justify-center text-slate-700">
+                      <Building2 className="w-8 h-8" />
+                    </div>
+                    <div className="flex gap-2 mb-2">
+                      <Button variant="outline" size="icon" onClick={() => openEditModal(tenant)} className="w-9 h-9 rounded-full text-slate-400 hover:text-slate-900 cursor-pointer">
+                        <Edit3/>
+                      </Button>
+                      <Button variant="outline" size="icon" onClick={() => confirmDelete(tenant)} className="rounded-full bg-white text-slate-400 border-slate-200 hover:text-red-500 hover:bg-red-50 h-9 w-9 cursor-pointer">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-3">
+                    <h3 className="text-xl font-bold text-slate-900 tracking-tight">{tenant.name}</h3>
+                    <p className="text-sm text-slate-500 font-medium mt-0.5">CNPJ: {tenant.cnpj || "Não informado"}</p>
+                  </div>
+
+                  <div className="flex justify-between items-center mt-6 border-t border-slate-100 pt-5">
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <span className="text-base font-bold text-slate-900">{tenant.phone || "-"}</span>
+                      </div>
+                      <div className="text-[11px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">Telefone</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <span className="text-base font-bold text-slate-900">{new Date(tenant.createdAt).toLocaleDateString("pt-BR", { day: '2-digit', month: '2-digit', year: '2-digit' })}</span>
+                      </div>
+                      <div className="text-[11px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">Cadastro</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <span className="text-base font-bold text-slate-900">{tenant.id.slice(0,5).toUpperCase()}</span>
+                      </div>
+                      <div className="text-[11px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">Ref ID</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}

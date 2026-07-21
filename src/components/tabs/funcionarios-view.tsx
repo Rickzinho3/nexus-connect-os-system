@@ -22,7 +22,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Users, Search, PlusCircle, Mail, Phone, Wrench, Shield, Edit3, Trash2 } from "lucide-react";
+import { Users, Search, PlusCircle, Mail, Phone, Wrench, Shield, Edit3, Trash2, Pencil } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getEmployees, addEmployee, updateEmployee, deleteEmployee } from "@/app/actions";
 import { Tooltip } from "@/components/motion/tooltip";
@@ -165,9 +165,9 @@ export function FuncionariosView() {
 
   const getRoleIcon = (role: string) => {
     if (role.toLowerCase().includes("técnico")) {
-      return <Wrench className="w-3.5 h-3.5 text-slate-900 mr-1.5" />;
+      return <Wrench className="w-7 h-7 md:w-4 md:h-4 text-slate-900" />;
     }
-    return <Shield className="w-3.5 h-3.5 text-slate-900 mr-1.5" />;
+    return <Shield className="w-7 h-7 md:w-4 md:h-4 text-slate-900" />;
   };
 
   return (
@@ -290,7 +290,7 @@ export function FuncionariosView() {
       </div>
 
       {/* Employees Table */}
-      <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+      <div className="hidden md:block border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
         <Table>
           <TableHeader className="bg-slate-50">
             <TableRow>
@@ -360,6 +360,54 @@ export function FuncionariosView() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile View (Cards) */}
+      <div className="md:hidden space-y-4">
+        {loading ? (
+          <div className="text-center py-8 text-slate-400">Carregando colaboradores...</div>
+        ) : filteredEmployees.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            {filteredEmployees.map((emp) => (
+              <div key={emp.id} className="bg-white border border-slate-200 rounded-3xl p-5 relative shadow-sm z-0">
+                <div className="absolute top-4 left-4 right-4 h-28 bg-linear-to-tr from-slate-900 to-slate-500 rounded-2xl -z-10"></div>
+                
+                <div className="relative z-10 pt-16">
+                  <div className="flex justify-between items-end">
+                    <div className="w-[72px] h-[72px] rounded-full bg-white border-4 border-white shadow-sm flex items-center justify-center text-slate-700">
+                      {getRoleIcon(emp.role)}
+                    </div>
+                    <div className="flex gap-2 mb-2">
+                      <Button variant="outline" size="icon" onClick={() => handleEditClick(emp)} className="w-9 h-9 rounded-full text-slate-400 hover:text-slate-900 cursor-pointer"><Edit3 className="w-4 h-4" /></Button>
+                      <Button variant="outline" size="icon" onClick={() => handleDeleteClick(emp)} className="rounded-full bg-white text-slate-400 hover:text-red-600 hover:bg-red-50 h-9 w-9 cursor-pointer"><Trash2 className="w-4 h-4" /></Button>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-3 flex justify-between items-start">
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900 tracking-tight">{emp.name}</h3>
+                      <p className="text-sm text-slate-500 font-medium mt-0.5">{emp.role}</p>
+                    </div>
+                    <div>
+                      {getStatusBadge(emp.status)}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 mt-4 text-sm font-medium text-slate-600">
+                     <p className="flex items-center gap-2"><Phone className="w-4 h-4 text-slate-400" /> {emp.phone}</p>
+                     <p className="flex items-center gap-2"><Mail className="w-4 h-4 text-slate-400" /> {emp.email}</p>
+                  </div>
+                  
+                  <div className="flex justify-between items-center mt-6 border-t border-slate-100 pt-5 text-sm text-slate-400">
+                     <span>Ref ID: <span className="font-bold text-slate-700">{emp.id}</span></span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-slate-400">Nenhum colaborador encontrado.</div>
+        )}
       </div>
 
       {/* Edit Employee Dialog */}
