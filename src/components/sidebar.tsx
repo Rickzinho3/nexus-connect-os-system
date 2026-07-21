@@ -280,7 +280,7 @@ export function Sidebar({
           )}
         >
           <div className="flex items-center gap-3">
-            <Icon iconNode={waveCircle}/>
+            {/* <Icon iconNode={waveCircle}/> */}
             {!isCollapsed && (
               <span className="text-lg font-bold tracking-wide truncate">{tenantName || "Empresa"}</span>
             )}

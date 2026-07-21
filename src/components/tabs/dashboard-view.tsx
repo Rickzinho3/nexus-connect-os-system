@@ -230,7 +230,7 @@ export function DashboardView() {
         <h1 className="text-3xl font-medium tracking-tight text-slate-900">Visão Geral</h1>
         
         <div className="flex items-center gap-4">
-          <div className="flex bg-slate-100/80 p-1 rounded-full shadow-inner border border-slate-200/60">
+          <div className="flex bg-slate-100/80 p-1 rounded-full gap-2 shadow-inner border border-slate-200/60">
             {["Day", "Week", "Month", "Year"].map(p => (
               <button 
                 key={p} 
@@ -238,7 +238,7 @@ export function DashboardView() {
                 className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer duration-300 ${
                   period === p 
                   ? 'bg-slate-900 text-white shadow-md' 
-                  : 'text-slate-500 hover:text-slate-800'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200'
                 }`}
               >
                 {p === "Day" ? "Dia" : p === "Week" ? "Semana" : p === "Month" ? "Mês" : "Ano"}

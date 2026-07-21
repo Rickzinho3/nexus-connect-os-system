@@ -38,9 +38,11 @@ import {
   Menu,
   X,
   Ticket,
-  XCircle
+  XCircle,
+  Layers
 } from "lucide-react";
 import { Loader } from "@/components/motion/loader";
+import { useRouter } from "next/navigation";
 
 interface TrackedOS {
   id: string;
@@ -256,45 +258,55 @@ export default function ClientPortal() {
     }
   ];
 
+const route = useRouter()
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans select-none antialiased">
       
       {/* 1. Login Full Screen View */}
       {!result ? (
-        <div className="flex-1 flex flex-col justify-center items-center px-4 py-16">
-          <div className="w-full max-w-[420px] space-y-6">
-            <div className="text-center space-y-3">
-              <h2 className="text-3xl font-black tracking-tight text-slate-900">Portal do Cliente</h2>
-              <p className="text-sm text-slate-500">
-                Consulte o status do seu aparelho e acesse seus benefícios exclusivos.
-              </p>
-            </div>
+        <div className="flex-1 flex items-center justify-center bg-zinc-950 p-4 md:p-8 font-sans w-full min-h-screen">
+          <div className="w-full max-w-[900px] bg-[#1c1c1e] rounded-3xl shadow-2xl flex overflow-hidden border border-zinc-800/50">
+            {/* Left Side - Form */}
+            <div className="w-full lg:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
+              <div className="max-w-[320px] w-full mx-auto mt-6">
+                <h2 className="text-2xl md:text-3xl font-semibold text-zinc-100 mb-2">Portal do Cliente</h2>
+                <p className="text-sm text-zinc-400 mb-8">
+                  Acompanhe seus consertos e acesse benefícios.
+                </p>
 
-            <Card className="border border-slate-200 bg-white rounded-3xl shadow-2xl">
-              <CardContent className="pt-6">
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">CPF ou CNPJ</label>
+                <form onSubmit={handleLogin} className="space-y-5">
+                  {error && (
+                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm text-center">
+                      {error}
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-zinc-400">
+                      CPF ou CNPJ
+                    </label>
                     <Input
                       type="text"
                       placeholder="000.000.000-00"
                       value={cpfCnpj}
                       onChange={(e) => setCpfCnpj(formatCPF(e.target.value))}
-                      className="h-12 bg-white border-slate-200 text-slate-900 rounded-xl placeholder-slate-400 focus-visible:ring-slate-900 text-sm font-bold"
+                      className="h-11 bg-[#141415] border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-zinc-700 rounded-lg text-sm"
                       required
                     />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Código de Acesso</label>
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-zinc-400">
+                      Código de Acesso
+                    </label>
                     <div className="relative">
-                      <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500" />
                       <Input
                         type="text"
                         placeholder="CLI-XXXXXX"
                         value={accessCode}
                         onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
-                        className="pl-10 h-12 bg-white border-slate-200 text-slate-900 rounded-xl placeholder-slate-400 focus-visible:ring-slate-900 text-sm font-bold uppercase tracking-widest"
+                        className="h-11 bg-[#141415] border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-zinc-700 rounded-lg text-sm uppercase tracking-widest"
                         required
                       />
                     </div>
@@ -303,19 +315,65 @@ export default function ClientPortal() {
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold flex items-center justify-center gap-2 mt-4 text-xs transition-colors"
+                    className="w-full bg-gradient-to-b from-zinc-600 to-zinc-700 hover:from-zinc-500 hover:to-zinc-600 text-white font-medium h-11 rounded-lg border border-zinc-600/50 shadow-inner mt-4 transition-all"
                   >
-                    {loading ? <Loader variant="dots" size={25} className="text-white" /> : <>Entrar no Portal <ArrowRight className="w-4 h-4" /></>}
+                    {loading ? <Loader variant="metaballs" size={25} className="text-white" /> : "Acessar Portal"}
                   </Button>
                 </form>
-              </CardContent>
-            </Card>
-
-            {error && (
-              <div className="bg-slate-100 border border-slate-300 p-4 rounded-2xl text-slate-800 text-xs font-semibold text-center leading-relaxed">
-                {error}
+                
+                <div className="mt-12 text-center">
+                  <p className="text-xs text-zinc-500">
+                    Não sabe seu código? <button className="text-zinc-300 font-medium hover:text-white cursor-pointer" onClick={() => route.push("https://wa.me/5598984575955/")}>Fale conosco</button>
+                  </p>
+                </div>
               </div>
-            )}
+            </div>
+
+            {/* Right Side - Illustration */}
+            <div className="hidden lg:flex w-1/2 p-2">
+              <div className="w-full h-full bg-[#050505] rounded-[20px] relative overflow-hidden flex flex-col items-center justify-center border border-white/[0.02]">
+                
+                {/* Minimalist Starfield */}
+                <div className="absolute inset-0">
+                  <div className="absolute top-[15%] left-[20%] w-[2px] h-[2px] bg-white/40 rounded-full"></div>
+                  <div className="absolute top-[45%] left-[10%] w-[2px] h-[2px] bg-white/30 rounded-full"></div>
+                  <div className="absolute top-[25%] right-[25%] w-[1.5px] h-[1.5px] bg-white/50 rounded-full"></div>
+                  <div className="absolute bottom-[35%] left-[30%] w-[1.5px] h-[1.5px] bg-white/20 rounded-full"></div>
+                  <div className="absolute bottom-[20%] right-[15%] w-[2px] h-[2px] bg-white/40 rounded-full"></div>
+                  <div className="absolute top-[60%] right-[35%] w-[1px] h-[1px] bg-white/30 rounded-full"></div>
+                </div>
+
+                {/* Shooting Star Top Left */}
+                <div className="absolute top-[20%] left-[25%] z-10">
+                  <div className="w-1 h-1 bg-white rounded-full shadow-[0_0_8px_2px_rgba(255,255,255,0.8)]"></div>
+                  <div className="w-[1px] h-[120px] bg-gradient-to-b from-white/80 via-white/20 to-transparent mx-auto"></div>
+                </div>
+
+                {/* Shooting Star Bottom Right */}
+                <div className="absolute bottom-[20%] right-[25%] z-10 rotate-180">
+                  <div className="w-1 h-1 bg-white rounded-full shadow-[0_0_8px_2px_rgba(255,255,255,0.8)]"></div>
+                  <div className="w-[1px] h-[160px] bg-gradient-to-b from-white/80 via-white/20 to-transparent mx-auto"></div>
+                </div>
+
+                {/* Main Planet */}
+                <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-slate-300 via-blue-200 to-white shadow-[0_0_50px_rgba(219,234,254,0.15)] relative z-10 overflow-hidden flex items-center justify-center">
+                  {/* Inner shadow to give 3D sphere effect */}
+                  <div className="absolute inset-0 rounded-full shadow-[inset_-12px_-12px_24px_rgba(0,0,0,0.7)]"></div>
+                  {/* Subtle texture/glow */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/40 to-transparent opacity-60"></div>
+                </div>
+
+                {/* Small Moon */}
+                <div className="absolute top-[30%] right-[20%] w-6 h-6 rounded-full bg-gradient-to-tr from-slate-400 to-slate-200 shadow-[0_0_20px_rgba(255,255,255,0.1)] overflow-hidden">
+                  <div className="absolute inset-0 rounded-full shadow-[inset_-3px_-3px_6px_rgba(0,0,0,0.6)]"></div>
+                </div>
+
+                {/* Logo */}
+                <div className="absolute bottom-10 flex items-center gap-2 z-10">
+                  <span className="text-white font-bold tracking-[0.2em] text-sm lowercase">nexus connect</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       ) : (
@@ -363,7 +421,7 @@ export default function ClientPortal() {
                           setSidebarOpen(false);
                         }
                       }}
-                      className={`w-full h-10 px-3.5 rounded-xl flex items-center gap-3 text-xs font-bold transition-all ${
+                      className={`w-full h-10 px-3.5 rounded-xl cursor-pointer flex items-center gap-3 text-xs font-bold transition-all ${
                         isActive
                           ? "bg-slate-900 text-white shadow-md shadow-slate-900/10"
                           : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
