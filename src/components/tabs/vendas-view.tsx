@@ -417,10 +417,10 @@ export function VendasView() {
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)} className="rounded-xl border-slate-200 cursor-pointer">
+              <Button type="button" variant="outline" size="lg" onClick={() => setIsEditOpen(false)} className="rounded-xl border-slate-200 cursor-pointer">
                 Cancelar
               </Button>
-              <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white cursor-pointer">
+              <Button type="submit" size="lg" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white cursor-pointer">
                 Salvar Alterações
               </Button>
             </DialogFooter>
@@ -438,10 +438,10 @@ export function VendasView() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setIsDeleteOpen(false)} className="rounded-xl border-slate-200 cursor-pointer">
+            <Button variant="outline" size="lg" onClick={() => setIsDeleteOpen(false)} className="rounded-xl border-slate-200 cursor-pointer">
               Cancelar
             </Button>
-            <Button onClick={handleConfirmDelete} className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold cursor-pointer">
+            <Button onClick={handleConfirmDelete} size="lg" className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold cursor-pointer">
               Confirmar Exclusão
             </Button>
           </DialogFooter>

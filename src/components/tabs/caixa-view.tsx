@@ -315,7 +315,7 @@ export function CaixaView() {
                   </Select>
                 </div>
 
-                <Button type="submit" className="w-full rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-bold h-11 transition-all flex items-center justify-center gap-2 mt-2">
+                <Button type="submit" size="lg" className="w-full rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-bold h-11 transition-all flex items-center justify-center gap-2 mt-2">
                   <Unlock className="w-4 h-4" />
                   Abrir Caixa Operacional
                 </Button>
@@ -420,7 +420,7 @@ export function CaixaView() {
                             }}
                             variant={txType === "Suprimento" ? "default" : "outline"}
                             className={`rounded-xl h-10 ${
-                              txType === "Suprimento" ? "bg-slate-955 text-white" : "border-slate-200 bg-white"
+                              txType === "Suprimento" ? "bg-slate-950 text-white" : "border-slate-200 bg-white"
                             }`}
                           >
                             Suprimento (Entrada)
@@ -433,7 +433,7 @@ export function CaixaView() {
                             }}
                             variant={txType === "Sangria" ? "default" : "outline"}
                             className={`rounded-xl h-10 ${
-                              txType === "Sangria" ? "bg-slate-955 text-white" : "border-slate-200 bg-white"
+                              txType === "Sangria" ? "bg-slate-950 text-white" : "border-slate-200 bg-white"
                             }`}
                           >
                             Sangria (Retirada)
@@ -469,7 +469,7 @@ export function CaixaView() {
                                 </>
                               ) : (
                                 <>
-                                  <SelectItem value="Sangria">Sangria (Retirada Padrão)</SelectItem>
+                                  <SelectItem value="Sangria">Sangria</SelectItem>
                                   <SelectItem value="Insumos">Compra de Insumos</SelectItem>
                                   <SelectItem value="Despesa Operacional">Despesas Rápidas</SelectItem>
                                   <SelectItem value="Alimentação">Alimentação / Lanche</SelectItem>
@@ -530,13 +530,13 @@ export function CaixaView() {
                     <DialogFooter>
                       <Button
                         type="button"
-                        variant="outline"
+                        variant="outline" size="lg"
                         onClick={() => setIsTxDialogOpen(false)}
                         className="rounded-xl border-slate-200"
                       >
                         Cancelar
                       </Button>
-                      <Button type="submit" className="rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-semibold">
+                      <Button type="submit" size="lg" className="rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-semibold">
                         Registrar Movimentação
                       </Button>
                     </DialogFooter>
@@ -862,14 +862,16 @@ export function CaixaView() {
           <DialogFooter className="grid grid-cols-2 gap-2 mt-2">
             <Button
               type="button"
-              variant="outline"
+              variant="outline" 
+              size="lg"
               onClick={() => setIsDeleteOpen(false)}
               className="rounded-xl border-slate-200"
             >
               Cancelar
             </Button>
             <Button
-              type="button"
+              type="button" 
+              size="lg"
               onClick={handleDeleteTx}
               className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold"
             >

@@ -718,13 +718,13 @@ export function ClientesView() {
             <DialogFooter>
               <Button
                 type="button"
-                variant="outline"
+                variant="outline" size="lg"
                 onClick={() => setIsEditOpen(false)}
                 className="rounded-xl border-slate-200"
               >
                 Cancelar
               </Button>
-              <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
+              <Button type="submit" size="lg" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
                 Salvar Alterações
               </Button>
             </DialogFooter>
@@ -743,14 +743,15 @@ export function ClientesView() {
           </DialogHeader>
           <DialogFooter className="mt-4">
             <Button
-              variant="outline"
+              variant="outline" size="lg"
               onClick={() => setIsDeleteOpen(false)}
               className="rounded-xl border-slate-200"
             >
               Cancelar
             </Button>
             <Button
-              onClick={handleConfirmDelete}
+              onClick={handleConfirmDelete} 
+              size="lg"
               className="rounded-xl bg-destructive hover:bg-red-600 text-white font-semibold"
             >
               Confirmar Exclusão
@@ -772,7 +773,7 @@ export function ClientesView() {
           </DialogHeader>
 
           {newlyCreatedClient && (
-            <div className="my-6 flex flex-col items-center w-full">
+            <div className="flex flex-col items-center w-full">
               {/* Card visual mockup */}
               <div className="w-[340px] bg-slate-900 text-white rounded-3xl p-6 shadow-xl border border-slate-800 text-center relative overflow-hidden">
                 <div className="absolute -top-12 -right-12 w-28 h-28 bg-white/5 rounded-full" />
@@ -820,18 +821,11 @@ export function ClientesView() {
               <div className="flex w-full gap-3 mt-6">
                 <Button
                   onClick={() => handlePrintCard(newlyCreatedClient)}
+                  size="lg"
                   className="flex-1 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold gap-2 border-none"
                 >
                   <Printer className="w-4.5 h-4.5" /> Imprimir Cartão
                 </Button>
-                {/* <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsCardOpen(false)}
-                  className="rounded-xl border-slate-200 font-bold"
-                >
-                  Fechar
-                </Button> */}
               </div>
             </div>
           )}

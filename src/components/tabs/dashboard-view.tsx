@@ -13,7 +13,7 @@ import {
   RefreshCw,
   MoreHorizontal
 } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -387,7 +387,13 @@ export function DashboardView() {
               </CardHeader>
               <CardContent className="flex-1 pb-4 px-2">
                 <ChartContainer config={dashboardChartConfig} className="w-full h-full min-h-[200px]">
-                  <BarChart data={financeData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barSize={38}>
+                  <AreaChart data={financeData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="fillTotal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#27272a" stopOpacity={0.2} />
+                        <stop offset="95%" stopColor="#27272a" stopOpacity={0.0} />
+                      </linearGradient>
+                    </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis 
                       dataKey="name" 
@@ -405,7 +411,7 @@ export function DashboardView() {
                       tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : `${v}`} 
                     />
                     <ChartTooltip
-                      cursor={{fill: '#f8fafc'}}
+                      cursor={{stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: "4 4", fill: 'transparent'}}
                       content={
                         <ChartTooltipContent
                           className="min-w-32 rounded-xl bg-[#1c1c1e] text-white p-3 border-none shadow-xl"
@@ -417,12 +423,14 @@ export function DashboardView() {
                         />
                       }
                     />
-                    <Bar
+                    <Area
+                      type="monotone"
                       dataKey="Total"
-                      fill="#27272a"
-                      radius={[8, 8, 8, 8]}
+                      stroke="#27272a"
+                      strokeWidth={3}
+                      fill="url(#fillTotal)"
                     />
-                  </BarChart>
+                  </AreaChart>
                 </ChartContainer>
               </CardContent>
             </Card>

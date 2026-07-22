@@ -155,7 +155,7 @@ export function EmpresasView() {
         </div>
 
         {initialLoading ? (
-          <div className="p-8 text-center text-slate-500 flex justify-center items-center gap-4"><>Carregando <Loader variant="metaballs"/></></div>
+          <div className="p-8 text-center text-slate-500 flex justify-center items-center gap-4"><>Carregando <Loader variant="metaballs" size={20} className="text-slate-500"/></></div>
         ) : tenants.length === 0 ? (
           <div className="p-8 text-center text-slate-500">
             Nenhuma empresa cadastrada ainda.
@@ -336,11 +336,11 @@ export function EmpresasView() {
           {successCreds && (
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-3 mt-4 relative">
               <div>
-                <Label className="text-slate-500 text-xs uppercase tracking-wider">Login (CNPJ)</Label>
+                <Label className="text-slate-500 text-xs uppercase tracking-wider">Login</Label>
                 <div className="font-mono text-slate-900 text-lg font-medium">{successCreds.login}</div>
               </div>
               <div>
-                <Label className="text-slate-500 text-xs uppercase tracking-wider">Senha Provisória</Label>
+                <Label className="text-slate-500 text-xs uppercase tracking-wider">Senha</Label>
                 <div className="font-mono text-slate-900 text-lg font-medium flex items-center justify-between">
                   {successCreds.password}
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-slate-900 cursor-pointer" onClick={() => navigator.clipboard.writeText(`Login: ${successCreds.login}\nSenha: ${successCreds.password}`)}>
@@ -352,8 +352,8 @@ export function EmpresasView() {
           )}
           
           <DialogFooter className="mt-4">
-            <Button onClick={() => { setSuccessCreds(null); fetchTenants(); }} className="bg-slate-900 hover:bg-slate-800 text-slate-200 w-full cursor-pointer">
-              Feito, já copiei!
+            <Button onClick={() => { setSuccessCreds(null); fetchTenants(); }} className="bg-slate-900 h-10 hover:bg-slate-800 text-slate-200 w-full cursor-pointer">
+              Concluir
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -369,10 +369,10 @@ export function EmpresasView() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-6">
-            <Button type="button" variant="ghost" onClick={() => setTenantToDelete(null)} className="text-slate-500 border-slate-200 hover:text-slate-900 cursor-pointer rounded-xl">
+            <Button type="button" variant="ghost" size="lg" onClick={() => setTenantToDelete(null)} className="text-slate-500 border-slate-200 hover:text-slate-900 cursor-pointer rounded-xl">
               Cancelar
             </Button>
-            <Button type="button" disabled={loading} onClick={executeDelete} className="bg-red-600 hover:bg-red-700 text-white cursor-pointer rounded-xl">
+            <Button type="button" disabled={loading} size="lg" onClick={executeDelete} className="bg-red-600 hover:bg-red-700 text-white cursor-pointer rounded-xl">
               {loading ? <Loader className="text-white" variant="metaballs"/> : "Sim, excluir"}
             </Button>
           </DialogFooter>

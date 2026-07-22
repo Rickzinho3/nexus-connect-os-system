@@ -1091,7 +1091,7 @@ export function FinanceiroView() {
             <DialogFooter>
               <Button
                 type="button"
-                variant="outline"
+                variant="outline" size="lg"
                 onClick={() => {
                   setIsPayOpen(false);
                   setPayTarget(null);
@@ -1101,7 +1101,7 @@ export function FinanceiroView() {
               >
                 Cancelar
               </Button>
-              <Button type="submit" className="rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-bold">
+              <Button type="submit"  size="lg"className="rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-bold">
                 Confirmar Liquidação
               </Button>
             </DialogFooter>
@@ -1122,6 +1122,7 @@ export function FinanceiroView() {
             <Button
               variant="outline"
               type="button"
+              size="lg"
               onClick={() => {
                 setIsDeleteOpen(false);
                 setDeleteTarget(null);
@@ -1132,7 +1133,8 @@ export function FinanceiroView() {
             </Button>
             <Button
               onClick={handleConfirmDelete}
-              className="rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-semibold"
+              size="lg"
+              className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold"
             >
               Confirmar Exclusão
             </Button>

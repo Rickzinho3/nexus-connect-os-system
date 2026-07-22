@@ -35,6 +35,7 @@ const formatPhone = (value: string) => {
   }
 };
 import { Tooltip } from "@/components/motion/tooltip";
+import { Loader } from "../motion/loader";
 
 interface Employee {
   id: string;
@@ -49,6 +50,7 @@ export function FuncionariosView() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Dialog States
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -88,6 +90,7 @@ export function FuncionariosView() {
   const handleAddEmployee = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !role || !email || !phone) return;
+    setIsLoading(true)
 
     try {
       await addEmployee({ name, role, email, phone });
@@ -98,9 +101,11 @@ export function FuncionariosView() {
       setPhone("");
       await loadEmployees();
       toast.success("Funcionário cadastrado com sucesso!");
+      setIsLoading(false)
     } catch (err) {
       console.error(err);
       toast.error("Erro ao cadastrar funcionário");
+      setIsLoading(false)
     }
   };
 
@@ -117,7 +122,7 @@ export function FuncionariosView() {
   const handleUpdateEmployee = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedEmployee || !editName || !editRole || !editEmail || !editPhone || !editStatus) return;
-
+    setIsLoading(true)
     try {
       await updateEmployee(selectedEmployee.id, {
         name: editName,
@@ -129,9 +134,11 @@ export function FuncionariosView() {
       setIsEditOpen(false);
       setSelectedEmployee(null);
       await loadEmployees();
+      setIsLoading(false)
     } catch (err) {
       console.error(err);
       toast.error("Erro ao atualizar funcionário");
+      setIsLoading(false)
     }
   };
 
@@ -142,14 +149,17 @@ export function FuncionariosView() {
 
   const handleConfirmDelete = async () => {
     if (!selectedEmployee) return;
+    setIsLoading(true)
     try {
       await deleteEmployee(selectedEmployee.id);
       setIsDeleteOpen(false);
       setSelectedEmployee(null);
       await loadEmployees();
+      setIsLoading(false)
     } catch (err) {
       console.error(err);
       toast.error("Erro ao excluir funcionário");
+      setIsLoading(false)
     }
   };
 
@@ -277,8 +287,8 @@ export function FuncionariosView() {
                 >
                   Cancelar
                 </Button>
-                <Button size={"lg"} type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
-                  Registrar
+                <Button disabled={isLoading} size={"lg"} type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
+                  {isLoading ? <Loader variant="metaballs" size={20} className="text-white" /> : "Registrar"}
                 </Button>
               </DialogFooter>
             </form>
@@ -507,8 +517,8 @@ export function FuncionariosView() {
               >
                 Cancelar
               </Button>
-              <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
-                Salvar Alterações
+              <Button type="submit" disabled={isLoading} className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
+                {isLoading ? <Loader variant="metaballs" size={20} className="text-white" /> : "Salvar Alterações"}
               </Button>
             </DialogFooter>
           </form>
@@ -527,16 +537,19 @@ export function FuncionariosView() {
           <DialogFooter className="mt-4">
             <Button
               variant="outline"
+              size="lg"
               onClick={() => setIsDeleteOpen(false)}
               className="rounded-xl border-slate-200"
             >
               Cancelar
             </Button>
             <Button
+              disabled={isLoading}
+              size="lg"
               onClick={handleConfirmDelete}
               className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold"
             >
-              Confirmar Exclusão
+              {isLoading ? <Loader variant="metaballs" size={20} className="text-white" /> : "Confirmar Exclusão"}
             </Button>
           </DialogFooter>
         </DialogContent>

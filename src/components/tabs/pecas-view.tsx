@@ -562,13 +562,13 @@ export function PecasView() {
             <DialogFooter>
               <Button
                 type="button"
-                variant="outline"
+                variant="outline" size="lg"
                 onClick={() => setIsEditOpen(false)}
                 className="rounded-xl border-slate-200 cursor-pointer"
               >
                 Cancelar
               </Button>
-              <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold cursor-pointer">
+              <Button type="submit" size="lg" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold cursor-pointer">
                 Salvar Alterações
               </Button>
             </DialogFooter>
@@ -587,14 +587,15 @@ export function PecasView() {
           </DialogHeader>
           <DialogFooter className="mt-4">
             <Button
-              variant="outline"
+              variant="outline" size="lg"
               onClick={() => setIsDeleteOpen(false)}
               className="rounded-xl border-slate-200 cursor-pointer"
             >
               Cancelar
             </Button>
             <Button
-              onClick={handleConfirmDelete}
+              onClick={handleConfirmDelete} 
+              size="lg"
               className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold cursor-pointer"
             >
               Confirmar Exclusão

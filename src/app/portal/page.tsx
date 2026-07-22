@@ -318,7 +318,7 @@ const route = useRouter()
                     disabled={loading}
                     className="w-full bg-gradient-to-b from-zinc-600 to-zinc-700 hover:from-zinc-500 hover:to-zinc-600 text-white font-medium h-11 rounded-lg border border-zinc-600/50 shadow-inner mt-4 transition-all"
                   >
-                    {loading ? <Loader variant="metaballs" size={25} className="text-white" /> : "Acessar Portal"}
+                    {loading ? <Loader variant="metaballs" size={50} className="text-white" /> : "Acessar Portal"}
                   </Button>
                 </form>
                 

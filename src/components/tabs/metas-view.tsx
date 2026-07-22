@@ -482,13 +482,13 @@ export function MetasView() {
             <DialogFooter>
               <Button
                 type="button"
-                variant="outline"
+                variant="outline" size="lg"
                 onClick={() => setIsEditOpen(false)}
                 className="rounded-xl border-slate-200"
               >
                 Cancelar
               </Button>
-              <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
+              <Button type="submit" size="lg" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
                 Salvar Alterações
               </Button>
             </DialogFooter>
@@ -508,6 +508,7 @@ export function MetasView() {
           <DialogFooter className="mt-4">
             <Button
               variant="outline"
+              size="lg"
               onClick={() => setIsDeleteOpen(false)}
               className="rounded-xl border-slate-200"
             >
@@ -515,6 +516,7 @@ export function MetasView() {
             </Button>
             <Button
               onClick={handleConfirmDelete}
+              size="lg"
               className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold"
             >
               Confirmar Exclusão
