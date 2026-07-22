@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Building2, Percent, Check, RefreshCw } from "lucide-react";
 import { getSettings, updateSettings } from "@/app/actions";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export function ConfiguracoesView() {
   const [loading, setLoading] = useState(true);
@@ -84,8 +85,8 @@ export function ConfiguracoesView() {
         {/* Company Registration Card */}
         <Card className="border border-slate-100 shadow-sm rounded-2xl">
           <CardHeader className="flex flex-row items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-slate-50 text-slate-800 border border-slate-100">
-              <Building2 className="w-5 h-5 text-slate-900" />
+            <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+              <Image src={"/building.svg"} alt="Empresa" width={22} height={22}/>
             </div>
             <div>
               <CardTitle className="text-base font-semibold text-slate-950">Dados da Assistência</CardTitle>
@@ -180,7 +181,7 @@ export function ConfiguracoesView() {
             onClick={loadSettings}
             className="rounded-xl border-slate-200 gap-1.5 bg-white text-slate-700 hover:bg-slate-50"
           >
-            <RefreshCw className="w-4 h-4" /> Descartar
+            <Image src={"/refresh-arrow2.svg"} alt="Recarregar" width={18} height={18} /> Descartar
           </Button>
           <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
             Salvar Configurações
