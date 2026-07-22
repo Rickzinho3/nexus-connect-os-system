@@ -27,6 +27,7 @@ import { Search, PlusCircle, Check, X, FileText, Smartphone, Edit3, Trash2 } fro
 import { getQuotes, addQuote, updateQuote, deleteQuote, approveQuote, rejectQuote, getClients } from "@/app/actions";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Tooltip } from "../motion/tooltip";
+import { AnimatedAmountInput } from "../ui/animated-amount-input";
 
 interface Quote {
   id: string;
@@ -276,10 +277,10 @@ export function OrcamentosView() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-3">
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-500">Valor Estimado (R$)</label>
-                    <Input
+                    {/* <Input
                       type="number"
                       step="0.01"
                       placeholder="Ex: 850.00"
@@ -287,7 +288,8 @@ export function OrcamentosView() {
                       onChange={(e) => setValue(e.target.value)}
                       className="rounded-xl border-slate-200 font-bold"
                       required
-                    />
+                    /> */}
+                    <AnimatedAmountInput value={value} onChange={(val) => setValue(val)} />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-500">Validade</label>

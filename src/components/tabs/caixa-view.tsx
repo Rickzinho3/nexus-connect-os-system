@@ -52,6 +52,7 @@ import {
 } from "@/app/actions";
 import { Tooltip } from "@/components/motion/tooltip";
 import { toast } from "sonner";
+import { AnimatedAmountInput } from "../ui/animated-amount-input";
 
 interface DrawerLog {
   id: number;
@@ -441,10 +442,10 @@ export function CaixaView() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-3">
                         <div className="space-y-1.5">
                           <label className="text-xs font-bold text-slate-500 uppercase">Valor (R$)</label>
-                          <Input
+                          {/* <Input
                             type="number"
                             step="0.01"
                             placeholder="0.00"
@@ -452,7 +453,8 @@ export function CaixaView() {
                             onChange={(e) => setTxValue(e.target.value)}
                             className="rounded-xl border-slate-200"
                             required
-                          />
+                          /> */}
+                          <AnimatedAmountInput value={txValue} onChange={(val) => setTxValue(val)} />
                         </div>
                         <div className="space-y-1.5">
                           <label className="text-xs font-bold text-slate-500 uppercase">Categoria</label>

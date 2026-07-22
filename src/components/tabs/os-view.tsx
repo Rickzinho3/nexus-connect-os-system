@@ -37,6 +37,7 @@ import {
 import { getServiceOrders, addServiceOrder, updateServiceOrder, deleteServiceOrder, getClients } from "@/app/actions";
 import { Tooltip } from "@/components/motion/tooltip";
 import { toast } from "sonner";
+import { AnimatedAmountInput } from "../ui/animated-amount-input";
 
 interface ServiceOrder {
   id: string;
@@ -295,7 +296,7 @@ export function OSView() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-500">Valor Estimado (R$)</label>
-                  <Input
+                  {/* <Input
                     type="number"
                     step="0.01"
                     placeholder="Ex: 850.00"
@@ -303,7 +304,8 @@ export function OSView() {
                     onChange={(e) => setValue(e.target.value)}
                     className="rounded-xl border-slate-200"
                     required
-                  />
+                  /> */}
+                  <AnimatedAmountInput value={value} onChange={(val) => setValue(val)} />
                 </div>
 
                 <div className="space-y-1.5 pt-2">
