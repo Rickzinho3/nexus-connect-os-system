@@ -59,7 +59,7 @@ export function AnimatedAmountInput({ value, onChange }: AnimatedAmountInputProp
                   value={value === "0" ? "" : value}
                   onChange={handleInputChange}
                   placeholder="0.00"
-                  className="absolute inset-0 z-20 w-full bg-transparent text-center text-4xl sm:text-5xl font-medium text-transparent caret-black outline-none dark:caret-white"
+                  className="absolute inset-0 z-15 w-full bg-transparent text-center text-4xl sm:text-5xl font-medium text-transparent caret-black outline-none dark:caret-white"
                 />
 
                 <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-4xl sm:text-5xl font-medium tabular-nums text-slate-900 dark:text-white">
