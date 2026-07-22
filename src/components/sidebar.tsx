@@ -340,7 +340,7 @@ export function Sidebar({
                 alt=""
                 className={cn(
                   "w-5 h-5 shrink-0 transition-all duration-300",
-                  isActive ? "opacity-100" : "opacity-60 group-hover:opacity-100 group-hover:rotate-10"
+                  isActive ? "opacity-100" : "opacity-60 group-hover:opacity-100"
                 )}
               />
               {!effectiveIsCollapsed && <span className="truncate">{item.label}</span>}

@@ -13,6 +13,9 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Nexus Connect OS",
   description: "Sistema de Gestão para Assistência Técnica",
+  icons: {
+    icon: "/android-chrome-512x512.png",
+  },
 };
 
 export default function RootLayout({

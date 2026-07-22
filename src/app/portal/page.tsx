@@ -43,6 +43,7 @@ import {
 } from "lucide-react";
 import { Loader } from "@/components/motion/loader";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface TrackedOS {
   id: string;
@@ -397,7 +398,7 @@ const route = useRouter()
                   onClick={() => setSidebarOpen(false)}
                   className="w-10 h-10 rounded-lg text-slate-400 hover:text-slate-900"
                 >
-                  <XCircle size={20} />
+                  <Image src="/close-circle.svg" width={20} height={20} alt="close"/>
                 </Button>
               </div>
 
@@ -448,7 +449,9 @@ const route = useRouter()
                 variant="ghost"
                 className="w-full h-9 rounded-xl border border-rose-950/30 text-slate-900 hover:text-slate-800 hover:bg-slate-100 gap-2 text-xs font-bold"
               >
-                <LogOut className="w-4 h-4" /> Sair do Portal
+                {/* <LogOut className="w-4 h-4" /> Sair do Portal */}
+                Sair do Portal
+                <Image src="/logout-slate-900.svg" width={20} height={20} alt="Sair"/>
               </Button>
             </div>
           </aside>
@@ -763,18 +766,17 @@ const route = useRouter()
 
                   <div className="grid gap-6 sm:grid-cols-2">
                     {[
-                      { icon: User, label: "CPF / CNPJ", value: result.client.cpfCnpj },
-                      { icon: Phone, label: "Telefone de Contato", value: result.client.phone },
-                      { icon: Mail, label: "Endereço de E-mail", value: result.client.email },
-                      { icon: MapPin, label: "Endereço Residencial", value: result.client.address }
+                      { icon: "/user.svg", label: "CPF / CNPJ", value: result.client.cpfCnpj },
+                      { icon: "/call.svg", label: "Telefone de Contato", value: result.client.phone },
+                      { icon: "/email-snow.svg", label: "Endereço de E-mail", value: result.client.email },
+                      { icon: "/location.svg", label: "Endereço Residencial", value: result.client.address }
                     ].map((info, idx) => {
-                      const Icon = info.icon;
                       return (
                         <Card key={idx} className="border border-slate-200 bg-white rounded-3xl p-5 flex items-center gap-4 shadow-xl">
                           <div className="h-11 w-11 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-900 shrink-0">
-                            <Icon className="w-5 h-5" />
+                            <Image src={info.icon} alt="" width={20} height={20} />
                           </div>
-                          <div>
+                          <div className="flex flex-col items-center">
                             <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{info.label}</p>
                             <p className="text-sm font-black text-slate-900 mt-0.5">{info.value}</p>
                           </div>

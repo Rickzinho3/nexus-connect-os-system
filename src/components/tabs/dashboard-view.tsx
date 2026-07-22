@@ -23,6 +23,7 @@ import {
 import { getServiceOrders, getClients, getFinancialTransactions, getGoals } from "@/app/actions";
 import { NumberTicker } from "@/components/motion/number-ticker";
 import { AnimatedNumber } from "@/components/animated-number";
+import Image from "next/image";
 
 type FilterPeriod = "Day" | "Week" | "Month" | "Year";
 
@@ -246,7 +247,7 @@ export function DashboardView() {
             ))}
           </div>
           <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 px-4 py-2 rounded-full shadow-sm">
-            <CalendarIcon className="w-4 h-4 text-slate-400" />
+            <Image src={"/calendar.svg"} width={18} height={18} alt="Calendar" />
             {dateRangeStr}
           </div>
         </div>
@@ -382,7 +383,6 @@ export function DashboardView() {
               <CardHeader className="pb-2 pt-6 px-6">
                 <div className="flex justify-between items-center w-full">
                   <CardTitle className="text-[15px] font-medium text-slate-900">Faturamento Bruto</CardTitle>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"><MoreHorizontal className="w-4 h-4 text-slate-400" /></Button>
                 </div>
               </CardHeader>
               <CardContent className="flex-1 pb-4 px-2">
@@ -471,10 +471,7 @@ export function DashboardView() {
               <h3 className="text-[15px] font-bold text-slate-900">Últimas Ordens de Serviço</h3>
               <div className="flex gap-2">
                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-slate-50 hover:bg-slate-100" onClick={loadDashboardData}>
-                  <RefreshCw className="w-4 h-4 text-slate-500" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-slate-50 hover:bg-slate-100">
-                  <MoreHorizontal className="w-4 h-4 text-slate-500" />
+                  <Image src={"/refresh-arrow2.svg"} alt="Cell" width={18} height={18} />
                 </Button>
               </div>
             </div>
@@ -494,7 +491,7 @@ export function DashboardView() {
                     <TableCell className="font-bold text-slate-900 text-sm py-4 px-6">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center shrink-0">
-                          <Smartphone className="w-6 h-6 text-slate-600" />
+                          <Image src={"/mobile.svg"} alt="Cell" width={24} height={24} />
                         </div>
                         <div className="flex flex-col gap-0.5">
                           <span className="text-sm">{order.deviceName}</span>
