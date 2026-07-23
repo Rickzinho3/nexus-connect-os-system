@@ -96,7 +96,7 @@ export function RelatoriosView() {
       <head><meta charset="UTF-8"></head>
       <body>
         <h2>${title}</h2>
-        <p>Período: Últimos ${period} dias | Extraído em: ${new Date().toLocaleDateString("pt-BR")}</p>
+        <p>Período: Últimos ${period} dias | Extraído em: ${new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}</p>
         <table border="1" style="border-collapse: collapse;">
     `;
 
@@ -111,7 +111,7 @@ export function RelatoriosView() {
       `;
       cashLogs.forEach(log => {
         const v = typeof log.value === 'number' ? log.value : parseFloat(log.value);
-        const dateStr = log.time || (log.createdAt ? parseDate(log.createdAt).toLocaleDateString("pt-BR") : "");
+        const dateStr = log.time || (log.createdAt ? parseDate(log.createdAt).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "");
         tableHTML += `<tr><td>${log.description}</td><td>${log.type}</td><td>${v.toFixed(2)}</td><td>${dateStr}</td></tr>`;
       });
     } else if (reportType === "os") {
@@ -279,7 +279,7 @@ export function RelatoriosView() {
                 <FileText className="w-5 h-5 text-slate-900" />
                 {getReportTitle()}
               </CardTitle>
-              <CardDescription>Período: Últimos {period} dias | Gerado em: {new Date().toLocaleDateString("pt-BR")}</CardDescription>
+              <CardDescription>Período: Últimos {period} dias | Gerado em: {new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}</CardDescription>
             </div>
             <div className="flex gap-2">
               <Button onClick={handlePrint} variant="outline" size="sm" className="rounded-lg border-slate-200 text-slate-600 gap-1.5 h-8 font-semibold bg-white hover:bg-slate-50">
@@ -313,7 +313,7 @@ export function RelatoriosView() {
                               <TableCell className="font-semibold text-slate-800">{log.description}</TableCell>
                               <TableCell>{log.type}</TableCell>
                               <TableCell className="text-slate-900 font-medium">R$ {val.toFixed(2)}</TableCell>
-                              <TableCell className="text-slate-500">{log.time || (log.createdAt ? parseDate(log.createdAt).toLocaleDateString("pt-BR") : "")}</TableCell>
+                              <TableCell className="text-slate-500">{log.time || (log.createdAt ? parseDate(log.createdAt).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "")}</TableCell>
                             </TableRow>
                           );
                       })}

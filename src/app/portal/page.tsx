@@ -39,7 +39,9 @@ import {
   X,
   Ticket,
   XCircle,
-  Layers
+  Layers,
+  Eye,
+  Share,
 } from "lucide-react";
 import { Loader } from "@/components/motion/loader";
 import { useRouter } from "next/navigation";
@@ -636,53 +638,185 @@ const route = useRouter()
                     <h4 className="text-lg font-black text-slate-900">Histórico Geral de Serviços</h4>
                     <p className="text-xs text-slate-500">Consulte orçamentos aprovados/rejeitados e ordens concluídas.</p>
                   </div>
+                  
+                  {(() => {
+                    const deviceNames = new Set([
+                      ...result.orders.filter(o => o.status === "Concluído" || o.status === "Cancelado").map(o => o.deviceName),
+                      ...result.quotes.map(q => q.deviceName)
+                    ]);
+                    
+                    const groups = Array.from(deviceNames).map(deviceName => ({
+                      deviceName,
+                      orders: result.orders.filter(o => o.deviceName === deviceName && (o.status === "Concluído" || o.status === "Cancelado")),
+                      quotes: result.quotes.filter(q => q.deviceName === deviceName)
+                    }));
 
-                  <div className="border border-slate-200 bg-white rounded-3xl overflow-hidden shadow-xl">
-                    <Table>
-                      <TableHeader className="bg-slate-50 border-b border-slate-200">
-                        <TableRow>
-                          <TableHead className="font-semibold text-slate-500">Documento</TableHead>
-                          <TableHead className="font-semibold text-slate-500">Aparelho</TableHead>
-                          <TableHead className="font-semibold text-slate-500">Serviço / Peça</TableHead>
-                          <TableHead className="font-semibold text-slate-500">Valor Cobrado</TableHead>
-                          <TableHead className="font-semibold text-slate-500">Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {/* Render all past O.S. (Concluido, Cancelado) */}
-                        {result.orders
-                          .filter(o => o.status === "Concluído" || o.status === "Cancelado")
-                          .map((o) => (
-                            <TableRow key={o.id} className="hover:bg-slate-50/30 border-b border-slate-100">
-                              <TableCell className="font-bold text-slate-700">{o.id}</TableCell>
-                              <TableCell className="font-semibold text-slate-900">{o.deviceName}</TableCell>
-                              <TableCell className="text-slate-400 text-xs">{o.serviceType}</TableCell>
-                              <TableCell className="font-semibold text-slate-900">R$ {o.value.toFixed(2)}</TableCell>
-                              <TableCell>{getStatusBadge(o.status)}</TableCell>
-                            </TableRow>
+                    return (
+                      <>
+                        {/* Desktop View */}
+                        <div className="hidden md:flex flex-col gap-8">
+                          {groups.map(group => (
+                            <div key={`desk-${group.deviceName}`} className="border border-slate-200 bg-white rounded-3xl overflow-hidden shadow-xl">
+                              <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+                                <h5 className="font-bold text-slate-800 flex items-center gap-2">
+                                  <Smartphone className="w-5 h-5 text-slate-500" />
+                                  {group.deviceName}
+                                </h5>
+                                <Badge variant="outline" className="text-slate-500 bg-white shadow-sm border-slate-200">{group.orders.length} O.S. | {group.quotes.length} Orçamentos</Badge>
+                              </div>
+                              <Table>
+                                <TableHeader className="bg-white border-b border-slate-100">
+                                  <TableRow>
+                                    <TableHead className="font-semibold text-slate-500 w-[140px]">Tipo</TableHead>
+                                    <TableHead className="font-semibold text-slate-500 w-[120px]">Documento</TableHead>
+                                    <TableHead className="font-semibold text-slate-500">Descrição / Serviço</TableHead>
+                                    <TableHead className="font-semibold text-slate-500 w-[140px]">Valor Cobrado</TableHead>
+                                    <TableHead className="font-semibold text-slate-500 w-[140px]">Status</TableHead>
+                                    <TableHead className="font-semibold text-slate-500 w-[100px]">Ação</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {group.orders.map(o => (
+                                    <TableRow key={`os-${o.id}`} className="hover:bg-slate-50/30 border-b border-slate-100">
+                                      <TableCell><Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none shadow-none">Ordem (O.S.)</Badge></TableCell>
+                                      <TableCell className="font-bold text-slate-700">{o.id}</TableCell>
+                                      <TableCell className="text-slate-600 font-medium text-sm">{o.serviceType}</TableCell>
+                                      <TableCell className="font-bold text-slate-900">R$ {o.value.toFixed(2)}</TableCell>
+                                      <TableCell>{getStatusBadge(o.status)}</TableCell>
+                                      <TableCell>
+                                        <Button variant="ghost" className="gap-2 text-slate-500 hover:text-slate-900 rounded-xl px-2 cursor-pointer" onClick={() => route.push(`/os/${o.id}`)}>
+                                          <Eye className="w-4 h-4" /> Ver
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                  {group.quotes.map(q => (
+                                    <TableRow key={`q-${q.id}`} className="hover:bg-slate-50/30 border-b border-slate-100 bg-slate-50/30">
+                                      <TableCell><Badge className="bg-amber-100 text-amber-700 hover:bg-amber-200 border-none shadow-none">Orçamento</Badge></TableCell>
+                                      <TableCell className="font-bold text-slate-500">{q.id}</TableCell>
+                                      <TableCell className="text-slate-600 font-medium text-sm">{q.description}</TableCell>
+                                      <TableCell className="font-bold text-slate-900">R$ {q.value.toFixed(2)}</TableCell>
+                                      <TableCell>{getStatusBadge(q.status)}</TableCell>
+                                      <TableCell></TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </div>
+                          ))}
+                          {groups.length === 0 && (
+                            <div className="border border-slate-200 bg-white rounded-3xl overflow-hidden shadow-xl py-12 text-center flex flex-col items-center gap-3">
+                              <Layers className="w-10 h-10 text-slate-300" />
+                              <p className="text-slate-500 text-sm font-medium">Nenhuma ordem finalizada ou orçamento no histórico.</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Mobile View */}
+                        <div className="md:hidden flex flex-col gap-10">
+                          {groups.map(group => (
+                            <div key={`mob-${group.deviceName}`} className="relative flex flex-col">
+                              {/* Group Header */}
+                              <div className="flex items-center justify-between mb-4 sticky top-0 z-20 bg-slate-50/90 backdrop-blur-md py-2 border-b border-slate-200/50">
+                                <div className="flex items-center gap-3">
+                                  <div className="bg-slate-200/60 p-2.5 rounded-2xl">
+                                    {/* <Smartphone className="w-5 h-5 text-slate-700" /> */}
+                                    <Image src={"/mobile.svg"} alt="Mobile" width={24} height={24}/>
+                                  </div>
+                                  <h5 className="font-black text-slate-800 text-lg tracking-tight">{group.deviceName}</h5>
+                                </div>
+                              </div>
+                              
+                              <div className="flex flex-col gap-5 pl-2 relative">
+                                {/* Timeline line */}
+                                <div className="absolute left-6 top-6 bottom-6 w-[2px] bg-slate-900/50 z-10 rounded-full"></div>
+
+                                {group.orders.map(o => (
+                                  <div key={`mob-os-${o.id}`} className="bg-[#0f1115] text-white border border-slate-800 rounded-[32px] p-6 relative shadow-xl z-0 ml-10 before:absolute before:w-6 before:h-[2px] before:bg-slate-900/50 before:-left-6 before:top-14">
+                                    <div className="flex items-start gap-4">
+                                      <div className="w-[72px] h-[72px] shrink-0 rounded-[24px] bg-white flex items-center justify-center shadow-inner">
+                                        <Layers className="w-8 h-8 text-slate-900 drop-shadow-md" />
+                                      </div>
+                                      <div className="flex-1 min-w-0 pt-1">
+                                        <h3 className="text-xl font-bold tracking-tight leading-tight truncate text-white">{o.serviceType}</h3>
+                                        <p className="text-xs text-slate-400 mt-1.5 line-clamp-2 leading-relaxed">
+                                          Ordem de Serviço finalizada com sucesso.
+                                        </p>
+                                        <div className="flex items-center gap-3 mt-4">
+                                          <Button onClick={() => route.push(`/os/${o.id}`)} className="bg-white hover:bg-slate-200 text-slate-900 rounded-full flex items-center justify-center gap-2 font-bold px-2 h-8 text-[11px] cursor-pointer">
+                                            <Image src={"/iconsax-eye-slate-500.svg"} alt="Olho" width={20} height={20} className=""/>
+                                            VER DETALHES
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between mt-6 pt-5 border-t border-slate-800">
+                                      <div className="flex flex-col">
+                                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Valor</span>
+                                        <span className="text-lg font-bold text-white leading-none">R$ {o.value.toFixed(2)}</span>
+                                      </div>
+                                      <div className="flex flex-col items-center">
+                                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Status</span>
+                                        {getStatusBadge(o.status)}
+                                      </div>
+                                      <div className="flex flex-col items-end">
+                                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Doc</span>
+                                        <span className="text-sm font-bold text-slate-300">{o.id}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                                
+                                {group.quotes.map(q => (
+                                  <div key={`mob-q-${q.id}`} className="bg-[#0f1115] text-white border border-slate-800 rounded-[32px] p-6 relative shadow-xl z-0 ml-10 before:absolute before:w-6 before:h-[2px] before:bg-slate-900/50 before:-left-6 before:top-14">
+                                    <div className="flex items-start gap-4">
+                                      <div className="w-[72px] h-[72px] shrink-0 rounded-[24px] bg-white flex items-center justify-center shadow-inner">
+                                        <FileText className="w-8 h-8 text-slate-900 drop-shadow-md" />
+                                      </div>
+                                      <div className="flex-1 min-w-0 pt-1">
+                                        <h3 className="text-xl font-bold tracking-tight leading-tight truncate text-white">{q.description}</h3>
+                                        <p className="text-xs text-slate-400 mt-1.5 line-clamp-2 leading-relaxed">
+                                          Orçamento de manutenção registrado.
+                                        </p>
+                                        <div className="flex items-center gap-3 mt-4">
+                                          <Badge className="bg-white/10 hover:bg-white/20 text-white border-none rounded-full font-bold px-4 h-8 text-[10px]">
+                                            ORÇAMENTO
+                                          </Badge>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between mt-6 pt-5 border-t border-slate-800">
+                                      <div className="flex flex-col">
+                                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Valor</span>
+                                        <span className="text-lg font-bold text-white leading-none">R$ {q.value.toFixed(2)}</span>
+                                      </div>
+                                      <div className="flex flex-col items-center">
+                                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Status</span>
+                                        {getStatusBadge(q.status)}
+                                      </div>
+                                      <div className="flex flex-col items-end">
+                                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Doc</span>
+                                        <span className="text-sm font-bold text-slate-300">{q.id}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           ))}
 
-                        {/* Render all Quotes */}
-                        {result.quotes.map((q) => (
-                          <TableRow key={q.id} className="hover:bg-slate-50/30 border-b border-slate-100">
-                            <TableCell className="font-bold text-slate-500">{q.id}</TableCell>
-                            <TableCell className="font-semibold text-slate-900">{q.deviceName}</TableCell>
-                            <TableCell className="text-slate-400 text-xs">{q.description}</TableCell>
-                            <TableCell className="font-semibold text-slate-900">R$ {q.value.toFixed(2)}</TableCell>
-                            <TableCell>{getStatusBadge(q.status)}</TableCell>
-                          </TableRow>
-                        ))}
-
-                        {result.orders.filter(o => o.status === "Concluído" || o.status === "Cancelado").length === 0 && result.quotes.length === 0 && (
-                          <TableRow>
-                            <TableCell colSpan={5} className="text-center py-8 text-slate-500 text-xs">
-                              Nenhuma ordem finalizada ou orçamento no histórico.
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
+                          {groups.length === 0 && (
+                            <div className="text-center py-12 flex flex-col items-center gap-3">
+                              <Layers className="w-10 h-10 text-slate-300" />
+                              <p className="text-slate-500 text-sm font-medium">Nenhuma ordem finalizada ou orçamento no histórico.</p>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               )}
 

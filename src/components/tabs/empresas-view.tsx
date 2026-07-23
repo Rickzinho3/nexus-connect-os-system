@@ -176,7 +176,7 @@ export function EmpresasView() {
                 <div className="text-slate-600">{tenant.cnpj || "-"}</div>
                 <div className="text-slate-600">{tenant.phone || "-"}</div>
                 <div className="text-slate-500">
-                  {new Date(tenant.createdAt).toLocaleDateString("pt-BR")}
+                  {new Date(tenant.createdAt).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}
                 </div>
                 <div className="flex items-center justify-end gap-2 transition-opacity">
                   <Tooltip content="Editar">
@@ -240,7 +240,7 @@ export function EmpresasView() {
                     </div>
                     <div className="text-center">
                       <div className="flex items-center justify-center gap-1.5">
-                        <span className="text-base font-bold text-slate-900">{new Date(tenant.createdAt).toLocaleDateString("pt-BR", { day: '2-digit', month: '2-digit', year: '2-digit' })}</span>
+                        <span className="text-base font-bold text-slate-900">{new Date(tenant.createdAt).toLocaleDateString("pt-BR", { day: '2-digit', month: '2-digit', year: '2-digit', timeZone: "America/Sao_Paulo" })}</span>
                       </div>
                       <div className="text-[11px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">Cadastro</div>
                     </div>

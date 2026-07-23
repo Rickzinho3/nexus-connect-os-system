@@ -228,15 +228,21 @@ export function DashboardView() {
     <div className="font-sans max-w-[1400px] mx-auto space-y-8 pb-8">
       {/* Top Header Row with Filters */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="text-3xl font-medium tracking-tight text-slate-900">Visão Geral</h1>
+        <div className="flex items-center justify-between w-full md:w-auto">
+          <h1 className="text-3xl font-medium tracking-tight text-slate-900">Visão Geral</h1>
+          <div className="flex md:hidden items-center gap-1.5 text-[10px] font-bold text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-full shadow-sm whitespace-nowrap">
+            <Image src={"/calendar.svg"} width={14} height={14} alt="Calendar" />
+            {dateRangeStr}
+          </div>
+        </div>
         
-        <div className="flex items-center gap-4">
-          <div className="flex bg-slate-100/80 p-1 rounded-full gap-2 shadow-inner border border-slate-200/60">
+        <div className="flex items-center gap-4 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+          <div className="flex bg-slate-100/80 p-1 rounded-full gap-2 shadow-inner border border-slate-200/60 w-full md:w-auto justify-between md:justify-start flex-1 min-w-max">
             {["Day", "Week", "Month", "Year"].map(p => (
               <button 
                 key={p} 
                 onClick={() => setPeriod(p as FilterPeriod)}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer duration-300 ${
+                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer duration-300 flex-1 md:flex-none text-center ${
                   period === p 
                   ? 'bg-slate-900 text-white shadow-md' 
                   : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200'
@@ -246,7 +252,7 @@ export function DashboardView() {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 px-4 py-2 rounded-full shadow-sm">
+          <div className="hidden md:flex items-center gap-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 px-4 py-2 rounded-full shadow-sm whitespace-nowrap shrink-0">
             <Image src={"/calendar.svg"} width={18} height={18} alt="Calendar" />
             {dateRangeStr}
           </div>
@@ -260,9 +266,9 @@ export function DashboardView() {
       ) : (
         <>
           {/* KPI Cards Grid */}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2">
             {/* Card 1: Total Revenue (Dark) */}
-            <Card className="bg-[#1c1c1e] text-white rounded-[24px] border-none shadow-xl relative overflow-hidden flex flex-col justify-between">
+            <Card className="bg-[#1c1c1e] text-white rounded-[24px] lg:col-span-3 border-none shadow-xl relative overflow-hidden flex flex-col justify-between">
               <CardContent className="p-6 h-full flex flex-col justify-between z-10 space-y-6">
                 <p className="text-slate-400 text-[13px] font-medium tracking-wide">Faturamento Total</p>
                 <div className="space-y-4">
@@ -304,11 +310,11 @@ export function DashboardView() {
             </Card>
 
             {/* Card 2: Active Orders */}
-            <Card className="bg-white rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between">
+            <Card className="bg-white rounded-[24px] border border-slate-100 shadow-sm lg:max-h-[220px] flex flex-col justify-between">
               <CardContent className="p-6 h-full flex flex-col justify-between space-y-6">
-                <p className="text-slate-500 text-[13px] font-medium tracking-wide">Ordens Registradas</p>
+                <p className="text-slate-900 text-[13px] font-bold tracking-wide">Ordens Registradas</p>
                 <div className="space-y-3">
-                  <h2 className="text-4xl font-bold tracking-tight text-slate-900">
+                  <h2 className="text-6xl font-bold tracking-tight text-slate-900">
                     <NumberTicker value={metrics.osCurr} format={(v) => v.toLocaleString("pt-BR")} blur />
                   </h2>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold">
@@ -328,11 +334,11 @@ export function DashboardView() {
             </Card>
 
             {/* Card 3: New Clients */}
-            <Card className="bg-white rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between">
+            <Card className="bg-white rounded-[24px] border border-slate-100 shadow-sm lg:max-h-[220px] flex flex-col justify-between">
               <CardContent className="p-6 h-full flex flex-col justify-between space-y-6">
-                <p className="text-slate-500 text-[13px] font-medium tracking-wide">Novos Clientes</p>
+                <p className="text-slate-900 text-[13px] font-bold tracking-wide">Novos Clientes</p>
                 <div className="space-y-3">
-                  <h2 className="text-4xl font-bold tracking-tight text-slate-900">
+                  <h2 className="text-6xl font-bold tracking-tight text-slate-900">
                     <NumberTicker value={metrics.cliCurr} format={(v) => v.toLocaleString("pt-BR")} blur />
                   </h2>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold">
@@ -352,11 +358,11 @@ export function DashboardView() {
             </Card>
 
             {/* Card 4: Completed OS */}
-            <Card className="bg-white rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between">
+            <Card className="bg-white rounded-[24px] border border-slate-100 shadow-sm lg:max-h-[220px] flex flex-col justify-between">
               <CardContent className="p-6 h-full flex flex-col justify-between space-y-6">
-                <p className="text-slate-500 text-[13px] font-medium tracking-wide">O.S. Concluídas</p>
+                <p className="text-slate-900 text-[13px] font-bold tracking-wide">O.S. Concluídas</p>
                 <div className="space-y-3">
-                  <h2 className="text-4xl font-bold tracking-tight text-slate-900">
+                  <h2 className="text-6xl font-bold tracking-tight text-slate-900">
                     <NumberTicker value={metrics.concCurr} format={(v) => v.toLocaleString("pt-BR")} blur />
                   </h2>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold">
@@ -379,70 +385,73 @@ export function DashboardView() {
           {/* Charts Row */}
           <div className="grid gap-6 lg:grid-cols-3 items-stretch">
             {/* Main Bar Chart */}
-            <Card className="lg:col-span-2 bg-white rounded-[24px] border border-slate-100 shadow-sm h-[320px] flex flex-col">
+            <Card className="lg:col-span-2 bg-white rounded-[24px] border border-slate-100 shadow-sm flex flex-col">
               <CardHeader className="pb-2 pt-6 px-6">
                 <div className="flex justify-between items-center w-full">
                   <CardTitle className="text-[15px] font-medium text-slate-900">Faturamento Bruto</CardTitle>
                 </div>
               </CardHeader>
-              <CardContent className="flex-1 pb-4 px-2">
-                <ChartContainer config={dashboardChartConfig} className="w-full h-full min-h-[200px]">
-                  <AreaChart data={financeData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="fillTotal" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#27272a" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="#27272a" stopOpacity={0.0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis 
-                      dataKey="name" 
-                      stroke="#94a3b8" 
-                      fontSize={11} 
-                      tickLine={false} 
-                      axisLine={false} 
-                      dy={10}
-                    />
-                    <YAxis 
-                      stroke="#94a3b8" 
-                      fontSize={11} 
-                      tickLine={false} 
-                      axisLine={false} 
-                      tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : `${v}`} 
-                    />
-                    <ChartTooltip
-                      cursor={{stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: "4 4", fill: 'transparent'}}
-                      content={
-                        <ChartTooltipContent
-                          className="min-w-32 rounded-xl bg-[#1c1c1e] text-white p-3 border-none shadow-xl"
-                          formatter={(value) => (
-                            <div className="flex w-full items-center justify-between gap-3 text-xs font-semibold text-slate-300">
-                              <span className="text-white font-bold">R$ {Number(value).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                            </div>
-                          )}
-                        />
-                      }
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="Total"
-                      stroke="#27272a"
-                      strokeWidth={3}
-                      fill="url(#fillTotal)"
-                    />
-                  </AreaChart>
-                </ChartContainer>
+              <CardContent className="pb-6 px-2 flex-1">
+                <div className="h-[250px] w-full mt-2">
+                  <ChartContainer config={dashboardChartConfig} className="w-full h-full">
+                    <AreaChart data={financeData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="fillTotal" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#16a34a" stopOpacity={0.9} />
+                          <stop offset="95%" stopColor="#4ade80" stopOpacity={0.02} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis 
+                        dataKey="name" 
+                        stroke="#94a3b8" 
+                        fontSize={11} 
+                        tickLine={false} 
+                        axisLine={false} 
+                        tickMargin={12}
+                        height={30}
+                      />
+                      <YAxis 
+                        stroke="#94a3b8" 
+                        fontSize={11} 
+                        tickLine={false} 
+                        axisLine={false} 
+                        tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : `${v}`} 
+                      />
+                      <ChartTooltip
+                        cursor={{stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: "4 4", fill: 'transparent'}}
+                        content={
+                          <ChartTooltipContent
+                            className="min-w-32 rounded-xl bg-[#1c1c1e] text-white p-3 border-none shadow-xl"
+                            formatter={(value) => (
+                              <div className="flex w-full items-center justify-between gap-3 text-xs font-semibold text-slate-300">
+                                <span className="text-white font-bold">R$ {Number(value).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                              </div>
+                            )}
+                          />
+                        }
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="Total"
+                        stroke="#27272a"
+                        strokeWidth={3}
+                        fill="url(#fillTotal)"
+                      />
+                    </AreaChart>
+                  </ChartContainer>
+                </div>
               </CardContent>
             </Card>
 
             {/* Circular Rate Widget */}
-            <Card className="bg-white rounded-[24px] border border-slate-100 shadow-sm flex flex-col h-[320px]">
+            <Card className="bg-white rounded-[24px] border border-slate-100 shadow-sm flex flex-col">
               <CardHeader className="pb-0 pt-6 px-6">
                 <div className="flex justify-between items-center w-full">
                   <CardTitle className="text-[15px] font-medium text-slate-900 text-center w-full">Taxa de Conclusão</CardTitle>
                 </div>
               </CardHeader>
-              <CardContent className="flex-1 flex flex-col items-center justify-center">
+              <CardContent className="flex-1 flex flex-col items-center justify-center pb-6">
                 <div className="relative w-36 h-36 flex items-center justify-center">
                   <svg className="w-full h-full transform -rotate-90">
                     <circle cx="72" cy="72" r="60" stroke="#f1f5f9" strokeWidth="12" fill="none" />
@@ -495,11 +504,17 @@ export function DashboardView() {
               </TableHeader>
               <TableBody>
                 {recentOrders.map(order => (
-                  <TableRow key={order.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                  <TableRow key={order.id} className="border-b border-slate-50 hover:bg-slate-200/30 transition-colors">
                     <TableCell className="font-bold text-slate-900 text-sm py-4 px-6">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center shrink-0">
-                          <Image src={"/mobile.svg"} alt="Cell" width={24} height={24} />
+                          {
+                          order.status === "Concluído" 
+                          ? <Image src="/iconsax-tick-circle-slate-500.svg" alt="Check" width={24} height={24} /> 
+                          : order.status === "Pendente"
+                          ? <Image src="/iconsax-refresh-arrow-slate-500.svg" alt="Refresh" width={24} height={24}/>
+                          : <Image src="/iconsax-clock-slate-500.svg" alt="Clock" width={24} height={24}/>
+                          }
                         </div>
                         <div className="flex flex-col gap-0.5">
                           <span className="text-sm">{order.deviceName}</span>

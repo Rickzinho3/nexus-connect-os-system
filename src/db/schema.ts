@@ -47,6 +47,7 @@ export const serviceOrders = pgTable("service_orders", {
   photos: jsonb("photos"),
   date: text("date").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // quotes (Orçamentos) table
@@ -89,6 +90,7 @@ export const sales = pgTable("sales", {
   clientId: uuid("client_id").references(() => clients.id, { onDelete: "set null" }),
   paymentMethod: text("payment_method").notNull(), // Pix, Cartão, Dinheiro
   amount: numeric("amount").notNull(),
+  description: text("description"), // O que foi vendido
   date: text("date").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

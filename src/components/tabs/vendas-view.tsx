@@ -33,6 +33,7 @@ interface Sale {
   client: string;
   paymentMethod: "Pix" | "Cartão" | "Dinheiro";
   amount: number;
+  description?: string;
   date: string;
 }
 
@@ -55,6 +56,7 @@ export function VendasView() {
   const [clientName, setClientName] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"Pix" | "Cartão" | "Dinheiro">("Pix");
   const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
 
   const loadData = async () => {
     setLoading(true);
@@ -83,6 +85,7 @@ export function VendasView() {
         clientName: clientName || "Cliente de Balcão",
         paymentMethod,
         amount: parseFloat(amount),
+        description: description || "Venda Direta",
       });
 
       setIsDialogOpen(false);
@@ -90,6 +93,7 @@ export function VendasView() {
       setClientName("");
       setPaymentMethod("Pix");
       setAmount("");
+      setDescription("");
       // Reload
       await loadData();
       toast.success("Venda registrada com sucesso!");
@@ -104,6 +108,7 @@ export function VendasView() {
     setClientName(sale.client);
     setPaymentMethod(sale.paymentMethod);
     setAmount(sale.amount.toString());
+    setDescription(sale.description || "");
     setIsEditOpen(true);
   };
 
@@ -115,6 +120,7 @@ export function VendasView() {
         clientName: clientName || "Cliente de Balcão",
         paymentMethod,
         amount: parseFloat(amount),
+        description: description || "Venda Direta",
       });
       setIsEditOpen(false);
       setSelectedSale(null);
@@ -225,6 +231,16 @@ export function VendasView() {
                   <label className="text-xs font-semibold text-slate-500">Valor Recebido (R$)</label>
                   <AnimatedAmountInput value={amount} onChange={setAmount} />
                 </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-500">Descrição do Produto/Venda</label>
+                  <Input 
+                    placeholder="Ex: Película e Capa iPhone 13" 
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="rounded-xl border-slate-200 bg-white"
+                  />
+                </div>
               </div>
 
               <DialogFooter>
@@ -266,7 +282,8 @@ export function VendasView() {
             <TableRow>
               <TableHead className="w-[120px] font-semibold text-slate-500">Código</TableHead>
               <TableHead className="font-semibold text-slate-500">Cliente</TableHead>
-              <TableHead className="font-semibold text-slate-500">Método de Pagamento</TableHead>
+              <TableHead className="font-semibold text-slate-500">Descrição</TableHead>
+              <TableHead className="font-semibold text-slate-500">Método</TableHead>
               <TableHead className="font-semibold text-slate-500">Valor</TableHead>
               <TableHead className="font-semibold text-slate-500">Data</TableHead>
               <TableHead className="w-[80px] font-semibold text-slate-500 text-right">Ações</TableHead>
@@ -284,6 +301,7 @@ export function VendasView() {
                 <TableRow key={sale.id} className="hover:bg-slate-50/50">
                   <TableCell className="font-bold text-slate-700">{sale.id}</TableCell>
                   <TableCell className="font-semibold text-slate-900">{sale.client}</TableCell>
+                  <TableCell className="text-slate-600 text-sm">{sale.description || "-"}</TableCell>
                   <TableCell className="text-slate-700 flex items-center font-medium">
                     {getPaymentIcon(sale.paymentMethod)}
                     {sale.paymentMethod}
@@ -343,7 +361,8 @@ export function VendasView() {
                   <div className="mt-3 flex justify-between items-start">
                     <div>
                       <h3 className="text-xl font-bold text-slate-900 tracking-tight">{sale.client}</h3>
-                      <div className="flex items-center gap-1.5 mt-0.5 text-sm text-slate-500 font-medium">
+                      <p className="text-sm text-slate-600 mt-0.5">{sale.description}</p>
+                      <div className="flex items-center gap-1.5 mt-1 text-sm text-slate-500 font-medium">
                         {getPaymentIcon(sale.paymentMethod)}
                         {sale.paymentMethod}
                       </div>
@@ -413,6 +432,16 @@ export function VendasView() {
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-500">Valor Recebido (R$)</label>
                 <AnimatedAmountInput value={amount} onChange={setAmount} />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-500">Descrição do Produto/Venda</label>
+                <Input 
+                  placeholder="Ex: Película e Capa iPhone 13" 
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="rounded-xl border-slate-200 bg-white"
+                />
               </div>
             </div>
 

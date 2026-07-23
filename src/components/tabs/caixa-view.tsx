@@ -340,7 +340,7 @@ export function CaixaView() {
                   R$ {expectedBalance.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                 </p>
                 <p className="text-[10px] text-slate-400 mt-1 font-medium">
-                  Aberto às {new Date(activeSession.openedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} por {activeSession.responsible}
+                  Aberto às {new Date(activeSession.openedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" })} por {activeSession.responsible}
                 </p>
               </CardContent>
             </Card>
@@ -393,7 +393,7 @@ export function CaixaView() {
 
             <div className="flex items-center gap-3">
               <Dialog open={isTxDialogOpen} onOpenChange={setIsTxDialogOpen}>
-                <DialogTrigger render={<Button className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm flex items-center gap-2" />}>
+                <DialogTrigger render={<Button className="rounded-xl bg-slate-900 h-10 hover:bg-slate-800 text-white font-semibold text-sm flex items-center gap-2" />}>
                   <span className="flex items-center gap-2">
                     <Plus className="w-4 h-4" /> Nova Movimentação
                   </span>
@@ -547,7 +547,7 @@ export function CaixaView() {
               </Dialog>
 
               <Dialog open={isCloseDialogOpen} onOpenChange={setIsCloseDialogOpen}>
-                <DialogTrigger render={<Button variant="outline" className="rounded-xl border-red-200 hover:bg-red-50 text-red-600 hover:text-red-700 font-semibold text-sm flex items-center gap-2" />}>
+                <DialogTrigger render={<Button variant="outline" className="rounded-xl border-red-200 h-10 hover:bg-red-50 text-red-600 hover:text-red-700 font-semibold text-sm flex items-center gap-2" />}>
                   <span className="flex items-center gap-2">
                     <Lock className="w-4 h-4" /> Fechar Caixa
                   </span>
@@ -650,13 +650,14 @@ export function CaixaView() {
                     <DialogFooter>
                       <Button
                         type="button"
+                        size={"lg"}
                         variant="outline"
                         onClick={() => setIsCloseDialogOpen(false)}
                         className="rounded-xl border-slate-200"
                       >
                         Cancelar
                       </Button>
-                      <Button type="submit" className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold">
+                      <Button type="submit" size={"lg"} className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold">
                         Confirmar e Fechar Caixa
                       </Button>
                     </DialogFooter>

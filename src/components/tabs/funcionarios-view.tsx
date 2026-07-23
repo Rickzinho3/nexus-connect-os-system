@@ -390,7 +390,7 @@ export function FuncionariosView() {
           <div className="flex flex-col gap-4">
             {filteredEmployees.map((emp) => (
               <div key={emp.id} className="bg-white border border-slate-200 rounded-3xl p-5 relative shadow-sm z-0">
-                <div className="absolute top-4 left-4 right-4 h-28 bg-linear-to-tr from-slate-900 to-slate-500 rounded-2xl -z-10"></div>
+                <div className="absolute top-4 left-4 right-4 h-28 bg-linear-to-tr from-emerald-900 to-slate-500 rounded-2xl -z-10"></div>
                 
                 <div className="relative z-10 pt-16">
                   <div className="flex justify-between items-end">

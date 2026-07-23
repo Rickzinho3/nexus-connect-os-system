@@ -286,12 +286,20 @@ export function FinanceiroView() {
     });
 
     const colors = [
-      "var(--chart-1)",
-      "var(--chart-2)",
-      "var(--chart-3)",
-      "var(--chart-4)",
-      "var(--chart-5)",
+      "#991b1b",
+      "#fbbf24",
+      "#84cc16",
+      "#059669",
+      "#2563eb",
     ];
+
+    // const colors = [
+    //   "var(--chart-1)",
+    //   "var(--chart-2)",
+    //   "var(--chart-3)",
+    //   "var(--chart-4)",
+    //   "var(--chart-5)",
+    // ];
 
     const mapped = Object.entries(catMap).map(([category, amount], idx) => ({
       category,
@@ -656,7 +664,7 @@ export function FinanceiroView() {
               <ChartContainer config={barChartConfig} className="w-full h-full">
                 <BarChart
                   data={getWeeklyBarData()}
-                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                  margin={{ top: 10, right: 10, left: -20, bottom: 20 }}
                   barGap={4}
                 >
                   <defs>
@@ -701,8 +709,8 @@ export function FinanceiroView() {
                       />
                     }
                   />
-                  <Bar dataKey="receitas" name="Receitas" fill="url(#chart4-receitas-pattern)" stroke="#020617" strokeWidth={1} radius={[4, 4, 0, 0]} barSize={16} />
-                  <Bar dataKey="despesas" name="Despesas" fill="url(#chart4-despesas-pattern)" stroke="#94a3b8" strokeWidth={1} radius={[4, 4, 0, 0]} barSize={16} />
+                  <Bar dataKey="receitas" className="cursor-pointer" name="Receitas" fill="url(#chart4-receitas-pattern)" stroke="#020617" strokeWidth={1} radius={[4, 4, 0, 0]} barSize={16} />
+                  <Bar dataKey="despesas" className="cursor-pointer" name="Despesas" fill="url(#chart4-despesas-pattern)" stroke="#94a3b8" strokeWidth={1} radius={[4, 4, 0, 0]} barSize={16} />
                 </BarChart>
               </ChartContainer>
             </div>
@@ -732,7 +740,7 @@ export function FinanceiroView() {
               <ChartContainer config={areaChartConfig} className="w-full h-full">
                 <AreaChart
                   data={getCashFlowAreaData()}
-                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                  margin={{ top: 10, right: 10, left: -20, bottom: 20 }}
                 >
                   <defs>
                     <linearGradient id="chart13-balance-gradient" x1="0" y1="0" x2="0" y2="1">
@@ -806,8 +814,8 @@ export function FinanceiroView() {
             </div>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
-            <div className="h-[220px] w-full mt-2">
-              <ChartContainer config={pieChartConfig} className="mx-auto aspect-square max-h-[220px]">
+            <div className="h-55 w-full mt-2">
+              <ChartContainer config={pieChartConfig} className="mx-auto aspect-square max-h-55">
                 <PieChart>
                   <defs>
                     <filter id="chart19-3d-shadow" x="-20%" y="-20%" width="140%" height="140%">
@@ -823,10 +831,10 @@ export function FinanceiroView() {
                   <ChartTooltip
                     content={
                       <ChartTooltipContent
-                        className="min-w-[140px] rounded-xl bg-slate-950 text-white p-2 border-none"
+                        className="min-w-35 rounded-xl bg-slate-950 text-white p-2 border-none"
                         formatter={(value, name) => (
                           <div className="flex w-full items-center justify-between gap-3 text-xs text-slate-300 font-semibold">
-                            <span>Vol:</span>
+                            <span>{name}:</span>
                             <span className="text-white font-bold">R$ {Number(value).toFixed(2)}</span>
                           </div>
                         )}
@@ -843,6 +851,7 @@ export function FinanceiroView() {
                     paddingAngle={3}
                     stroke="var(--background)"
                     strokeWidth={3}
+                    className="cursor-pointer"
                     style={{ filter: "url(#chart19-3d-shadow)" }}
                   >
                     {getCategoryPieData().map((entry, idx) => (
@@ -926,7 +935,7 @@ export function FinanceiroView() {
                 <TableBody>
                   {filteredTransactions.length > 0 ? (
                     filteredTransactions.map((tx) => (
-                      <TableRow key={tx.id} className="hover:bg-slate-50/30 transition-colors">
+                      <TableRow key={tx.id} className="hover:bg-slate-200/30 transition-colors">
                         <TableCell>
                           <div className="font-bold text-slate-900 text-sm">
                             {tx.description}

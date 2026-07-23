@@ -247,7 +247,7 @@ export async function addServiceOrder(formData: {
       value: formData.value.toString(),
       status: "Pendente",
       photos: formData.photos || null,
-      date: new Date().toLocaleDateString("pt-BR"),
+      date: new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }),
     })
     .returning();
   return created;
@@ -270,6 +270,7 @@ export async function getServiceOrderById(id: string) {
       notes: serviceOrders.notes,
       photos: serviceOrders.photos,
       createdAt: serviceOrders.createdAt,
+      updatedAt: serviceOrders.updatedAt,
     })
     .from(serviceOrders)
     .innerJoin(clients, eq(serviceOrders.clientId, clients.id))
@@ -288,8 +289,8 @@ export async function getServiceOrderById(id: string) {
 
 async function registerOSPayment(osId: string, value: number, deviceName: string, clientId: string) {
   const tenantId = await getTenantId();
-  const todayStr = new Date().toLocaleDateString("pt-BR");
-  const timeStr = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const todayStr = new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+  const timeStr = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
 
   const exists = await db
     .select()
@@ -334,6 +335,8 @@ export async function updateServiceOrder(id: string, formData: {
       value: formData.value.toString(),
       status: formData.status,
       notes: formData.notes || "",
+      photos: formData.photos,
+      updatedAt: new Date(),
     })
     .where(eq(serviceOrders.id, id))
     .returning();
@@ -351,7 +354,7 @@ export async function updateServiceOrderStatus(id: string, status: "Pendente" | 
 
   const [updated] = await db
     .update(serviceOrders)
-    .set({ status })
+    .set({ status, updatedAt: new Date() })
     .where(eq(serviceOrders.id, id))
     .returning();
 
@@ -499,8 +502,8 @@ export async function replenishStock(sku: string, currentStock: number, minStock
 
   if (part) {
     const cost = added * parseFloat(part.price);
-    const todayStr = new Date().toLocaleDateString("pt-BR");
-    const timeStr = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    const todayStr = new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+    const timeStr = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
 
     await db.insert(financialTransactions).values({
       tenantId,
@@ -581,6 +584,7 @@ export async function getSales() {
       client: clients.name,
       paymentMethod: sales.paymentMethod,
       amount: sales.amount,
+      description: sales.description,
       date: sales.date,
     })
     .from(sales)
@@ -592,6 +596,7 @@ export async function getSales() {
     ...s,
     client: s.client || "Cliente de Balcão",
     amount: parseFloat(s.amount),
+    description: s.description,
     paymentMethod: s.paymentMethod as "Pix" | "Cartão" | "Dinheiro"
   }));
 }
@@ -600,11 +605,12 @@ export async function addSale(formData: {
   clientName: string;
   paymentMethod: "Pix" | "Cartão" | "Dinheiro";
   amount: number;
+  description: string;
 }) {
   const tenantId = await getTenantId();
   const id = `VEN-${Math.floor(3000 + Math.random() * 900)}`;
-  const todayStr = new Date().toLocaleDateString("pt-BR");
-  const timeStr = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const todayStr = new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+  const timeStr = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
 
   let clientId: string | null = null;
   if (formData.clientName && formData.clientName !== "Cliente de Balcão") {
@@ -622,13 +628,14 @@ export async function addSale(formData: {
       clientId,
       paymentMethod: formData.paymentMethod,
       amount: formData.amount.toString(),
+      description: formData.description,
       date: todayStr,
     })
     .returning();
 
   await db.insert(financialTransactions).values({
     tenantId,
-    description: `Venda ${id} - ${formData.clientName}`,
+    description: `Venda ${id} - ${formData.description}`,
     type: "Receita",
     amount: formData.amount.toString(),
     category: "Venda",
@@ -664,6 +671,7 @@ export async function updateSale(id: string, formData: {
   clientName: string;
   paymentMethod: "Pix" | "Cartão" | "Dinheiro";
   amount: number;
+  description: string;
 }) {
   const tenantId = await getTenantId();
   let clientId: string | null = null;
@@ -680,6 +688,7 @@ export async function updateSale(id: string, formData: {
       clientId,
       paymentMethod: formData.paymentMethod,
       amount: formData.amount.toString(),
+      description: formData.description,
     })
     .where(eq(sales.id, id))
     .returning();
@@ -783,7 +792,7 @@ export async function getCurrentOpenSession() {
 
 export async function openCashSession(formData: { initialValue: number; responsible: string }) {
   const tenantId = await getTenantId();
-  const todayStr = new Date().toLocaleDateString("pt-BR");
+  const todayStr = new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
 
   const open = await db
     .select()
@@ -806,7 +815,7 @@ export async function openCashSession(formData: { initialValue: number; responsi
     })
     .returning();
 
-  const time = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const time = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
   await db.insert(cashLogs).values({
     tenantId,
     sessionId: created.id,
@@ -904,8 +913,8 @@ export async function addCashLog(formData: {
   responsible?: string;
 }) {
   const tenantId = await getTenantId();
-  const time = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-  const date = new Date().toLocaleDateString("pt-BR");
+  const time = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
+  const date = new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
 
   const openSession = await getCurrentOpenSession();
   if (!openSession && formData.type !== "Abertura") {
@@ -1010,8 +1019,8 @@ export async function addFinancialTransaction(formData: {
   responsible?: string;
 }) {
   const tenantId = await getTenantId();
-  const date = new Date().toLocaleDateString("pt-BR");
-  const time = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const date = new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+  const time = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
 
   const [created] = await db
     .insert(financialTransactions)
@@ -1046,8 +1055,8 @@ export async function payFinancialTransaction(id: string, paymentMethod: string,
   if (updated && paymentMethod === "Dinheiro") {
     const openSession = await getCurrentOpenSession();
     if (openSession) {
-      const time = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-      const date = new Date().toLocaleDateString("pt-BR");
+      const time = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
+      const date = new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
       const val = parseFloat(updated.amount);
       const typeStr = updated.type === "Receita" ? "Suprimento" : "Sangria";
       const finalVal = updated.type === "Receita" ? val : -val;
@@ -1370,8 +1379,9 @@ export default async function seedInitialDatabase() {
 
   // Seed Sales
   await db.insert(sales).values([
-    { id: "VEN-3094", tenantId, clientId: cli1.id, paymentMethod: "Pix", amount: "450.00", date: "18/07/2026" },
-    { id: "VEN-3093", tenantId, clientId: cli3.id, paymentMethod: "Cartão", amount: "180.00", date: "17/07/2026" },
+    { id: "VEN-3094", tenantId, clientId: cli1.id, description: "Capinha Iphone 13", paymentMethod: "Pix", amount: "450.00", date: "18/07/2026" },
+    { id: "VEN-3093", tenantId, clientId: cli3.id, description: "Película Iphone 13", paymentMethod: "Cartão", amount: "180.00", date: "17/07/2026" },
+    { id: "VEN-3092", tenantId, clientId: cli5.id, description: "Película Galaxy S22 Ultra", paymentMethod: "Cartão", amount: "180.00", date: "17/07/2026" },
   ]);
 
   // Seed Employees

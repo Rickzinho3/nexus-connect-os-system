@@ -32,19 +32,19 @@ export default function OSDetailsPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center text-slate-500 animate-pulse font-medium">Carregando detalhes da O.S...</div>;
   if (!order) return <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
     <p className="text-slate-500 font-medium">O.S. não encontrada.</p>
-    <Button variant="outline" onClick={() => router.push("/")}>Voltar para o Sistema</Button>
+    <Button variant="outline" onClick={() => router.push("/portal")}>Voltar para o Portal</Button>
   </div>;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "Pendente":
-        return <Badge className="bg-white text-slate-500 border border-slate-300 border-dashed px-3 py-1 text-sm">Pendente</Badge>;
+        return <Badge className="bg-white text-slate-500 border border-slate-300 border-dashed px-4 h-10 py-1 text-sm">Pendente</Badge>;
       case "Em Andamento":
-        return <Badge className="bg-slate-100 text-slate-700 border border-slate-300 px-3 py-1 text-sm">Em Andamento</Badge>;
+        return <Badge className="bg-slate-100 text-slate-700 border border-slate-300 px-4 h-10 py-1 text-sm">Em Andamento</Badge>;
       case "Concluído":
-        return <Badge className="bg-emerald-500 text-white px-3 py-1 text-sm">Concluído</Badge>;
+        return <Badge className="bg-emerald-500 text-white px-4 h-10 py-1 text-sm">Concluído</Badge>;
       case "Cancelado":
-        return <Badge className="bg-slate-100 text-slate-400 line-through px-3 py-1 text-sm">Cancelado</Badge>;
+        return <Badge className="bg-slate-100 text-slate-400 line-through px-4 h-10 py-1 text-sm">Cancelado</Badge>;
       default:
         return <Badge className="px-3 py-1 text-sm">{status}</Badge>;
     }
@@ -53,8 +53,8 @@ export default function OSDetailsPage() {
   return (
     <div className="min-h-screen bg-[#f8fafc] p-6 md:p-12 font-sans selection:bg-slate-200">
       <div className="max-w-4xl mx-auto space-y-8">
-        <Button variant="ghost" onClick={() => router.push("/")} className="gap-2 text-slate-500 hover:text-slate-900 rounded-xl px-2 cursor-pointer">
-          <ArrowLeft className="w-4 h-4" /> Voltar para o Sistema
+        <Button variant="ghost" onClick={() => router.push("/portal")} className="gap-2 text-slate-500 hover:text-slate-900 rounded-xl px-2 cursor-pointer">
+          <ArrowLeft className="w-4 h-4" /> Voltar para o Portal
         </Button>
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -66,7 +66,7 @@ export default function OSDetailsPage() {
           </div>
           <div className="flex items-center gap-4">
             {getStatusBadge(order.status)}
-            <Popover align="end" side="bottom" sideOffset={8}>
+            <Popover align="start" side="bottom" sideOffset={8}>
               <PopoverTrigger>
                 <Button variant="outline" size="icon" className="relative rounded-full h-10 w-10 border-slate-200">
                   <Bell className="w-5 h-5 text-slate-600" />
@@ -88,7 +88,11 @@ export default function OSDetailsPage() {
                     <div>
                       <p className="text-sm font-semibold text-slate-800">Status atualizado</p>
                       <p className="text-xs text-slate-500 mt-0.5">A sua ordem de serviço agora está com status de: {order.status}.</p>
-                      <p className="text-[10px] text-slate-400 mt-1">Hoje, 10:30</p>
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        {order.updatedAt 
+                          ? `${new Date(order.updatedAt).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}, ${new Date(order.updatedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" })}`
+                          : order.date}
+                      </p>
                     </div>
                   </div>
                   <div className="flex gap-3 items-start opacity-70">
@@ -98,7 +102,11 @@ export default function OSDetailsPage() {
                     <div>
                       <p className="text-sm font-semibold text-slate-800">Ordem registrada</p>
                       <p className="text-xs text-slate-500 mt-0.5">O.S. {order.id} foi registrada com sucesso no sistema.</p>
-                      <p className="text-[10px] text-slate-400 mt-1">{order.date}</p>
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        {order.createdAt 
+                          ? `${new Date(order.createdAt).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}, ${new Date(order.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" })}`
+                          : order.date}
+                      </p>
                     </div>
                   </div>
                 </div>

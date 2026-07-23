@@ -430,7 +430,7 @@ export function OSView() {
                   <TableCell className="text-slate-400 text-xs font-semibold">{order.date}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Tooltip content="Ver Detalhes e Fotos">
+                      <Tooltip content="Ver Detalhes">
                         <Button
                           size="icon"
                           variant="ghost"
@@ -492,7 +492,7 @@ export function OSView() {
                     </div>
                     <div className="flex gap-2 mb-2">
                       <Button variant="outline" size="icon" onClick={() => handleEditClick(order)} className="w-9 h-9 rounded-full text-slate-400 hover:text-slate-900 cursor-pointer"><Edit3/></Button>
-                      <Button variant="outline" size="icon" onClick={() => router.push(`/os/${order.id}`)} className="rounded-full bg-white text-slate-700 hover:text-slate-900 border-slate-200 h-9 w-9 cursor-pointer"><Eye className="w-4 h-4" /></Button>
+                      <Button variant="outline" size="icon" onClick={() => router.push(`/os/${order.id}`)} className="rounded-full bg-white text-slate-400 hover:text-slate-900 border-slate-200 h-9 w-9 cursor-pointer"><Eye className="w-4 h-4" /></Button>
                       <Button variant="outline" size="icon" onClick={() => handleDeleteClick(order)} className="rounded-full bg-white text-slate-400 hover:text-red-600 hover:bg-red-50 h-9 w-9 cursor-pointer"><Trash2 className="w-4 h-4" /></Button>
                     </div>
                   </div>
