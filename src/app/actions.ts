@@ -323,6 +323,7 @@ export async function updateServiceOrder(id: string, formData: {
   value: number;
   status: "Pendente" | "Em Andamento" | "Concluído" | "Cancelado";
   notes?: string;
+  photos?: string[];
 }) {
   const existingList = await db.select().from(serviceOrders).where(eq(serviceOrders.id, id)).limit(1);
   const existing = existingList[0];
