@@ -232,7 +232,7 @@ export async function addServiceOrder(formData: {
   deviceName: string;
   serviceType: string;
   value: number;
-  photos?: string[];
+  photos: string[];
 }) {
   const tenantId = await getTenantId();
   const id = `OS-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -250,6 +250,8 @@ export async function addServiceOrder(formData: {
       date: new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }),
     })
     .returning();
+    
+  revalidatePath("/");
   return created;
 }
 
@@ -1240,7 +1242,10 @@ export async function deleteGoal(id: number) {
 }
 
 // 10. Public Client Portal Query (Updated for CPF & AccessCode verification)
+import { unstable_noStore as noStore } from 'next/cache';
+
 export async function queryOSByAccessCodeAndCpf(accessCode: string, cpfCnpj: string) {
+  noStore();
   // Normalize strings
   const cleanCode = accessCode.trim().toUpperCase();
   const cleanCpf = cpfCnpj.replace(/\D/g, "");
@@ -1322,92 +1327,92 @@ export async function queryOSByAccessCode(accessCode: string) {
   return { client, orders };
 }
 // Seed Initial Data (Helper to prepopulate tables when empty)
-export default async function seedInitialDatabase() {
-  let tenantId;
-  try {
-    tenantId = await getTenantId();
-  } catch (err) {
-    return; // No session, skip seeding silently
-  }
+// export default async function seedInitialDatabase() {
+//   let tenantId;
+//   try {
+//     tenantId = await getTenantId();
+//   } catch (err) {
+//     return; // No session, skip seeding silently
+//   }
 
-  const existingClients = await db.select().from(clients).limit(1);
-  if (existingClients.length > 0) return; // already seeded
+//   const existingClients = await db.select().from(clients).limit(1);
+//   if (existingClients.length > 0) return; // already seeded
 
-  // Seed Clients
-  const [cli1] = await db.insert(clients).values({
-    tenantId, name: "Marcos Silveira", email: "marcos.silv@gmail.com", phone: "(11) 98711-2093", address: "Av. das Nações Unidas, 1000", accessCode: "CLI-MARK94", status: "Ativo", cpfCnpj: "123.456.789-10"
-  }).returning();
+//   // Seed Clients
+//   const [cli1] = await db.insert(clients).values({
+//     tenantId, name: "Marcos Silveira", email: "marcos.silv@gmail.com", phone: "(11) 98711-2093", address: "Av. das Nações Unidas, 1000", accessCode: "CLI-MARK94", status: "Ativo", cpfCnpj: "123.456.789-10"
+//   }).returning();
 
-  const [cli2] = await db.insert(clients).values({
-    tenantId, name: "Clara Mendes", email: "clara.mendes@outlook.com", phone: "(11) 96544-3294", address: "Alameda Santos, 456", accessCode: "CLI-CLAR32", status: "Ativo", cpfCnpj: "987.654.321-00"
-  }).returning();
+//   const [cli2] = await db.insert(clients).values({
+//     tenantId, name: "Clara Mendes", email: "clara.mendes@outlook.com", phone: "(11) 96544-3294", address: "Alameda Santos, 456", accessCode: "CLI-CLAR32", status: "Ativo", cpfCnpj: "987.654.321-00"
+//   }).returning();
 
-  const [cli3] = await db.insert(clients).values({
-    tenantId, name: "Carlos Eduardo Silva", email: "carlosedu@yahoo.com.br", phone: "(11) 94821-4920", address: "Rua Augusta, 789", accessCode: "CLI-CARL21", status: "Ativo", cpfCnpj: "111.222.333-44"
-  }).returning();
+//   const [cli3] = await db.insert(clients).values({
+//     tenantId, name: "Carlos Eduardo Silva", email: "carlosedu@yahoo.com.br", phone: "(11) 94821-4920", address: "Rua Augusta, 789", accessCode: "CLI-CARL21", status: "Ativo", cpfCnpj: "111.222.333-44"
+//   }).returning();
 
-  const [cli4] = await db.insert(clients).values({
-    tenantId, name: "Beatriz Nogueira", email: "bia.nogueira@gmail.com", phone: "(11) 91234-5678", address: "Av. Rebouças, 2500", accessCode: "CLI-BIA910", status: "Ativo", cpfCnpj: "555.666.777-88"
-  }).returning();
+//   const [cli4] = await db.insert(clients).values({
+//     tenantId, name: "Beatriz Nogueira", email: "bia.nogueira@gmail.com", phone: "(11) 91234-5678", address: "Av. Rebouças, 2500", accessCode: "CLI-BIA910", status: "Ativo", cpfCnpj: "555.666.777-88"
+//   }).returning();
 
-  const [cli5] = await db.insert(clients).values({
-    tenantId, name: "José Henrique", email: "henriqueferreiraaf56@gmail.com", phone: "(98) 98457-5955", address: "Povoado Pinheiri", accessCode: "CLI-JOSEHE", status: "Ativo", cpfCnpj: "616.511.393-18"
-  }).returning();
+//   const [cli5] = await db.insert(clients).values({
+//     tenantId, name: "José Henrique", email: "henriqueferreiraaf56@gmail.com", phone: "(98) 98457-5955", address: "Povoado Pinheiri", accessCode: "CLI-JOSEHE", status: "Ativo", cpfCnpj: "616.511.393-18"
+//   }).returning();
 
-  // Seed Service Orders
-  await db.insert(serviceOrders).values([
-    { id: "OS-1094", tenantId, clientId: cli1.id, deviceName: "iPhone 13 Pro", serviceType: "Troca de Tela & Vedação", value: "850.00", status: "Em Andamento", date: "18/07/2026", notes: "Aparelho deixado com película trincada." },
-    { id: "OS-1093", tenantId, clientId: cli2.id, deviceName: "Notebook Dell Inspiron", serviceType: "Substituição de Teclado e Limpeza", value: "320.00", status: "Pendente", date: "18/07/2026", notes: "Algumas teclas não funcionam." },
-    { id: "OS-1092", tenantId, clientId: cli3.id, deviceName: "PlayStation 5", serviceType: "Recondicionamento de Conector HDMI", value: "450.00", status: "Concluído", date: "17/07/2026", notes: "Sem sinal de vídeo ao ligar." },
-    { id: "OS-1091", tenantId, clientId: cli4.id, deviceName: "Galaxy S22 Ultra", serviceType: "Troca de Vidro Traseiro e Bateria", value: "580.00", status: "Concluído", date: "16/07/2026", notes: "Tampa traseira quebrada por queda." },
-    { id: "OS-1090", tenantId, clientId: cli5.id, deviceName: "Galaxy S22 Ultra", serviceType: "Troca de Vidro Traseiro e Bateria", value: "580.00", status: "Concluído", date: "16/07/2026", notes: "Tampa traseira quebrada por queda." },
-  ]);
+//   // Seed Service Orders
+//   await db.insert(serviceOrders).values([
+//     { id: "OS-1094", tenantId, clientId: cli1.id, deviceName: "iPhone 13 Pro", serviceType: "Troca de Tela & Vedação", value: "850.00", status: "Em Andamento", date: "18/07/2026", notes: "Aparelho deixado com película trincada." },
+//     { id: "OS-1093", tenantId, clientId: cli2.id, deviceName: "Notebook Dell Inspiron", serviceType: "Substituição de Teclado e Limpeza", value: "320.00", status: "Pendente", date: "18/07/2026", notes: "Algumas teclas não funcionam." },
+//     { id: "OS-1092", tenantId, clientId: cli3.id, deviceName: "PlayStation 5", serviceType: "Recondicionamento de Conector HDMI", value: "450.00", status: "Concluído", date: "17/07/2026", notes: "Sem sinal de vídeo ao ligar." },
+//     { id: "OS-1091", tenantId, clientId: cli4.id, deviceName: "Galaxy S22 Ultra", serviceType: "Troca de Vidro Traseiro e Bateria", value: "580.00", status: "Concluído", date: "16/07/2026", notes: "Tampa traseira quebrada por queda." },
+//     { id: "OS-1090", tenantId, clientId: cli5.id, deviceName: "Galaxy S22 Ultra", serviceType: "Troca de Vidro Traseiro e Bateria", value: "580.00", status: "Concluído", date: "16/07/2026", notes: "Tampa traseira quebrada por queda." },
+//   ]);
 
-  // Seed Quotes
-  await db.insert(quotes).values([
-    { id: "ORC-5012", tenantId, clientId: cli1.id, deviceName: "iPhone 13 Pro", description: "Troca de Tela + Vedação Oring", value: "850.00", status: "Pendente", validUntil: "25/07/2026" },
-    { id: "ORC-5011", tenantId, clientId: cli2.id, deviceName: "Notebook Dell Inspiron", description: "Substituição de Teclado e Bateria de Lítio", value: "450.00", status: "Aprovado", validUntil: "24/07/2026" },
-    { id: "ORC-5010", tenantId, clientId: cli3.id, deviceName: "Sony PlayStation 5", description: "Reparo HDMI + Troca de Metal Líquido", value: "550.00", status: "Rejeitado", validUntil: "15/07/2026" },
-  ]);
+//   // Seed Quotes
+//   await db.insert(quotes).values([
+//     { id: "ORC-5012", tenantId, clientId: cli1.id, deviceName: "iPhone 13 Pro", description: "Troca de Tela + Vedação Oring", value: "850.00", status: "Pendente", validUntil: "25/07/2026" },
+//     { id: "ORC-5011", tenantId, clientId: cli2.id, deviceName: "Notebook Dell Inspiron", description: "Substituição de Teclado e Bateria de Lítio", value: "450.00", status: "Aprovado", validUntil: "24/07/2026" },
+//     { id: "ORC-5010", tenantId, clientId: cli3.id, deviceName: "Sony PlayStation 5", description: "Reparo HDMI + Troca de Metal Líquido", value: "550.00", status: "Rejeitado", validUntil: "15/07/2026" },
+//   ]);
 
-  // Seed Parts
-  await db.insert(parts).values([
-    { sku: "PEC-2001", tenantId, name: "Tela Frontal iPhone 13 (OLED)", category: "Telas", quantity: 12, minQuantity: 5, price: "549.90" },
-    { sku: "PEC-2002", tenantId, name: "Bateria Notebook Dell Inspiron", category: "Baterias", quantity: 3, minQuantity: 4, price: "280.00" },
-    { sku: "PEC-2003", tenantId, name: "Conector de Carga USB-C Galaxy S22", category: "Conectores", quantity: 2, minQuantity: 10, price: "45.00" },
-    { sku: "PEC-2004", tenantId, name: "Pasta Térmica Arctic MX-4 (4g)", category: "Insumos", quantity: 45, minQuantity: 20, price: "65.00" },
-  ]);
+//   // Seed Parts
+//   await db.insert(parts).values([
+//     { sku: "PEC-2001", tenantId, name: "Tela Frontal iPhone 13 (OLED)", category: "Telas", quantity: 12, minQuantity: 5, price: "549.90" },
+//     { sku: "PEC-2002", tenantId, name: "Bateria Notebook Dell Inspiron", category: "Baterias", quantity: 3, minQuantity: 4, price: "280.00" },
+//     { sku: "PEC-2003", tenantId, name: "Conector de Carga USB-C Galaxy S22", category: "Conectores", quantity: 2, minQuantity: 10, price: "45.00" },
+//     { sku: "PEC-2004", tenantId, name: "Pasta Térmica Arctic MX-4 (4g)", category: "Insumos", quantity: 45, minQuantity: 20, price: "65.00" },
+//   ]);
 
-  // Seed Sales
-  await db.insert(sales).values([
-    { id: "VEN-3094", tenantId, clientId: cli1.id, description: "Capinha Iphone 13", paymentMethod: "Pix", amount: "450.00", date: "18/07/2026" },
-    { id: "VEN-3093", tenantId, clientId: cli3.id, description: "Película Iphone 13", paymentMethod: "Cartão", amount: "180.00", date: "17/07/2026" },
-    { id: "VEN-3092", tenantId, clientId: cli5.id, description: "Película Galaxy S22 Ultra", paymentMethod: "Cartão", amount: "180.00", date: "17/07/2026" },
-  ]);
+//   // Seed Sales
+//   await db.insert(sales).values([
+//     { id: "VEN-3094", tenantId, clientId: cli1.id, description: "Capinha Iphone 13", paymentMethod: "Pix", amount: "450.00", date: "18/07/2026" },
+//     { id: "VEN-3093", tenantId, clientId: cli3.id, description: "Película Iphone 13", paymentMethod: "Cartão", amount: "180.00", date: "17/07/2026" },
+//     { id: "VEN-3092", tenantId, clientId: cli5.id, description: "Película Galaxy S22 Ultra", paymentMethod: "Cartão", amount: "180.00", date: "17/07/2026" },
+//   ]);
 
-  // Seed Employees
-  await db.insert(employees).values([
-    { id: "FUN-01", tenantId, name: "Adriano Souza", role: "Técnico de Placas", email: "adriano.s@oficina.com", phone: "(11) 98122-1022", status: "Ativo", cpfCnpj: "111.111.111-11", password: "mock_password_hash" },
-    { id: "FUN-02", tenantId, name: "Tiago Lacerda", role: "Técnico de Smartphones", email: "tiago.l@oficina.com", phone: "(11) 99345-8822", status: "Ativo", cpfCnpj: "222.222.222-22", password: "mock_password_hash" },
-    { id: "FUN-03", tenantId, name: "Renata Oliveira", role: "Atendimento & Triagem", email: "renata.o@oficina.com", phone: "(11) 97433-2940", status: "Ativo", cpfCnpj: "333.333.333-33", password: "mock_password_hash" },
-  ]);
+//   // Seed Employees
+//   await db.insert(employees).values([
+//     { id: "FUN-01", tenantId, name: "Adriano Souza", role: "Técnico de Placas", email: "adriano.s@oficina.com", phone: "(11) 98122-1022", status: "Ativo", cpfCnpj: "111.111.111-11", password: "mock_password_hash" },
+//     { id: "FUN-02", tenantId, name: "Tiago Lacerda", role: "Técnico de Smartphones", email: "tiago.l@oficina.com", phone: "(11) 99345-8822", status: "Ativo", cpfCnpj: "222.222.222-22", password: "mock_password_hash" },
+//     { id: "FUN-03", tenantId, name: "Renata Oliveira", role: "Atendimento & Triagem", email: "renata.o@oficina.com", phone: "(11) 97433-2940", status: "Ativo", cpfCnpj: "333.333.333-33", password: "mock_password_hash" },
+//   ]);
 
-  // Seed Cash Logs
-  await db.insert(cashLogs).values([
-    { tenantId, type: "Abertura", description: "Fundo de caixa inicial", value: "300.00", time: "08:00" },
-    { tenantId, type: "Venda", description: "Recebimento OS-1092 - PS5", value: "450.00", time: "09:30" },
-    { tenantId, type: "Suprimento", description: "Troco adicional em moedas", value: "50.00", time: "11:00" },
-    { tenantId, type: "Sangria", description: "Retirada para Correios", value: "-40.00", time: "14:15" },
-  ]);
+//   // Seed Cash Logs
+//   await db.insert(cashLogs).values([
+//     { tenantId, type: "Abertura", description: "Fundo de caixa inicial", value: "300.00", time: "08:00" },
+//     { tenantId, type: "Venda", description: "Recebimento OS-1092 - PS5", value: "450.00", time: "09:30" },
+//     { tenantId, type: "Suprimento", description: "Troco adicional em moedas", value: "50.00", time: "11:00" },
+//     { tenantId, type: "Sangria", description: "Retirada para Correios", value: "-40.00", time: "14:15" },
+//   ]);
 
-  // Seed Goals
-  await db.insert(goals).values([
-    { tenantId, name: "Faturamento Bruto", category: "Financeiro", current: "65000.00", target: "80000.00", unit: "R$", deadline: "31/07/2026" },
-    { tenantId, name: "Ordens de Serviço Concluídas", category: "Operacional", current: "124.00", target: "150.00", unit: "OS", deadline: "31/07/2026" },
-    { tenantId, name: "Satisfação do Cliente (NPS)", category: "Qualidade", current: "88.00", target: "95.00", unit: "%", deadline: "31/12/2026" },
-    { tenantId, name: "Retrabalho Operacional", category: "Redução", current: "2.00", target: "5.00", unit: "%", deadline: "31/07/2026" },
-  ]);
-}
+//   // Seed Goals
+//   await db.insert(goals).values([
+//     { tenantId, name: "Faturamento Bruto", category: "Financeiro", current: "65000.00", target: "80000.00", unit: "R$", deadline: "31/07/2026" },
+//     { tenantId, name: "Ordens de Serviço Concluídas", category: "Operacional", current: "124.00", target: "150.00", unit: "OS", deadline: "31/07/2026" },
+//     { tenantId, name: "Satisfação do Cliente (NPS)", category: "Qualidade", current: "88.00", target: "95.00", unit: "%", deadline: "31/12/2026" },
+//     { tenantId, name: "Retrabalho Operacional", category: "Redução", current: "2.00", target: "5.00", unit: "%", deadline: "31/07/2026" },
+//   ]);
+// }
 
 export async function getCurrentTenantInfo() {
   const session = await auth();

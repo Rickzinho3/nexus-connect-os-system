@@ -83,8 +83,42 @@ export function OSView() {
       const files = Array.from(e.target.files);
       files.forEach(file => {
         const reader = new FileReader();
-        reader.onloadend = () => {
-          setPhotoPreviews(prev => [...prev, { file, url: reader.result as string }]);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const MAX_WIDTH = 800;
+            const MAX_HEIGHT = 800;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, width, height);
+              const dataUrl = canvas.toDataURL("image/jpeg", 0.6); // Compress to 60% quality JPEG
+              
+              // Create a dummy file object for the preview UI
+              const compressedFile = new File([new Blob()], file.name, { type: "image/jpeg" });
+              Object.defineProperty(compressedFile, 'size', { value: Math.round(dataUrl.length * 0.75) });
+              
+              setPhotoPreviews(prev => [...prev, { file: compressedFile, url: dataUrl }]);
+            }
+          };
+          img.src = event.target?.result as string;
         };
         reader.readAsDataURL(file);
       });

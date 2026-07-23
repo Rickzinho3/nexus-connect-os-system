@@ -46,6 +46,7 @@ import {
 import { Loader } from "@/components/motion/loader";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { Tooltip } from "@/components/motion/tooltip";
 
 interface TrackedOS {
   id: string;
@@ -218,10 +219,22 @@ export default function ClientPortal() {
         return <Badge className="bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold">Em Reparo</Badge>;
       case "Concluído":
       case "Aprovado":
-        return <Badge className="bg-slate-900 text-white border-transparent rounded-xl text-xs font-semibold">Pronto</Badge>;
+        return <Badge className="bg-emerald-600 text-emerald-200 border-transparent rounded-xl text-xs font-semibold">Pronto</Badge>;
       case "Cancelado":
       case "Rejeitado":
-        return <Badge className="bg-white text-slate-900 border border-slate-300 border-dashed rounded-xl text-xs font-semibold">Cancelado</Badge>;
+        return <Badge className="bg-red-600 text-red-200 border-transparent rounded-xl text-xs font-semibold">Cancelado</Badge>;
+      default:
+        return <Badge className="bg-slate-100 text-slate-400 border border-slate-300 rounded-xl text-xs font-semibold">Expirado</Badge>;
+    }
+  };
+
+  const getQuoteStatusBadge = (status: any) => {
+    switch (status) {
+      case "Aprovado":
+        return <Badge className="bg-emerald-600 text-emerald-200 border-transparent rounded-xl text-xs font-semibold">Aprovado</Badge>;
+      case "Cancelado":
+      case "Rejeitado":
+        return <Badge className="bg-red-600 text-red-200 border border-red-300 rounded-xl text-xs font-semibold">Cancelado</Badge>;
       default:
         return <Badge className="bg-slate-100 text-slate-400 border border-slate-300 rounded-xl text-xs font-semibold">Expirado</Badge>;
     }
@@ -641,13 +654,13 @@ const route = useRouter()
                   
                   {(() => {
                     const deviceNames = new Set([
-                      ...result.orders.filter(o => o.status === "Concluído" || o.status === "Cancelado").map(o => o.deviceName),
+                      ...result.orders.map(o => o.deviceName),
                       ...result.quotes.map(q => q.deviceName)
                     ]);
                     
                     const groups = Array.from(deviceNames).map(deviceName => ({
                       deviceName,
-                      orders: result.orders.filter(o => o.deviceName === deviceName && (o.status === "Concluído" || o.status === "Cancelado")),
+                      orders: result.orders.filter(o => o.deviceName === deviceName),
                       quotes: result.quotes.filter(q => q.deviceName === deviceName)
                     }));
 
@@ -684,9 +697,11 @@ const route = useRouter()
                                       <TableCell className="font-bold text-slate-900">R$ {o.value.toFixed(2)}</TableCell>
                                       <TableCell>{getStatusBadge(o.status)}</TableCell>
                                       <TableCell>
-                                        <Button variant="ghost" className="gap-2 text-slate-500 hover:text-slate-900 rounded-xl px-2 cursor-pointer" onClick={() => route.push(`/os/${o.id}`)}>
-                                          <Eye className="w-4 h-4" /> Ver
-                                        </Button>
+                                        <Tooltip content="Ver detalhes">
+                                          <Button variant="ghost" className="gap-2 text-slate-500 hover:text-slate-900 rounded-xl px-2 cursor-pointer" onClick={() => route.push(`/os/${o.id}`)}>
+                                            <Eye className="w-4 h-4" /> Ver
+                                          </Button>
+                                        </Tooltip>
                                       </TableCell>
                                     </TableRow>
                                   ))}
@@ -696,8 +711,8 @@ const route = useRouter()
                                       <TableCell className="font-bold text-slate-500">{q.id}</TableCell>
                                       <TableCell className="text-slate-600 font-medium text-sm">{q.description}</TableCell>
                                       <TableCell className="font-bold text-slate-900">R$ {q.value.toFixed(2)}</TableCell>
-                                      <TableCell>{getStatusBadge(q.status)}</TableCell>
-                                      <TableCell></TableCell>
+                                      <TableCell>{getQuoteStatusBadge(q.status)}</TableCell>
+                                      <TableCell>Nenhuma</TableCell>
                                     </TableRow>
                                   ))}
                                 </TableBody>
@@ -794,7 +809,7 @@ const route = useRouter()
                                       </div>
                                       <div className="flex flex-col items-center">
                                         <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Status</span>
-                                        {getStatusBadge(q.status)}
+                                        {getQuoteStatusBadge(q.status)}
                                       </div>
                                       <div className="flex flex-col items-end">
                                         <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Doc</span>

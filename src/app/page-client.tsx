@@ -17,7 +17,7 @@ import { FuncionariosView } from "@/components/tabs/funcionarios-view";
 import { ConfiguracoesView } from "@/components/tabs/configuracoes-view";
 import { GuiaView } from "@/components/tabs/guia-view";
 import { EmpresasView } from "@/components/tabs/empresas-view";
-import seedInitialDatabase from "@/app/actions";
+// import seedInitialDatabase from "@/app/actions";
 import { Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -32,10 +32,10 @@ export default function Home({ tenantName, tenantData }: HomeClientProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  useEffect(() => {
-    // Seed initial database data once on mount if empty
-    seedInitialDatabase();
-  }, []);
+  // useEffect(() => {
+  //   // Seed initial database data once on mount if empty
+  //   seedInitialDatabase();
+  // }, []);
 
   const renderContent = () => {
     switch (activeTab) {
