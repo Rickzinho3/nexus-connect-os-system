@@ -188,9 +188,9 @@ export default function OSDetailsPage() {
                 {order.photos.map((photo: string, idx: number) => (
                   <Dialog key={idx}>
                     <DialogTrigger render={
-                      <div className="relative aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 border-transparent hover:border-slate-300 transition-all shadow-sm">
+                      <button className="relative aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 border-transparent hover:border-slate-300 transition-all shadow-sm w-full block p-0 text-left bg-transparent">
                         <img src={photo} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-                      </div>
+                      </button>
                     } />
                     <DialogContent className="max-w-4xl bg-transparent border-none shadow-none flex justify-center items-center h-[90vh]">
                       <img src={photo} alt={`Foto ${idx + 1}`} className="max-w-full max-h-full rounded-2xl shadow-2xl object-contain" />

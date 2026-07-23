@@ -218,10 +218,8 @@ export default function ClientPortal() {
       case "Em Andamento":
         return <Badge className="bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold">Em Reparo</Badge>;
       case "Concluído":
-      case "Aprovado":
         return <Badge className="bg-emerald-600 text-emerald-200 border-transparent rounded-xl text-xs font-semibold">Pronto</Badge>;
       case "Cancelado":
-      case "Rejeitado":
         return <Badge className="bg-red-600 text-red-200 border-transparent rounded-xl text-xs font-semibold">Cancelado</Badge>;
       default:
         return <Badge className="bg-slate-100 text-slate-400 border border-slate-300 rounded-xl text-xs font-semibold">Expirado</Badge>;
@@ -230,11 +228,12 @@ export default function ClientPortal() {
 
   const getQuoteStatusBadge = (status: any) => {
     switch (status) {
+      case "Pendente":
+        return <Badge className="bg-white text-slate-900 border border-slate-300 border-dashed rounded-xl text-xs font-semibold">Pendente</Badge>;
       case "Aprovado":
         return <Badge className="bg-emerald-600 text-emerald-200 border-transparent rounded-xl text-xs font-semibold">Aprovado</Badge>;
-      case "Cancelado":
       case "Rejeitado":
-        return <Badge className="bg-red-600 text-red-200 border border-red-300 rounded-xl text-xs font-semibold">Cancelado</Badge>;
+        return <Badge className="bg-red-600 text-red-200 border border-red-300 rounded-xl text-xs font-semibold">Rejeitado</Badge>;
       default:
         return <Badge className="bg-slate-100 text-slate-400 border border-slate-300 rounded-xl text-xs font-semibold">Expirado</Badge>;
     }
@@ -943,7 +942,7 @@ const route = useRouter()
 
       {/* Flight-Ticket Coupon Modal */}
       <Dialog open={!!selectedVoucher} onOpenChange={(open) => !open && setSelectedVoucher(null)}>
-        <DialogContent className="max-w-[340px] p-0 bg-transparent border-none shadow-none flex flex-col items-center justify-center select-none outline-none">
+        <DialogContent className="max-w-[340px] p-0 bg-transparent shadow-none flex flex-col items-center justify-center select-none outline-none">
           <DialogHeader className="sr-only">
             <DialogTitle>Apresentar Cupom</DialogTitle>
             <DialogDescription>
