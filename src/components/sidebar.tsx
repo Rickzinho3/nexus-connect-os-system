@@ -1,5 +1,5 @@
 "use client";
-
+import { LoaderGrid } from "@/components/ui/loader-grid";
 import React, { useState, useEffect, useRef } from "react";
 import {
   LayoutDashboard,
@@ -603,7 +603,7 @@ export function Sidebar({
                     className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white text-[14px] font-semibold h-10 rounded-[16px] transition-colors shadow-sm cursor-pointer"
                   >
                     <Save className="w-4 h-4" />
-                    {isSaving ? <>"Salvando" <Loader className="text-white" variant="metaballs" /> </> : "Salvar Alterações"}
+                    {isSaving ? <>"Salvando" <LoaderGrid className="!text-[5px] mx-auto" /> </> : "Salvar Alterações"}
                   </button>
                 </div>
               </div>

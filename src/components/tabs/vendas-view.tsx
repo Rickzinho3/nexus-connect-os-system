@@ -1,5 +1,5 @@
 "use client";
-
+import { LoaderGrid } from "@/components/ui/loader-grid";
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
@@ -292,8 +292,8 @@ export function VendasView() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-slate-400">
-                  Carregando vendas...
+                <TableCell colSpan={5} className="text-center py-16">
+                  <div className="flex justify-center"><LoaderGrid /></div>
                 </TableCell>
               </TableRow>
             ) : filteredSales.length > 0 ? (
@@ -340,7 +340,7 @@ export function VendasView() {
       {/* Mobile View (Cards) */}
       <div className="md:hidden space-y-4">
         {loading ? (
-          <div className="text-center py-8 text-slate-400">Carregando vendas...</div>
+          <div className="flex justify-center py-16"><LoaderGrid /></div>
         ) : filteredSales.length > 0 ? (
           <div className="flex flex-col gap-4">
             {filteredSales.map((sale) => (

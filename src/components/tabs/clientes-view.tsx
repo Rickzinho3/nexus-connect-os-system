@@ -1,5 +1,5 @@
 "use client";
-
+import { LoaderGrid } from "@/components/ui/loader-grid";
 import React, { useState, useEffect } from "react";
 import {
   Table,
@@ -469,8 +469,8 @@ export function ClientesView() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-slate-400">
-                  Carregando clientes...
+                <TableCell colSpan={7} className="text-center py-16">
+                  <div className="flex justify-center"><LoaderGrid /></div>
                 </TableCell>
               </TableRow>
             ) : filteredClients.length > 0 ? (
@@ -571,7 +571,7 @@ export function ClientesView() {
       {/* Mobile View (Cards) */}
       <div className="md:hidden space-y-4">
         {loading ? (
-          <div className="text-center py-8 text-slate-400">Carregando clientes...</div>
+          <div className="flex justify-center py-16"><LoaderGrid /></div>
         ) : filteredClients.length > 0 ? (
           <div className="flex flex-col gap-4">
             {filteredClients.map((client) => (

@@ -37,6 +37,20 @@ export default function Home({ tenantName, tenantData }: HomeClientProps) {
   //   seedInitialDatabase();
   // }, []);
 
+  useEffect(() => {
+    const heartBeat = () => {
+      fetch("api/presence", {
+        method: "POST",
+      })
+    }
+
+    heartBeat();
+
+    const interval = setInterval(heartBeat, 30_000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":

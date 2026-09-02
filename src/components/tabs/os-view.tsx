@@ -1,5 +1,5 @@
 "use client";
-
+import { LoaderGrid } from "@/components/ui/loader-grid";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -446,8 +446,8 @@ export function OSView() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-slate-400">
-                  Carregando ordens de serviço...
+                <TableCell colSpan={8} className="text-center py-16">
+                  <div className="flex justify-center"><LoaderGrid /></div>
                 </TableCell>
               </TableRow>
             ) : filteredOrders.length > 0 ? (
@@ -512,7 +512,7 @@ export function OSView() {
       {/* Mobile View (Cards) */}
       <div className="md:hidden space-y-4">
         {loading ? (
-          <div className="text-center py-8 text-slate-400">Carregando ordens de serviço...</div>
+          <div className="flex justify-center py-16"><LoaderGrid /></div>
         ) : filteredOrders.length > 0 ? (
           <div className="flex flex-col gap-4">
             {filteredOrders.map((order) => (

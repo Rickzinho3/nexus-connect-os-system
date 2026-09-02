@@ -1,5 +1,5 @@
 "use client";
-
+import { LoaderGrid } from "@/components/ui/loader-grid";
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -79,7 +79,7 @@ export function FinanceiroView() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [employees, setEmployees] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState<PeriodFilter>("30dias");
+  const [period, setPeriod] = useState<PeriodFilter>("mes");
 
   // New Transaction Form States
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -399,6 +399,7 @@ export function FinanceiroView() {
                             <SelectItem value="OS">Ordem de Serviço</SelectItem>
                             <SelectItem value="Serviços">Serviços Gerais</SelectItem>
                             <SelectItem value="Rendimentos">Rendimentos</SelectItem>
+                            <SelectItem value="Salário">Salário</SelectItem>
                             <SelectItem value="Outros">Outros</SelectItem>
                           </>
                         ) : (
@@ -406,6 +407,7 @@ export function FinanceiroView() {
                             <SelectItem value="Peças">Compra de Peças</SelectItem>
                             <SelectItem value="Infraestrutura">Aluguel / Condomínio</SelectItem>
                             <SelectItem value="Utilidades">Luz / Água / Internet</SelectItem>
+                            <SelectItem value="Transporte">Uber / Gasolina</SelectItem>
                             <SelectItem value="Salários">Folha de Pagamento</SelectItem>
                             <SelectItem value="Impostos">Tributos / Impostos</SelectItem>
                             <SelectItem value="Outros">Outros</SelectItem>
@@ -578,14 +580,14 @@ export function FinanceiroView() {
 
       {/* Stat Cards Row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <Card className="border border-slate-150 shadow-sm rounded-2xl">
+        <Card className="border border-slate-150 bg-slate-900 shadow-sm rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+            <CardTitle className="text-xs font-bold text-slate-50 uppercase tracking-wider flex items-center justify-between">
               Receitas Efetivas <ArrowUpRight className="w-4 h-4 text-green-500" />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-black text-slate-900">
+            <p className="text-2xl font-black text-slate-50">
               R$ {totalReceitas.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
             </p>
             <p className="text-[10px] text-slate-400 mt-1 font-semibold">Garantido em conta/gaveta</p>

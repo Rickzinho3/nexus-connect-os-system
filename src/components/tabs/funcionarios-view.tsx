@@ -1,5 +1,5 @@
 "use client";
-
+import { LoaderGrid } from "@/components/ui/loader-grid";
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
@@ -35,7 +35,6 @@ const formatPhone = (value: string) => {
   }
 };
 import { Tooltip } from "@/components/motion/tooltip";
-import { Loader } from "../motion/loader";
 
 interface Employee {
   id: string;
@@ -288,7 +287,7 @@ export function FuncionariosView() {
                   Cancelar
                 </Button>
                 <Button disabled={isLoading} size={"lg"} type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
-                  {isLoading ? <Loader variant="metaballs" size={20} className="text-white" /> : "Registrar"}
+                  {isLoading ? <LoaderGrid className="!text-[5px] mx-auto" /> : "Registrar"}
                 </Button>
               </DialogFooter>
             </form>
@@ -325,8 +324,8 @@ export function FuncionariosView() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-slate-400">
-                  Carregando colaboradores...
+                <TableCell colSpan={6} className="text-center py-16">
+                  <div className="flex justify-center"><LoaderGrid /></div>
                 </TableCell>
               </TableRow>
             ) : filteredEmployees.length > 0 ? (
@@ -385,7 +384,7 @@ export function FuncionariosView() {
       {/* Mobile View (Cards) */}
       <div className="md:hidden space-y-4">
         {loading ? (
-          <div className="text-center py-8 text-slate-400">Carregando colaboradores...</div>
+          <div className="flex justify-center py-16"><LoaderGrid /></div>
         ) : filteredEmployees.length > 0 ? (
           <div className="flex flex-col gap-4">
             {filteredEmployees.map((emp) => (
@@ -518,7 +517,7 @@ export function FuncionariosView() {
                 Cancelar
               </Button>
               <Button type="submit" disabled={isLoading} className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold">
-                {isLoading ? <Loader variant="metaballs" size={20} className="text-white" /> : "Salvar Alterações"}
+                {isLoading ? <LoaderGrid className="!text-[5px] mx-auto" /> : "Salvar Alterações"}
               </Button>
             </DialogFooter>
           </form>
@@ -549,7 +548,7 @@ export function FuncionariosView() {
               onClick={handleConfirmDelete}
               className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold"
             >
-              {isLoading ? <Loader variant="metaballs" size={20} className="text-white" /> : "Confirmar Exclusão"}
+              {isLoading ? <LoaderGrid className="!text-[5px] mx-auto" /> : "Confirmar Exclusão"}
             </Button>
           </DialogFooter>
         </DialogContent>

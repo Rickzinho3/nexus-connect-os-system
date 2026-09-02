@@ -12,6 +12,7 @@ export const tenants = pgTable("tenants", {
   taxRate: numeric("tax_rate").default("12.5"),
   commissionRate: numeric("commission_rate").default("8.0"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  lastSeen: timestamp("last_seen", { withTimezone: true }).defaultNow().notNull(),
 });
 
 // clients table

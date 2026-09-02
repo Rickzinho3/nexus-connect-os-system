@@ -1,7 +1,7 @@
 "use client";
-
+import { LoaderGrid } from "@/components/ui/loader-grid";
 import { useState, useEffect } from "react";
-import { Plus, Building2, Pencil, Trash2, CheckCircle2, Copy, PlusCircle, Edit3 } from "lucide-react";
+import { Plus, Building2, Pencil, Trash2, CheckCircle2, Copy, PlusCircle, Edit3, Divide } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { getTenants, createTenant, updateTenant, deleteTenant } from "@/app/actions";
 import { Tooltip } from "@/components/motion/tooltip";
 import { toast } from "sonner";
-import { Loader } from "../motion/loader";
 
 const formatPhone = (value: string) => {
   const digits = value.replace(/\D/g, "");
@@ -41,6 +40,7 @@ const formatCpfCnpj = (value: string) => {
 export function EmpresasView() {
   const [tenants, setTenants] = useState<any[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [active, setActive] = useState(false)
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTenant, setEditingTenant] = useState<any>(null);
@@ -155,7 +155,7 @@ export function EmpresasView() {
         </div>
 
         {initialLoading ? (
-          <div className="p-8 text-center text-slate-500 flex justify-center items-center gap-4"><>Carregando <Loader variant="metaballs" size={20} className="text-slate-500"/></></div>
+          <div className="p-8 text-center text-slate-500 flex justify-center items-center gap-4"><>Carregando <LoaderGrid className="!text-[5px] mx-auto" /></></div>
         ) : tenants.length === 0 ? (
           <div className="p-8 text-center text-slate-500">
             Nenhuma empresa cadastrada ainda.
@@ -169,7 +169,7 @@ export function EmpresasView() {
                     <Building2 className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="font-medium text-slate-900">{tenant.name}</div>
+                    <div className="font-medium text-slate-900 flex items-center gap-2">{tenant.name}</div>
                     <div className="text-slate-400 text-xs">{tenant.id}</div>
                   </div>
                 </div>
@@ -199,7 +199,7 @@ export function EmpresasView() {
       {/* Mobile View (Cards) */}
       <div className="md:hidden space-y-4">
         {initialLoading ? (
-          <div className="p-8 text-center text-slate-500 flex justify-center items-center gap-4"><>Carregando <Loader variant="metaballs"/></></div>
+          <div className="p-8 text-center text-slate-500 flex justify-center items-center gap-4"><>Carregando <LoaderGrid className="!text-[5px] mx-auto" /></></div>
         ) : tenants.length === 0 ? (
           <div className="p-8 text-center text-slate-500">
             Nenhuma empresa cadastrada ainda.
@@ -308,7 +308,7 @@ export function EmpresasView() {
                 Cancelar
               </Button>
               <Button size={"lg"} type="submit" disabled={loading} className="bg-slate-900 hover:bg-slate-800 text-slate-200 cursor-pointer rounded-xl">
-                {loading ? <Loader className="text-white" variant="metaballs"/> : "Salvar Empresa"}
+                {loading ? <LoaderGrid className="!text-[5px] mx-auto" /> : "Salvar Empresa"}
               </Button>
             </DialogFooter>
           </form>
@@ -373,7 +373,7 @@ export function EmpresasView() {
               Cancelar
             </Button>
             <Button type="button" disabled={loading} size="lg" onClick={executeDelete} className="bg-red-600 hover:bg-red-700 text-white cursor-pointer rounded-xl">
-              {loading ? <Loader className="text-white" variant="metaballs"/> : "Sim, excluir"}
+              {loading ? <LoaderGrid className="!text-[5px] mx-auto" /> : "Sim, excluir"}
             </Button>
           </DialogFooter>
         </DialogContent>

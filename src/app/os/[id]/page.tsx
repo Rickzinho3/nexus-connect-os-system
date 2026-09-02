@@ -1,5 +1,5 @@
 "use client";
-
+import { LoaderGrid } from "@/components/ui/loader-grid";
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getServiceOrderById } from "@/app/actions";
@@ -29,7 +29,7 @@ export default function OSDetailsPage() {
     }
   }, [id]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-slate-500 animate-pulse font-medium">Carregando detalhes da O.S...</div>;
+  if (loading) return <div className="min-h-screen flex flex-col items-center justify-center space-y-4"><LoaderGrid /><span className="text-slate-500 font-medium animate-pulse mt-4">Carregando detalhes da O.S...</span></div>;
   if (!order) return <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
     <p className="text-slate-500 font-medium">O.S. não encontrada.</p>
     <Button variant="outline" onClick={() => router.push("/portal")}>Voltar para o Portal</Button>

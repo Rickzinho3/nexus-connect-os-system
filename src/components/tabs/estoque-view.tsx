@@ -1,5 +1,5 @@
 "use client";
-
+import { LoaderGrid } from "@/components/ui/loader-grid";
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -99,9 +99,9 @@ export function EstoqueView() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8 text-slate-400">
-                      Carregando estoque...
-                    </TableCell>
+                    <TableCell colSpan={4} className="text-center py-16">
+                  <div className="flex justify-center"><LoaderGrid /></div>
+                </TableCell>
                   </TableRow>
                 ) : alertItems.length > 0 ? (
                   alertItems.map((item) => (

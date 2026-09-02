@@ -1,5 +1,5 @@
 "use client";
-
+import { LoaderGrid } from "@/components/ui/loader-grid";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Layers } from "lucide-react";
-import { Loader } from "@/components/motion/loader";
 
 const formatCpfCnpj = (value: string) => {
   const digits = value.replace(/\D/g, "");
@@ -128,7 +127,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full bg-gradient-to-b from-zinc-600 to-zinc-700 hover:from-zinc-500 hover:to-zinc-600 text-white font-medium h-11 rounded-lg border border-zinc-600/50 shadow-inner mt-4 transition-all"
               >
-                {loading ? <Loader variant="metaballs" className="text-white"/> : "Entrar"}
+                {loading ? <LoaderGrid className="!text-[5px] mx-auto" /> : "Entrar"}
               </Button>
             </form>
           </div>
