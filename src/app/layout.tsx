@@ -11,11 +11,30 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Nexus Connect OS",
-  description: "Sistema de Gestão para Assistência Técnica",
-  icons: {
-    icon: "/android-chrome-512x512.png",
-  },
+    title: "Nexus OS",
+    description: "Sistema de Gestão para Assistência Técnica",
+    icons: {
+        icon: "/android-chrome-512x512.png",
+    },
+
+    openGraph: {
+        title: "Nexus OS",
+        description: "Sistema de Gestão para Assistência Técnica",
+        images: [
+          {
+            url: "/og-nexus.png",
+            width: 1200,
+            height: 630,
+            alt: "Nexus OS"
+          },
+        ],
+        type: "website",
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      images: ["/og-nexus.png"]
+    }
 };
 
 export default function RootLayout({
